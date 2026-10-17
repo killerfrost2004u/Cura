@@ -1,0 +1,86 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# AI Models & Large Weight Files (Track via Git LFS or download scripts)
+models/*.gguf
+models/*.bin
+models/*.onnx
+models/*.pt
+models/*.pth
+models/*.safetensors
+*.gguf
+
+# Audio cache & recordings
+*.wav
+*.mp3
+*.flac
+*.ogg
+!assets/**/*.wav
+!assets/**/*.mp3
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Operating System Files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Temporary Office Files
+~$*.docx
+~$*.xlsx
+~$*.pptx
