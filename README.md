@@ -6,8 +6,10 @@
 
 **Adaptive AI Assistant for Care, Focus, and Everyday Living**
 
+[![Live Web App](https://img.shields.io/badge/Live%20Demo-cura--drab.vercel.app-000000.svg?logo=vercel&logoColor=white)](https://cura-drab.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%204%20(4GB)-c51a4a.svg?logo=raspberry-pi&logoColor=white)](https://www.raspberrypi.com/)
+[![Database](https://img.shields.io/badge/Database-Neon%20Serverless%20Postgres-00E599.svg?logo=postgresql&logoColor=white)](https://neon.tech)
 [![LLM](https://img.shields.io/badge/LLM-Qwen%202.5%201.5B%20(GGUF)-6851ff.svg)](https://huggingface.co/Qwen)
 [![STT](https://img.shields.io/badge/STT-Whisper.cpp-orange.svg)](https://github.com/ggerganov/whisper.cpp)
 [![TTS](https://img.shields.io/badge/TTS-Piper%20TTS%20(Arabic)-green.svg)](https://github.com/rhasspy/piper)

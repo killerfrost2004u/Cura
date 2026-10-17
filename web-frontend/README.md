@@ -8,6 +8,9 @@
 
 [![Framework](https://img.shields.io/badge/Framework-Next.js%2014%2B%20(App%20Router)-black.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Production-brightgreen.svg?logo=vercel&logoColor=white)](https://cura-drab.vercel.app/)
+
+**Live URL**: [https://cura-drab.vercel.app/](https://cura-drab.vercel.app/)
 
 </div>
 
