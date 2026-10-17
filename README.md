@@ -243,6 +243,8 @@ CURA/
 ├── .gitignore                                 # Git ignore patterns for AI models, builds & OS files
 ├── LICENSE                                    # MIT License
 ├── README.md                                  # Complete project documentation & technical specs
+├── CURA_System_Architecture_Specification.pdf # Master Multi-Team Architecture & Engineering Blueprint (PDF)
+├── CURA_System_Architecture_Specification.html# Master Multi-Team Architecture & Engineering Blueprint (HTML Source)
 ├── CURA project details.pdf                   # Master project overview & modes documentation
 ├── SRS AID (1).pdf                            # Software Requirements Specification (IEEE 830-1998)
 ├── DOC-20261014-WA0050.pdf                    # AI Team technical requirements & roadmap
