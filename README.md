@@ -243,6 +243,12 @@ CURA/
 ├── .gitignore                                 # Git ignore patterns for AI models, builds & OS files
 ├── LICENSE                                    # MIT License
 ├── README.md                                  # Complete project documentation & technical specs
+├── backend/                                   # AI Pipeline & Backend Services (Clean Architecture)
+├── desktop-gui/                               # Workstation GUI application (PyQt6 / MVVM)
+├── mobile-app/                                # iOS & Android Companion (Flutter / Clean Architecture)
+├── web-frontend/                              # Next.js 14+ Showcase & Clinical Web Portal
+├── hardware/                                  # Embedded Mini CURA Firmware & Hardware specs (Pi 4)
+├── database/                                  # PostgreSQL 16 schemas, migrations & RLS policies
 ├── CURA_System_Architecture_Specification.pdf # Master Multi-Team Architecture & Engineering Blueprint (PDF)
 ├── CURA_System_Architecture_Specification.html# Master Multi-Team Architecture & Engineering Blueprint (HTML Source)
 ├── CURA project details.pdf                   # Master project overview & modes documentation
