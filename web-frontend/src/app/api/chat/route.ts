@@ -33,6 +33,49 @@ export async function POST(req: NextRequest) {
     }
 
     const isArabic = /[\u0600-\u06FF]/.test(query);
+    const trimmedQuery = query.trim();
+
+    // Fast-path & Conversational Grounding: If message is a pure greeting or casual check-in
+    const isSimpleGreeting =
+      /^(اهلا|أهلا|أهلاً|مرحبا|مرحباً|مرحب|يرمحب|ازيك|إزيك|عامل ايه|عامل إيه|صباح الخير|مساء الخير|سلام|السلام عليكم|hi|hello|hey|good morning|good evening)[\s!.]*$/i.test(
+        trimmedQuery
+      ) ||
+      (trimmedQuery.length <= 10 &&
+        (trimmedQuery.includes("اهلا") ||
+          trimmedQuery.includes("أهلا") ||
+          trimmedQuery.includes("مرحب") ||
+          trimmedQuery.includes("ازيك") ||
+          trimmedQuery.toLowerCase() === "hi" ||
+          trimmedQuery.toLowerCase() === "hello"));
+
+    if (isSimpleGreeting) {
+      const responseText = isArabic
+        ? "أهلاً وسهلاً بك! منور جداً 🌸 أنا كيورا (Cura AI) رفيقك الصحي ومساعدك الذكي. عامل إيه النهاردة؟ قولي حابب نركز في إيه أو أساعدك إزاي؟"
+        : "Hello! It is wonderful to connect with you. I am Cura AI, your adaptive health and wellness companion. How are you feeling today, and how can I help you?";
+
+      const reasoningContent = isArabic
+        ? `1. استيعاب الرسالة: ترحيب واستقبال ودي بالعامية المصرية من المستخدم ("${trimmedQuery}").
+2. النبرة المعتمدة: الترحيب الدافئ من Cura AI بدون أي استرسال رياضي أو معادلات غير مطلوبة.
+3. الجاهزية: تقديم الدعم الصحي والرعاية اليومية والاستفسارات العلمية.`
+        : `1. Intent: Conversational greeting and welcome.
+2. Tone: Warm, engaging, and supportive without unsolicited academic lectures.`;
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          user_query: query,
+          response_text: responseText,
+          reasoning_content: reasoningContent,
+          mode,
+          patient_id: patientId,
+          provider: "Cura Adaptive Neural Engine",
+          source: "cura_neural_core",
+          is_arabic: isArabic,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || DEFAULT_ACCOUNT_ID;
     const apiToken = process.env.CLOUDFLARE_API_TOKEN || DEFAULT_API_TOKEN;
     const model =
