@@ -452,7 +452,7 @@ export default function AlzheimerSanctuaryPage() {
               }}
             >
               <summary style={{ cursor: "pointer", fontWeight: 700, color: "#3FEDBA", direction: "ltr" }}>
-                DeepSeek-R1 Clinical Reasoning Trace (&lt;think&gt;)
+                Cura AI Clinical Reasoning Trace (&lt;think&gt;)
               </summary>
               <pre
                 style={{

@@ -579,7 +579,7 @@ export default function AdhdFocusSanctuaryPage() {
               }}
             >
               <summary style={{ cursor: "pointer", fontWeight: 600, color: "#AF6AFB", direction: "ltr" }}>
-                DeepSeek-R1 Cognitive Triage Trace (&lt;think&gt;)
+                Cura AI Cognitive Pacing Trace (&lt;think&gt;)
               </summary>
               <pre
                 style={{

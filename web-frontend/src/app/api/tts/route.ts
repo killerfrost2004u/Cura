@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -22,8 +23,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Default to natural Egyptian Arabic voice for Arabic, and natural US voice for English
-    // ar-EG-SalmaNeural is Microsoft's premier natural Egyptian Arabic voice
+    // 1. Attempt ElevenLabs Multilingual Neural Synthesis if key is present
+    if (process.env.ELEVENLABS_API_KEY) {
+      try {
+        const elevenlabs = new ElevenLabsClient();
+        // Sarah (EXAVITQu4vr4xnSDxMaL) or Rachel (21m00Tcm4TlvDq8ikWAM)
+        const voiceId = requestedVoice && requestedVoice.length > 15
+          ? requestedVoice
+          : "EXAVITQu4vr4xnSDxMaL";
+
+        const audioStream = await elevenlabs.textToSpeech.convert(voiceId, {
+          text,
+          modelId: "eleven_multilingual_v2",
+        });
+
+        // Web ReadableStream to Node Buffer
+        const reader = audioStream.getReader();
+        const chunks: Uint8Array[] = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value) chunks.push(value);
+        }
+
+        const audioBuffer = Buffer.concat(chunks);
+        return new Response(audioBuffer, {
+          status: 200,
+          headers: {
+            "Content-Type": "audio/mpeg",
+            "Content-Length": audioBuffer.length.toString(),
+            "X-TTS-Engine": "ElevenLabs-Multilingual-v2",
+            "Cache-Control": "public, max-age=3600, s-maxage=3600",
+          },
+        });
+      } catch (elevenErr) {
+        console.warn("ElevenLabs TTS fallback to Edge TTS:", elevenErr);
+      }
+    }
+
+    // 2. High-Fidelity Azure Neural Edge Voice (ar-EG-SalmaNeural for Egyptian Arabic)
     const voiceName =
       requestedVoice || (isArabic ? "ar-EG-SalmaNeural" : "en-US-JennyNeural");
 
@@ -52,6 +90,7 @@ export async function POST(req: NextRequest) {
       headers: {
         "Content-Type": "audio/mpeg",
         "Content-Length": audioBuffer.length.toString(),
+        "X-TTS-Engine": "Azure-Neural-Edge",
         "Cache-Control": "public, max-age=3600, s-maxage=3600",
       },
     });

@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverComponentsExternalPackages: ["msedge-tts", "ws"],
+    serverComponentsExternalPackages: ["msedge-tts", "ws", "@elevenlabs/elevenlabs-js"],
   },
 };
 

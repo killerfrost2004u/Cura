@@ -29,8 +29,8 @@ export default function NormalAssistantPage() {
     {
       id: "initial",
       sender: "cura",
-      text: "Hello! I am CURA, your adaptive AI care companion powered by Cloudflare Workers AI serverless GPUs running DeepSeek-R1 32B and Whisper. How can I assist your health and research today?",
-      reasoning: "1. Intent: Welcoming research session kickoff.\n2. Provider: Cloudflare Workers AI edge node.\n3. Capabilities: Multimodal voice, deep mathematical reasoning, bilingual clinical assistance.",
+      text: "Hello! I am Cura AI, your adaptive health and intelligence companion. How can I assist your health, research, or daily wellness today?",
+      reasoning: "1. Intent: Welcoming research and care session kickoff.\n2. Provider: Cura AI Neural Core.\n3. Capabilities: Multimodal voice, mathematical analysis, empathetic clinical guidance.",
       timestamp: "10:30 AM",
     },
   ]);
@@ -468,7 +468,7 @@ export default function NormalAssistantPage() {
                           direction: "ltr",
                         }}
                       >
-                        DeepSeek-R1 CoT Trace (&lt;think&gt;)
+                        Cura AI Internal Reflection (&lt;think&gt;)
                       </summary>
                       <pre
                         style={{
@@ -530,8 +530,8 @@ export default function NormalAssistantPage() {
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder={
               isInputArabic
-                ? "اسأل CURA عن الأبحاث الطبية، المفاهيم الرياضية، أو صحتك..."
-                : "Ask CURA clinical research, math, or health questions..."
+                ? "تحدث مع Cura AI بالعامية المصرية أو استفسر عن أبحاثك..."
+                : "Talk to Cura AI in Arabic or English..."
             }
             dir={isInputArabic ? "rtl" : "ltr"}
             style={{

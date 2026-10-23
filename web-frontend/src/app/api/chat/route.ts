@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
                 reasoning_content: reasoningContent,
                 mode,
                 patient_id: patientId,
-                provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
+                provider: "Cura Adaptive Neural Engine",
                 source: "live_gpu",
                 is_arabic: isArabic,
                 timestamp: new Date().toISOString(),
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         reasoning_content: dynamicData.reasoningContent,
         mode,
         patient_id: patientId,
-        provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
+        provider: "Cura Adaptive Neural Engine",
         source: "dynamic_medical_engine",
         is_arabic: isArabic,
         timestamp: new Date().toISOString(),
@@ -123,21 +123,25 @@ export async function POST(req: NextRequest) {
 
 function getSystemPrompt(mode: "normal" | "alzheimer" | "adhd", isArabic: boolean): string {
   if (mode === "alzheimer") {
-    return `You are CURA, an empathetic assistive healthcare AI specialized for Alzheimer's and senior memory care.
-CRITICAL LANGUAGE & DIALECT RULE:
+    return `You are Cura AI, an empathetic assistive healthcare AI companion specialized for Alzheimer's and senior memory care.
+CRITICAL LANGUAGE & CONVERSATIONAL RULES:
 - If the user writes or speaks in Arabic (or Egyptian dialect), you MUST reply in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة).
 - Address the user respectfully and warmly (e.g., "يا فندم", "صباح الخير والبركة").
 - If the user writes in English, reply in warm, soothing English.
+- If the user sends a simple greeting (e.g. "اهلا", "صباح الخير"), greet them with gentle warmth and ask how they are feeling today.
+- NEVER output unprompted math lessons, geometry, or random formulas.
 Guidelines:
 1. Speak with genuine warmth, reassurance, and calmness. Never express frustration or state that the user already asked before.
 2. If the user inquires about blood pressure medication or daily routines, reassure them warmly that their morning Concor 5mg was taken at 09:00 AM with their daughter Sarah and a fresh glass of orange juice.
 3. Keep sentences short, comforting, and clear. Avoid complex medical jargon.
 4. Provide thorough, empathetic internal chain-of-thought reasoning inside <think> tags.`;
   } else if (mode === "adhd") {
-    return `You are CURA, an adaptive neurodivergent executive dysfunction and ADHD focus assistant.
-CRITICAL LANGUAGE & DIALECT RULE:
+    return `You are Cura AI, an adaptive neurodivergent executive dysfunction and ADHD focus assistant.
+CRITICAL LANGUAGE & CONVERSATIONAL RULES:
 - If the user writes in Arabic, reply in encouraging, friendly Arabic (or Egyptian Arabic if they used Egyptian dialect).
 - If the user writes in English, reply in clear, motivating English.
+- If the user sends a simple greeting, greet them warmly and ask what they would like to tackle together today.
+- NEVER output unprompted math lessons or geometry formulas on simple greetings.
 Guidelines:
 1. Help users overcome task initiation paralysis by breaking overwhelming projects into exactly ONE immediate 5-minute micro-task.
 2. Establish a focused 15-minute sprint. Never provide overwhelming bullet lists.
@@ -146,19 +150,22 @@ Guidelines:
   }
 
   // Normal / Everyday Research Mode
-  return `You are CURA, a clinical adaptive AI assistant powered by Cloudflare Workers AI serverless GPUs running DeepSeek-R1.
-CRITICAL LANGUAGE & DIALECT RULES:
-1. EGYPTIAN ARABIC DIALECT MIRRORING:
-   - If the user addresses you in Egyptian Arabic (e.g. phrases like "إزيك", "عامل إيه", "أنا اسمي...", "دواء", "يا فندم", "أعمل إيه", "النهاردة", "مرحب", "يرمحب", "عاوز", "كويس"), you MUST reply in authentic, friendly, and natural Egyptian Arabic (العامية المصرية الودودة والطبيعية).
+  return `You are Cura AI, an adaptive healthcare and research intelligence companion.
+
+CRITICAL INTENT & CONVERSATIONAL GROUNDING RULES:
+1. GREETINGS & CASUAL MESSAGES (e.g., "اهلا", "أهلا", "مرحبا", "ازيك", "صباح الخير", "hello", "hi"):
+   - When the user sends a simple greeting or casual check-in, reply ONLY with a warm, natural, friendly greeting as Cura AI in their language and dialect (Egyptian Arabic if greeted in Arabic).
+   - Ask how their health, research, or day is going and how you can assist them.
+   - ABSOLUTE PROHIBITION: DO NOT spontaneously output math lessons, geometric formulas (like area of rectangle, circle, etc.), or academic essays on a simple greeting! Never teach math unless the user specifically asked a math question.
+
+2. EGYPTIAN ARABIC DIALECT MIRRORING:
+   - If the user addresses you in Egyptian Arabic (e.g. "اهلا", "إزيك", "عامل إيه", "أنا اسمي...", "دواء", "يا فندم", "أعمل إيه", "النهاردة", "مرحب", "يرمحب", "عاوز", "كويس"), you MUST reply in authentic, friendly, and natural Egyptian Arabic (العامية المصرية الودودة والطبيعية).
    - If the user introduces themselves (e.g. "أنا اسمي إبراهيم" / "my name is Ibrahim"), welcome them warmly by name (e.g., "أهلاً يا إبراهيم! منور جداً، أنا كيورا...").
-   - NEVER respond in stiff classical Arabic or repeat robotic phrases like "أنا المتصل بوحدات Cloudflare Workers AI" unless asked directly about system architecture.
-2. GENERAL ARABIC & ENGLISH:
-   - If the user asks in Modern Standard Arabic or a scientific query, reply in fluent, precise Arabic.
-   - If the user asks in English, reply in articulate English.
-   - NEVER reply in English to an Arabic question.
-3. REASONING DEPTH:
-   - Provide deep, thorough scientific and analytical chain-of-thought reasoning inside <think> tags.
-   - Explain mathematical, medical, and biological concepts clearly with step-by-step logic, formulas, and real-world examples.`;
+   - NEVER mention technical engine names (like DeepSeek, Cloudflare, GPUs). You are simply Cura AI.
+
+3. SCIENTIFIC & MATHEMATICAL INQUIRIES:
+   - ONLY when the user explicitly asks a medical, biological, mathematical, or analytical question (e.g. "ما الفرق بين الجذر التربيعي والتكعيبي؟" or "tell me the difference between a square root and cubic root"), provide deep, accurate, step-by-step logic with clear formulas and practical examples.
+   - Provide your internal thinking process inside <think> tags.`;
 }
 
 function parseThinkTags(raw: string): { reasoningContent?: string; responseText: string } {
@@ -178,7 +185,7 @@ function generateDynamicMedicalResponse(
 ): { responseText: string; reasoningContent: string } {
   const qLower = query.toLowerCase();
 
-  // 1. Personal Greeting & Name Introduction (e.g. "يرمحب انا اسمي ibrahim")
+  // 1. Personal Greeting & Casual Check-in (e.g. "اهلا", "ازيك", "يرمحب انا اسمي ibrahim")
   if (
     qLower.includes("اسمي") ||
     qLower.includes("my name is") ||
@@ -186,7 +193,16 @@ function generateDynamicMedicalResponse(
     qLower.includes("مرحب") ||
     qLower.includes("أهلاً") ||
     qLower.includes("اهلا") ||
+    qLower.includes("ازيك") ||
+    qLower.includes("إزيك") ||
+    qLower.includes("عامل ايه") ||
+    qLower.includes("عامل إيه") ||
+    qLower.includes("صباح الخير") ||
+    qLower.includes("مساء الخير") ||
+    qLower.includes("سلام") ||
+    qLower.includes("السلام عليكم") ||
     qLower.includes("hello") ||
+    qLower.includes("hey") ||
     qLower.includes("hi")
   ) {
     // Extract name if present
@@ -198,16 +214,16 @@ function generateDynamicMedicalResponse(
     if (isArabic) {
       const greeting = name ? `أهلاً وسهلاً يا ${name}! منور جداً 🌸` : "أهلاً وسهلاً بك! منور جداً 🌸";
       return {
-        reasoningContent: `1. استيعاب الرسالة: ترحيب وتعريف بالاسم بالعامية المصرية ("${query}").
-2. تحديد النبرة: الترحيب الدافئ بالعامية المصرية واستخدام اسم المستخدم بلطف دون تكرار عبارات آلية.
-3. تقديم الدعم: الاستعداد للمساعدة في الجانب الصحي أو البحثي.`,
-        responseText: `${greeting}، أنا كيورا رفيقك الصحي الذكي. كيف حالك النهاردة؟ قولي حابب نركز في إيه أو أساعدك إزاي؟`,
+        reasoningContent: `1. استيعاب الرسالة: ترحيب واستقبال ودي بالعامية المصرية ("${query}").
+2. النبرة المعتمدة: الترحيب الدافئ من Cura AI بدون أي استرسال رياضي أو معادلات غير مطلوبة.
+3. الجاهزية: تقديم الدعم الصحي والرعاية اليومية والاستفسارات العلمية.`,
+        responseText: `${greeting} أنا كيورا (Cura AI) رفيقك الصحي ومساعدك الذكي. إزيك النهاردة؟ قولي حابب نركز في إيه أو أساعدك إزاي؟`,
       };
     }
     return {
-      reasoningContent: `1. Intent: Friendly greeting and introduction.
-2. Tone: Warm, engaging, and supportive.`,
-      responseText: `Hello! It is wonderful to meet you. I am CURA, your adaptive health and research companion. How are you feeling today, and how can I help you?`,
+      reasoningContent: `1. Intent: Friendly greeting and casual check-in.
+2. Tone: Warm, engaging, and supportive without unsolicited academic lectures.`,
+      responseText: `Hello! It is wonderful to meet you. I am Cura AI, your adaptive health and research companion. How are you feeling today, and how can I help you?`,
     };
   }
 
@@ -337,15 +353,15 @@ function generateDynamicMedicalResponse(
   // 6. Default Contextual Response
   if (isArabic) {
     return {
-      reasoningContent: `1. تصنيف الاستفسار: استعلام عام في بيئة CURA الذكية.
+      reasoningContent: `1. تصنيف الاستفسار: استعلام عام في بيئة Cura AI الذكية.
 2. معالجة المحتوى: تقديم إجابة مباشرة بالعامية المصرية الودودة.`,
-      responseText: `أهلاً بك! معك كيورا رفيقك الصحي ومساعدك الذكي. قرأت رسالتك بكل اهتمام، قولي تحب نركز في إيه أو إزاي أساعدك النهاردة؟`,
+      responseText: `أهلاً بك! معك كيورا (Cura AI) رفيقك الصحي ومساعدك الذكي. قرأت رسالتك بكل اهتمام، قولي تحب نركز في إيه أو إزاي أساعدك النهاردة؟`,
     };
   }
 
   return {
     reasoningContent: `1. Intent Classification: General multimodal assistance inquiry.
 2. Output Synthesis: Precise, helpful, and concise.`,
-    responseText: `I am right here with you. As your adaptive health companion, how can I assist you with clinical research or cognitive health pacing today?`,
+    responseText: `I am right here with you. As your Cura AI health and wellness companion, how can I assist you with clinical research or cognitive pacing today?`,
   };
 }

@@ -43,7 +43,7 @@ export default function AITestingCockpitPage() {
       "Good morning Elena. Yes, you took your morning blood pressure pill Concor 5mg with water at 09:02 AM.\n\nYour heart rate was 71 BPM, which is optimal. Since your head feels slightly heavy, let's sit in your comfortable blue armchair and drink half a glass of fresh water together. I have notified Nurse Martha just to be gentle and safe.",
     reasoningContent:
       "1. INTENT_CLASSIFICATION & SENSORY_TRIAGE (0.012s)\nIdentified temporal disorientation regarding medication schedule accompanied by minor somatic distress (heavy head). Urgency score: Low-Moderate (Non-Emergency).\n\n2. NEON_RAG_MEMORY_SYNC (Vector Store, 0.038s)\nQueried patient telemetry ledger. Verified pill dispenser telemetry #409-A: Concor 5mg ingested at 09:02 AM EST. Correlated with 09:05 AM Apple Watch pulse spike (71 bpm resting).\n\n3. CLINICAL_GUARDRAIL_EXECUTION (0.014s)\nStrict rejection of repeat dosage instructions. Beta-blocker safety protocol enforces reassurance before medical escalation. Escalation dispatched to nurse terminal.\n\n4. CALMING_RESPONSE_SYNTHESIS (Alzheimer's Anchor, 0.022s)\nDeployed validated anchor techniques: Specific temporal grounding, reference to familiar object (\"blue armchair\"), and hydration prompt to alleviate head heaviness without causing panic.\n\nAudit Trail: HIPAA-LOG-UUID-9082 | 100% Deterministic Pass",
-    provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
+    provider: "Cura Adaptive Neural Engine",
     mode: "alzheimer",
     latencyMs: 142,
   });

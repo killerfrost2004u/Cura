@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { IconCpu, IconSparkle, IconActivity } from "./CuraIcons";
+import { IconSparkle } from "./CuraIcons";
 
 interface ThinkingOrbProps {
   accentColor?: string;
@@ -16,19 +16,19 @@ export default function ThinkingOrb({
 }: ThinkingOrbProps) {
   const [internalSeconds, setInternalSeconds] = useState(0);
   const secondsElapsed = externalSeconds !== undefined ? externalSeconds : internalSeconds;
-  const [pulsePhase, setPulsePhase] = useState(0);
+  const [breathPhase, setBreathPhase] = useState(0);
 
   useEffect(() => {
-    const pulseInterval = setInterval(() => {
-      setPulsePhase((prev) => (prev + 1) % 4);
-    }, 1200);
+    const breathInterval = setInterval(() => {
+      setBreathPhase((prev) => (prev + 1) % 100);
+    }, 50);
 
     const timerInterval = setInterval(() => {
       setInternalSeconds((prev) => prev + 1);
     }, 1000);
 
     return () => {
-      clearInterval(pulseInterval);
+      clearInterval(breathInterval);
       clearInterval(timerInterval);
     };
   }, []);
@@ -41,110 +41,153 @@ export default function ThinkingOrb({
 
   const getStatusText = () => {
     if (mode === "alzheimer") {
-      if (secondsElapsed < 4) return "استرجاع سجل الرعاية ومواعيد الدواء...";
-      if (secondsElapsed < 10) return "صياغة الرد المطمئن بالعامية المصرية...";
-      return "التأكد من أمان الجرعات وهدوء المريض...";
+      if (secondsElapsed < 4) return "كيورا يراجع سجل الرعاية ومواعيد الدواء...";
+      if (secondsElapsed < 10) return "صياغة الرد المطمئن بالعامية المصرية الودودة...";
+      return "التأكد من أمان الجرعات وهدوء المريض التام...";
     }
     if (mode === "adhd") {
-      if (secondsElapsed < 4) return "تحليل التشتت وعزل العقبة الأولى...";
-      if (secondsElapsed < 10) return "تفتيت المشروع لمهمة مصغرة (5 دقائق)...";
+      if (secondsElapsed < 4) return "عزل التشتت واستخراج أول خطوة بسيطة...";
+      if (secondsElapsed < 10) return "تفتيت المشروع لمهمة مصغرة مدتها 5 دقائق...";
       return "تجهيز جلسة التركيز وتايمر الدوبامين...";
     }
     // Normal / Research
-    if (secondsElapsed < 5) return "DeepSeek-R1 generating chain-of-thought traces...";
-    if (secondsElapsed < 12) return "Synthesizing mathematical formulas and clinical logic...";
-    return "Refining bilingual output with natural cadence...";
+    if (secondsElapsed < 4) return "Cura AI is reflecting on your message...";
+    if (secondsElapsed < 10) return "Synthesizing clinical and daily care context...";
+    return "Polishing response with warm, empathetic cadence...";
   };
+
+  // Color palettes tailored for Apple Intelligence-style fluid luminescence
+  const getGradientHues = () => {
+    if (mode === "alzheimer") {
+      return {
+        primary: "#3FEDBA",
+        secondary: "#16B9FE",
+        tertiary: "#60EFEB",
+        glow: "rgba(63, 237, 186, 0.28)",
+      };
+    }
+    if (mode === "adhd") {
+      return {
+        primary: "#AF6AFB",
+        secondary: "#FF6584",
+        tertiary: "#38BDF8",
+        glow: "rgba(175, 106, 251, 0.28)",
+      };
+    }
+    return {
+      primary: "#16B9FE",
+      secondary: "#60EFEB",
+      tertiary: "#818CF8",
+      glow: "rgba(22, 185, 254, 0.28)",
+    };
+  };
+
+  const hues = getGradientHues();
 
   return (
     <div
       style={{
+        position: "relative",
         display: "flex",
         alignItems: "center",
-        gap: "16px",
-        padding: "16px 20px",
-        borderRadius: "20px",
-        background: `linear-gradient(135deg, rgba(12, 20, 31, 0.9) 0%, rgba(26, 36, 51, 0.7) 100%)`,
-        border: `1.5px solid ${accentColor}44`,
-        boxShadow: `0 8px 32px ${accentColor}22, inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
-        backdropFilter: "blur(16px)",
-        margin: "12px 0",
-        maxWidth: "560px",
-        position: "relative",
+        gap: "18px",
+        padding: "16px 22px",
+        borderRadius: "24px",
+        background: "linear-gradient(135deg, rgba(13, 22, 35, 0.88) 0%, rgba(20, 31, 48, 0.72) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.12)",
+        boxShadow: `0 12px 40px ${hues.glow}, 0 0 0 1px rgba(255, 255, 255, 0.05) inset`,
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        margin: "14px 0",
+        maxWidth: "580px",
         overflow: "hidden",
       }}
     >
-      {/* Background Animated Energy Glow */}
+      {/* Apple Intelligence Style Flowing Perimeter Ribbon */}
       <div
         style={{
           position: "absolute",
-          top: "-50%",
-          left: "-50%",
-          width: "200%",
-          height: "200%",
-          background: `radial-gradient(circle at center, ${accentColor}18 0%, transparent 60%)`,
+          inset: "-1px",
+          borderRadius: "24px",
+          padding: "1.5px",
+          background: `linear-gradient(${breathPhase * 3.6}deg, ${hues.primary} 0%, ${hues.secondary} 35%, transparent 65%, ${hues.tertiary} 100%)`,
+          WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
           pointerEvents: "none",
-          animation: "rotate 8s linear infinite",
+          opacity: 0.85,
         }}
       />
 
-      {/* Multi-Layered Synaptic Orb */}
+      {/* Ambient Breathing Background Blur */}
+      <div
+        style={{
+          position: "absolute",
+          top: "-60%",
+          left: "-20%",
+          width: "140%",
+          height: "220%",
+          background: `radial-gradient(circle at 30% 50%, ${hues.glow} 0%, transparent 60%)`,
+          pointerEvents: "none",
+          opacity: 0.7,
+        }}
+      />
+
+      {/* Organic Fluid Prismatic Orb */}
       <div
         style={{
           position: "relative",
-          width: "48px",
-          height: "48px",
+          width: "46px",
+          height: "46px",
+          flexShrink: 0,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          flexShrink: 0,
         }}
       >
-        {/* Outer Pulsing Wave Ring */}
-        <span
+        {/* Outer Expanding Fluid Halo */}
+        <div
           style={{
             position: "absolute",
             width: "100%",
             height: "100%",
             borderRadius: "50%",
-            border: `2px solid ${accentColor}`,
-            opacity: pulsePhase % 2 === 0 ? 0.7 : 0.2,
-            transform: pulsePhase % 2 === 0 ? "scale(1.25)" : "scale(1.0)",
-            transition: "transform 1.2s cubic-bezier(0.23, 1, 0.32, 1), opacity 1.2s ease",
+            background: `radial-gradient(circle, ${hues.primary}55 0%, transparent 70%)`,
+            transform: `scale(${1 + Math.sin(breathPhase * 0.08) * 0.18})`,
+            transition: "transform 0.1s linear",
+            filter: "blur(6px)",
           }}
         />
 
-        {/* Second Concentric Ring */}
-        <span
-          style={{
-            position: "absolute",
-            width: "75%",
-            height: "75%",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${accentColor}44 0%, transparent 70%)`,
-            border: `1px dashed ${accentColor}88`,
-            animation: "spin 4s linear infinite",
-          }}
-        />
-
-        {/* Inner Glowing Core */}
+        {/* Morphing Liquid Membrane */}
         <div
           style={{
-            width: "30px",
-            height: "30px",
-            borderRadius: "50%",
-            backgroundColor: accentColor,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: `0 0 18px ${accentColor}`,
+            position: "absolute",
+            width: "36px",
+            height: "36px",
+            borderRadius: "44% 56% 52% 48% / 55% 42% 58% 45%",
+            background: `linear-gradient(${breathPhase * 4}deg, ${hues.primary} 0%, ${hues.secondary} 50%, ${hues.tertiary} 100%)`,
+            transform: `rotate(${breathPhase * 2}deg) scale(${0.96 + Math.cos(breathPhase * 0.06) * 0.08})`,
+            boxShadow: `0 0 20px ${hues.primary}99, inset 0 0 10px rgba(255, 255, 255, 0.4)`,
+            filter: "contrast(1.15)",
           }}
-        >
-          <IconCpu size={16} color="#0C141F" />
-        </div>
+        />
+
+        {/* Luminous Core Glow */}
+        <div
+          style={{
+            position: "relative",
+            width: "14px",
+            height: "14px",
+            borderRadius: "50%",
+            backgroundColor: "#FFFFFF",
+            boxShadow: "0 0 12px #FFFFFF, 0 0 24px #60EFEB",
+            opacity: 0.95,
+          }}
+        />
       </div>
 
-      {/* Status Details */}
+      {/* Information & Status */}
       <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
         <div
           style={{
@@ -152,32 +195,35 @@ export default function ThinkingOrb({
             alignItems: "center",
             justifyContent: "space-between",
             marginBottom: "4px",
-            gap: "8px",
+            gap: "10px",
           }}
         >
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "6px",
-              fontSize: "13px",
-              fontWeight: 700,
+              gap: "7px",
+              fontSize: "14px",
+              fontWeight: 800,
+              letterSpacing: "-0.01em",
               color: "#FFFFFF",
+              fontFamily: "'Outfit', 'Inter', sans-serif",
             }}
           >
-            <IconSparkle size={13} color={accentColor} />
-            <span>DeepSeek-R1 Cognitive Processing</span>
+            <IconSparkle size={14} color={hues.primary} />
+            <span>Cura AI</span>
           </div>
 
           <span
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "12px",
-              fontWeight: 800,
-              color: accentColor,
+              fontSize: "11px",
+              fontWeight: 700,
+              color: hues.primary,
               backgroundColor: "rgba(255, 255, 255, 0.08)",
+              border: `1px solid ${hues.primary}33`,
               padding: "2px 8px",
-              borderRadius: "6px",
+              borderRadius: "8px",
             }}
           >
             {formatTimer(secondsElapsed)}
@@ -188,11 +234,12 @@ export default function ThinkingOrb({
           style={{
             margin: 0,
             fontSize: "12px",
-            color: "#CBD5E1",
+            color: "#D1D5DB",
             lineHeight: "1.4",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
+            fontFamily: "'Cairo', 'Inter', sans-serif",
           }}
         >
           {getStatusText()}

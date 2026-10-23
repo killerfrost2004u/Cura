@@ -191,7 +191,7 @@ export default function TestingNavbar() {
               fontWeight: 600,
             }}
           >
-            <IconCpu size={14} color="#34D399" />
+            <IconSparkle size={14} color="#34D399" />
             <span
               style={{
                 width: "6px",
@@ -201,7 +201,7 @@ export default function TestingNavbar() {
                 boxShadow: "0 0 6px #10B981",
               }}
             />
-            DeepSeek-R1 Active
+            Cura AI Neural Core Active
           </div>
 
           <div
