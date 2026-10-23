@@ -4,6 +4,16 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
+import {
+  IconBolt,
+  IconCheckCircle,
+  IconBrain,
+  IconSpeaker,
+  IconClock,
+  IconShieldCheck,
+  IconActivity,
+  IconCrosshair,
+} from "../components/CuraIcons";
 
 interface MicroTask {
   id: string;
@@ -95,120 +105,157 @@ export default function AdhdFocusSanctuaryPage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#FAF8FD",
-        color: "#1E293B",
+        backgroundColor: "#0C141F",
+        color: "#E8EDF1",
         fontFamily: "'Inter', sans-serif",
         padding: "0 0 60px 0",
       }}
     >
-      {/* Global Testing Navbar with brand logos */}
       <TestingNavbar />
 
-
-      <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "32px 20px" }}>
+      <main style={{ maxWidth: "1080px", margin: "0 auto", padding: "36px 24px" }}>
         {/* Header Summary */}
         <header style={{ textAlign: "center", marginBottom: "36px" }}>
           <div
             style={{
-              display: "inline-block",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
               padding: "6px 16px",
               borderRadius: "9999px",
-              backgroundColor: "#EDE9FE",
-              color: "#6D28D9",
+              backgroundColor: "rgba(175, 106, 251, 0.12)",
+              color: "#AF6AFB",
               fontSize: "12px",
-              fontWeight: "700",
-              marginBottom: "12px",
+              fontWeight: 700,
+              border: "1px solid rgba(175, 106, 251, 0.3)",
+              marginBottom: "14px",
             }}
           >
-            Low-Stimulation Neurodivergent Workspace
+            <IconBolt size={14} color="#AF6AFB" />
+            <span>Low-Stimulation Neurodivergent Workspace</span>
           </div>
           <h1
             style={{
               fontSize: "36px",
-              fontWeight: "800",
-              color: "#1E1B4B",
+              fontWeight: 800,
+              color: "#FFFFFF",
               margin: "0 0 10px 0",
               fontFamily: "'Outfit', sans-serif",
+              letterSpacing: "-0.02em",
             }}
           >
             Single-Task Clarity &amp; Anti-Paralysis Focus
           </h1>
-          <p style={{ fontSize: "16px", color: "#64748B", maxWidth: "600px", margin: "0 auto", lineHeight: "1.6" }}>
-            Overcome ADHD decision paralysis by chunking overwhelming projects into 5-minute micro-wins with our visual focus arc.
+          <p
+            style={{
+              fontSize: "15px",
+              color: "#94A3B8",
+              maxWidth: "600px",
+              margin: "0 auto",
+              lineHeight: "1.6",
+            }}
+          >
+            Overcome executive dysfunction by chunking overwhelming projects into 5-minute micro-wins with our visual focus arc.
           </p>
         </header>
 
         {/* 1. 15-Minute Focus Sprint Arc & Controls */}
         <section
           style={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "rgba(26, 36, 51, 0.8)",
             borderRadius: "28px",
-            border: "2px solid #E9D5FF",
+            border: "2px solid rgba(175, 106, 251, 0.35)",
             padding: "36px",
-            boxShadow: "0 8px 30px rgba(124, 58, 237, 0.06)",
+            boxShadow: "0 10px 30px rgba(175, 106, 251, 0.12)",
             textAlign: "center",
             marginBottom: "28px",
           }}
         >
-          <div style={{ fontSize: "14px", fontWeight: "700", color: "#6D28D9", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
+          <div
+            style={{
+              fontSize: "13px",
+              fontWeight: 700,
+              color: "#AF6AFB",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              marginBottom: "8px",
+            }}
+          >
             15-Minute Focus Sprint
           </div>
           <div
             style={{
-              fontSize: "72px",
-              fontWeight: "900",
-              color: "#4C1D95",
+              fontSize: "76px",
+              fontWeight: 800,
+              color: "#FFFFFF",
               fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: "-0.04em",
-              margin: "10px 0 20px",
+              margin: "6px 0 20px",
             }}
           >
             {formatTime(secondsLeft)}
           </div>
 
-          {/* Sprint Buttons */}
-          <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+          {/* Sprint Buttons with Apple-Style Physics */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "12px",
+              flexWrap: "wrap",
+            }}
+          >
             <button
+              type="button"
               onClick={() => setIsRunning(!isRunning)}
               style={{
                 padding: "14px 32px",
                 borderRadius: "16px",
-                backgroundColor: isRunning ? "#F59E0B" : "#7C3AED",
+                backgroundColor: isRunning ? "#F59E0B" : "#AF6AFB",
                 color: "#FFFFFF",
-                fontSize: "16px",
-                fontWeight: "700",
+                fontSize: "15px",
+                fontWeight: 700,
                 border: "none",
                 cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(124, 58, 237, 0.3)",
+                boxShadow: isRunning
+                  ? "0 4px 16px rgba(245, 158, 11, 0.3)"
+                  : "0 4px 16px rgba(175, 106, 251, 0.35)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
-              {isRunning ? "⏸ Pause Sprint" : "▶ Start 15-Min Sprint"}
+              <IconActivity size={16} color="#FFFFFF" />
+              <span>{isRunning ? "Pause Sprint" : "Start 15-Min Sprint"}</span>
             </button>
             <button
+              type="button"
               onClick={() => setSecondsLeft(15 * 60)}
               style={{
-                padding: "14px 20px",
+                padding: "14px 22px",
                 borderRadius: "16px",
-                backgroundColor: "#F1F5F9",
-                color: "#475569",
-                fontSize: "15px",
-                fontWeight: "600",
-                border: "none",
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                color: "#E8EDF1",
+                fontSize: "14px",
+                fontWeight: 600,
+                border: "1px solid rgba(255, 255, 255, 0.1)",
                 cursor: "pointer",
               }}
             >
               Reset
             </button>
             <button
+              type="button"
               onClick={() => setSecondsLeft((prev) => prev + 5 * 60)}
               style={{
-                padding: "14px 20px",
+                padding: "14px 22px",
                 borderRadius: "16px",
-                backgroundColor: "#EDE9FE",
-                color: "#6D28D9",
-                fontSize: "15px",
-                fontWeight: "700",
-                border: "none",
+                backgroundColor: "rgba(175, 106, 251, 0.12)",
+                color: "#AF6AFB",
+                fontSize: "14px",
+                fontWeight: 700,
+                border: "1px solid rgba(175, 106, 251, 0.3)",
                 cursor: "pointer",
               }}
             >
@@ -220,34 +267,52 @@ export default function AdhdFocusSanctuaryPage() {
         {/* 2. Micro-Task Breakdown & Dopamine Wins */}
         <section
           style={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "rgba(26, 36, 51, 0.75)",
             borderRadius: "28px",
-            border: "1px solid #E2E8F0",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
             padding: "28px",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
             marginBottom: "28px",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px",
+              flexWrap: "wrap",
+              gap: "12px",
+            }}
+          >
             <div>
-              <h2 style={{ fontSize: "20px", fontWeight: "800", color: "#1E293B", margin: 0 }}>
+              <h2
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  margin: 0,
+                  fontFamily: "'Outfit', sans-serif",
+                }}
+              >
                 Active Single-Task Breakdown
               </h2>
               <p style={{ fontSize: "13px", color: "#64748B", margin: "4px 0 0" }}>
-                Focus strictly on the top uncompleted micro-step. Everything else is secondary.
+                Focus strictly on the top uncompleted micro-step. Secondary items stay muted.
               </p>
             </div>
             <div
               style={{
                 padding: "6px 14px",
                 borderRadius: "9999px",
-                backgroundColor: "#ECFDF5",
-                color: "#059669",
-                fontWeight: "700",
-                fontSize: "13px",
+                backgroundColor: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+                color: "#34D399",
+                fontWeight: 700,
+                fontSize: "12px",
               }}
             >
-              {completedCount} / {microTasks.length} Micro-Wins
+              {completedCount} / {microTasks.length} Micro-Wins Completed
             </div>
           </div>
 
@@ -262,37 +327,39 @@ export default function AdhdFocusSanctuaryPage() {
                   justifyContent: "space-between",
                   padding: "16px 20px",
                   borderRadius: "18px",
-                  backgroundColor: task.completed ? "#F8FAFC" : "#FAF5FF",
-                  border: task.completed ? "1px solid #E2E8F0" : "2px solid #C084FC",
+                  backgroundColor: task.completed
+                    ? "rgba(12, 20, 31, 0.5)"
+                    : "rgba(175, 106, 251, 0.08)",
+                  border: task.completed
+                    ? "1px solid rgba(255, 255, 255, 0.06)"
+                    : "1.5px solid #AF6AFB",
                   cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  opacity: task.completed ? 0.65 : 1,
+                  transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1), opacity 140ms ease",
+                  opacity: task.completed ? 0.6 : 1,
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                   <div
                     style={{
-                      width: "28px",
-                      height: "28px",
+                      width: "26px",
+                      height: "26px",
                       borderRadius: "8px",
-                      backgroundColor: task.completed ? "#10B981" : "#FFFFFF",
-                      border: task.completed ? "none" : "2px solid #7C3AED",
+                      backgroundColor: task.completed ? "#10B981" : "transparent",
+                      border: task.completed ? "none" : "2px solid #AF6AFB",
                       color: "#FFFFFF",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontWeight: "bold",
-                      fontSize: "16px",
                     }}
                   >
-                    {task.completed && "✓"}
+                    {task.completed && <IconCheckCircle size={18} color="#FFFFFF" />}
                   </div>
                   <div>
                     <div
                       style={{
-                        fontSize: "16px",
-                        fontWeight: task.completed ? "500" : "700",
-                        color: task.completed ? "#64748B" : "#1E1B4B",
+                        fontSize: "15px",
+                        fontWeight: task.completed ? 400 : 600,
+                        color: task.completed ? "#64748B" : "#FFFFFF",
                         textDecoration: task.completed ? "line-through" : "none",
                       }}
                     >
@@ -302,10 +369,10 @@ export default function AdhdFocusSanctuaryPage() {
                 </div>
                 <span
                   style={{
-                    fontSize: "12px",
-                    fontWeight: "700",
-                    color: "#7C3AED",
-                    backgroundColor: "#EDE9FE",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "#AF6AFB",
+                    backgroundColor: "rgba(175, 106, 251, 0.12)",
                     padding: "4px 10px",
                     borderRadius: "9999px",
                   }}
@@ -320,51 +387,76 @@ export default function AdhdFocusSanctuaryPage() {
         {/* 3. AI Anti-Paralysis Assistant */}
         <section
           style={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "rgba(26, 36, 51, 0.75)",
             borderRadius: "28px",
-            border: "1px solid #E2E8F0",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
             padding: "28px",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-            <span style={{ fontSize: "20px" }}>🧠</span>
-            <h2 style={{ fontSize: "18px", fontWeight: "800", color: "#1E293B", margin: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginBottom: "16px",
+            }}
+          >
+            <IconBrain size={20} color="#AF6AFB" />
+            <h2
+              style={{
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#FFFFFF",
+                margin: 0,
+                fontFamily: "'Outfit', sans-serif",
+              }}
+            >
               AI Executive Function Coach
             </h2>
           </div>
 
-          {/* Quick-Prompt Pill */}
+          {/* Quick-Prompt Pills */}
           <div style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap" }}>
             <button
+              type="button"
               onClick={() => handleAskCura("I have 5 urgent tasks and feel paralyzed, what should I do?")}
               style={{
                 padding: "10px 16px",
                 borderRadius: "12px",
-                backgroundColor: "#F3E8FF",
-                border: "1px solid #C084FC",
-                color: "#6D28D9",
+                backgroundColor: "rgba(175, 106, 251, 0.12)",
+                border: "1px solid rgba(175, 106, 251, 0.3)",
+                color: "#AF6AFB",
                 fontSize: "13px",
-                fontWeight: "600",
+                fontWeight: 600,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
               }}
             >
-              ⚡ &quot;I have 5 urgent tasks and feel paralyzed, what should I do?&quot;
+              <IconBolt size={14} color="#AF6AFB" />
+              <span>&quot;I have 5 urgent tasks and feel paralyzed, what should I do?&quot;</span>
             </button>
             <button
+              type="button"
               onClick={() => handleAskCura("Help me break down writing a project report into 3 tiny steps")}
               style={{
                 padding: "10px 16px",
                 borderRadius: "12px",
-                backgroundColor: "#F1F5F9",
-                border: "1px solid #E2E8F0",
-                color: "#475569",
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#94A3B8",
                 fontSize: "13px",
-                fontWeight: "600",
+                fontWeight: 600,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
               }}
             >
-              📝 &quot;Break down my project report into 3 tiny steps&quot;
+              <IconCrosshair size={14} color="#38BDF8" />
+              <span>&quot;Break down my project report into 3 tiny steps&quot;</span>
             </button>
           </div>
 
@@ -372,34 +464,46 @@ export default function AdhdFocusSanctuaryPage() {
           {aiResponse && (
             <div
               style={{
-                backgroundColor: "#FAF5FF",
-                border: "1.5px solid #E9D5FF",
+                backgroundColor: "rgba(12, 20, 31, 0.8)",
+                border: "1px solid rgba(175, 106, 251, 0.25)",
                 borderRadius: "20px",
                 padding: "20px",
                 marginBottom: "16px",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <span style={{ fontWeight: "700", color: "#7C3AED", fontSize: "13px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "8px",
+                }}
+              >
+                <span style={{ fontWeight: 700, color: "#AF6AFB", fontSize: "13px" }}>
                   CURA Focus Guidance:
                 </span>
                 <button
+                  type="button"
                   onClick={() => speakText(aiResponse)}
                   style={{
-                    padding: "4px 12px",
+                    padding: "6px 12px",
                     borderRadius: "8px",
-                    backgroundColor: "#7C3AED",
-                    color: "#FFFFFF",
-                    border: "none",
+                    backgroundColor: "rgba(175, 106, 251, 0.15)",
+                    color: "#AF6AFB",
+                    border: "1px solid rgba(175, 106, 251, 0.3)",
                     fontSize: "12px",
-                    fontWeight: "600",
+                    fontWeight: 600,
                     cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
                   }}
                 >
-                  🔊 Listen
+                  <IconSpeaker size={14} color="#AF6AFB" />
+                  <span>Listen</span>
                 </button>
               </div>
-              <p style={{ fontSize: "15px", lineHeight: "1.6", margin: 0, color: "#1E1B4B" }}>
+              <p style={{ fontSize: "15px", lineHeight: "1.65", margin: 0, color: "#FFFFFF" }}>
                 {aiResponse}
               </p>
             </div>
@@ -409,26 +513,34 @@ export default function AdhdFocusSanctuaryPage() {
           {reasoningTrace && (
             <details
               style={{
-                backgroundColor: "#F8FAFC",
+                backgroundColor: "rgba(12, 20, 31, 0.6)",
                 borderRadius: "14px",
                 padding: "10px 14px",
                 fontSize: "12px",
-                color: "#475569",
+                color: "#94A3B8",
                 marginBottom: "16px",
-                border: "1px solid #E2E8F0",
+                border: "1px solid rgba(255, 255, 255, 0.05)",
               }}
             >
-              <summary style={{ cursor: "pointer", fontWeight: "600", color: "#6D28D9" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 600, color: "#AF6AFB" }}>
                 DeepSeek-R1 Cognitive Triage Trace (&lt;think&gt;)
               </summary>
-              <pre style={{ whiteSpace: "pre-wrap", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px", marginTop: "8px" }}>
+              <pre
+                style={{
+                  whiteSpace: "pre-wrap",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "12px",
+                  marginTop: "8px",
+                  color: "#A7B7C7",
+                }}
+              >
                 {reasoningTrace}
               </pre>
             </details>
           )}
 
           {/* Input Bar */}
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div style={{ display: "flex", gap: "12px" }}>
             <input
               type="text"
               value={query}
@@ -439,23 +551,28 @@ export default function AdhdFocusSanctuaryPage() {
                 flex: 1,
                 padding: "14px 18px",
                 borderRadius: "16px",
-                border: "2px solid #E2E8F0",
+                background: "rgba(12, 20, 31, 0.9)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                color: "#FFFFFF",
                 fontSize: "15px",
                 outline: "none",
               }}
             />
             <button
+              type="button"
               onClick={() => handleAskCura()}
               disabled={loading}
               style={{
-                padding: "14px 24px",
+                padding: "14px 26px",
                 borderRadius: "16px",
-                backgroundColor: "#7C3AED",
+                backgroundColor: "#AF6AFB",
                 color: "#FFFFFF",
                 border: "none",
                 fontSize: "15px",
-                fontWeight: "700",
+                fontWeight: 700,
                 cursor: loading ? "wait" : "pointer",
+                boxShadow: "0 4px 16px rgba(175, 106, 251, 0.35)",
+                transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
               {loading ? "Unwinding..." : "Get Focus Step"}
@@ -463,6 +580,7 @@ export default function AdhdFocusSanctuaryPage() {
           </div>
         </section>
       </main>
+
       <TestingFooter />
     </div>
   );

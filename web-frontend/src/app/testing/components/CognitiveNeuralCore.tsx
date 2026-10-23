@@ -5,14 +5,16 @@ import * as THREE from "three";
 
 interface CognitiveNeuralCoreProps {
   isPulse?: boolean;
-  accentColor?: string; // e.g. '#16B9FE' (Normal), '#00A884' (Alzheimer), '#7C3AED' (ADHD)
+  accentColor?: string; // e.g. '#16B9FE' (Normal), '#3FEDBA' (Alzheimer), '#AF6AFB' (ADHD)
   className?: string;
+  mode?: "normal" | "alzheimer" | "adhd";
 }
 
 export default function CognitiveNeuralCore({
   isPulse = false,
   accentColor = "#16B9FE",
   className = "",
+  mode = "normal",
 }: CognitiveNeuralCoreProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [webGLSupported, setWebGLSupported] = useState(true);
@@ -21,7 +23,7 @@ export default function CognitiveNeuralCore({
     const container = containerRef.current;
     if (!container) return;
 
-    // Detect WebGL capability per 3d-web-experience validation
+    // Detect WebGL capability
     try {
       const testCanvas = document.createElement("canvas");
       const gl =
@@ -44,15 +46,15 @@ export default function CognitiveNeuralCore({
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
     camera.position.z = 7;
 
-    // 2. Renderer Setup
+    // 2. High-Performance WebGL Renderer Setup
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    // Limit DPR on mobile to 1.5 for steady 60fps performance
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    container.innerHTML = "";
     container.appendChild(renderer.domElement);
 
     // 3. Central Icosahedron Wireframe Sphere
@@ -64,18 +66,18 @@ export default function CognitiveNeuralCore({
       color: colorPrimary,
       wireframe: true,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.38,
     });
     const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
     scene.add(coreMesh);
 
-    // Inner Solid Glow Sphere
-    const innerGeometry = new THREE.IcosahedronGeometry(1.6, 2);
+    // Inner Luminous Core
+    const innerGeometry = new THREE.IcosahedronGeometry(1.5, 2);
     const innerMaterial = new THREE.MeshBasicMaterial({
       color: colorCyan,
       wireframe: true,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.18,
     });
     const innerMesh = new THREE.Mesh(innerGeometry, innerMaterial);
     scene.add(innerMesh);
@@ -84,19 +86,26 @@ export default function CognitiveNeuralCore({
     const particleCount = 1200;
     const particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
-    const scales = new Float32Array(particleCount);
+    const basePositions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount; i++) {
-      // Golden ratio spherical distribution
+      // Golden spiral distribution
       const theta = Math.acos(2 * Math.random() - 1);
-      const phi = Math.sqrt(particleCount * Math.PI) * (2 * Math.PI * (i / particleCount));
+      const phi =
+        Math.sqrt(particleCount * Math.PI) * (2 * Math.PI * (i / particleCount));
       const r = 2.4 + (Math.random() - 0.5) * 0.9;
 
-      positions[i * 3] = r * Math.sin(theta) * Math.cos(phi);
-      positions[i * 3 + 1] = r * Math.sin(theta) * Math.sin(phi);
-      positions[i * 3 + 2] = r * Math.cos(theta);
+      const x = r * Math.sin(theta) * Math.cos(phi);
+      const y = r * Math.sin(theta) * Math.sin(phi);
+      const z = r * Math.cos(theta);
 
-      scales[i] = Math.random();
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+
+      basePositions[i * 3] = x;
+      basePositions[i * 3 + 1] = y;
+      basePositions[i * 3 + 2] = z;
     }
 
     particleGeometry.setAttribute(
@@ -105,54 +114,123 @@ export default function CognitiveNeuralCore({
     );
 
     const particleMaterial = new THREE.PointsMaterial({
-      color: colorCyan,
+      color: colorPrimary,
       size: 0.045,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.82,
       blending: THREE.AdditiveBlending,
     });
 
     const particles = new THREE.Points(particleGeometry, particleMaterial);
     scene.add(particles);
 
-    // 5. Orbital Equatorial Rings
-    const ringGeometry = new THREE.RingGeometry(3.0, 3.03, 64);
-    const ringMaterial = new THREE.MeshBasicMaterial({
-      color: colorPrimary,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.3,
-    });
-    const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
-    ringMesh.rotation.x = Math.PI / 3;
-    ringMesh.rotation.y = Math.PI / 6;
-    scene.add(ringMesh);
+    // 5. Apple Fluid Direct Manipulation & Cursor Parallax
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let velocityX = 0;
+    let velocityY = 0;
+    let isDragging = false;
+    let previousPointerX = 0;
+    let previousPointerY = 0;
 
-    const ringGeometry2 = new THREE.RingGeometry(3.3, 3.32, 64);
-    const ringMesh2 = new THREE.Mesh(ringGeometry2, ringMaterial);
-    ringMesh2.rotation.x = -Math.PI / 4;
-    ringMesh2.rotation.y = Math.PI / 4;
-    scene.add(ringMesh2);
-
-    // 6. Interactive Mouse Tracking & Parallax
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-
-    const onMouseMove = (event: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const clientX = event.clientX - rect.left;
-      const clientY = event.clientY - rect.top;
-
-      mouseX = (clientX / width - 0.5) * 2;
-      mouseY = (clientY / height - 0.5) * 2;
+    const onPointerDown = (e: PointerEvent) => {
+      isDragging = true;
+      previousPointerX = e.clientX;
+      previousPointerY = e.clientY;
+      container.setPointerCapture(e.pointerId);
     };
 
-    container.addEventListener("mousemove", onMouseMove);
+    const onPointerMove = (e: PointerEvent) => {
+      if (isDragging) {
+        const deltaX = e.clientX - previousPointerX;
+        const deltaY = e.clientY - previousPointerY;
+        velocityX = deltaX * 0.005;
+        velocityY = deltaY * 0.005;
+        targetRotationY += velocityX;
+        targetRotationX += velocityY;
+        previousPointerX = e.clientX;
+        previousPointerY = e.clientY;
+      } else {
+        // Subtle Parallax Tracking
+        const rect = container.getBoundingClientRect();
+        const normX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const normY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+        targetRotationY = normX * 0.4;
+        targetRotationX = normY * 0.4;
+      }
+    };
 
-    // Resize Handler
-    const onResize = () => {
+    const onPointerUp = (e: PointerEvent) => {
+      isDragging = false;
+      try {
+        container.releasePointerCapture(e.pointerId);
+      } catch {
+        // Fallback for detached pointer
+      }
+    };
+
+    container.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+
+    // 6. Animation Loop with Mode Dynamics
+    let animationFrameId: number;
+    let clock = new THREE.Clock();
+
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+
+      const elapsedTime = clock.getElapsedTime();
+
+      // Inertia & Damping
+      if (!isDragging) {
+        targetRotationY += 0.0025; // ambient gyroscopic spin
+        velocityX *= 0.95;
+        velocityY *= 0.95;
+      }
+
+      coreMesh.rotation.y += (targetRotationY - coreMesh.rotation.y) * 0.06;
+      coreMesh.rotation.x += (targetRotationX - coreMesh.rotation.x) * 0.06;
+
+      innerMesh.rotation.y = -coreMesh.rotation.y * 1.3;
+      innerMesh.rotation.x = -coreMesh.rotation.x * 0.9;
+      particles.rotation.y = coreMesh.rotation.y * 0.6;
+      particles.rotation.x = coreMesh.rotation.x * 0.6;
+
+      // Mode-specific particle breathing & pulse
+      const posAttr = particleGeometry.attributes.position;
+      const posArray = posAttr.array as Float32Array;
+
+      let pulseMultiplier = 1.0;
+      if (isPulse) {
+        pulseMultiplier = 1.0 + Math.sin(elapsedTime * 14) * 0.12;
+      } else if (mode === "alzheimer") {
+        // Calming slow harmonic breathing
+        pulseMultiplier = 1.0 + Math.sin(elapsedTime * 1.2) * 0.06;
+      } else if (mode === "adhd") {
+        // High-focus subtle oscillation
+        pulseMultiplier = 1.0 + Math.sin(elapsedTime * 3.5) * 0.03;
+      }
+
+      for (let i = 0; i < particleCount; i++) {
+        const i3 = i * 3;
+        posArray[i3] = basePositions[i3] * pulseMultiplier;
+        posArray[i3 + 1] = basePositions[i3 + 1] * pulseMultiplier;
+        posArray[i3 + 2] = basePositions[i3 + 2] * pulseMultiplier;
+      }
+      posAttr.needsUpdate = true;
+
+      // Pulse Core scale
+      coreMesh.scale.setScalar(pulseMultiplier);
+      innerMesh.scale.setScalar(pulseMultiplier * 0.95);
+
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    // 7. Responsive Resizing
+    const handleResize = () => {
       if (!container) return;
       const newWidth = container.clientWidth;
       const newHeight = container.clientHeight;
@@ -161,65 +239,15 @@ export default function CognitiveNeuralCore({
       renderer.setSize(newWidth, newHeight);
     };
 
-    window.addEventListener("resize", onResize);
+    window.addEventListener("resize", handleResize);
 
-    // 7. Animation Loop with 60fps Target
-    let animationFrameId: number;
-    let clock = new THREE.Clock();
-
-    const animate = () => {
-      animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
-
-      // Smooth camera parallax
-      targetX += (mouseX - targetX) * 0.05;
-      targetY += (mouseY - targetY) * 0.05;
-
-      camera.position.x = targetX * 1.5;
-      camera.position.y = -targetY * 1.5;
-      camera.lookAt(scene.position);
-
-      // Continuous rhythmic rotation
-      coreMesh.rotation.y = elapsedTime * 0.15;
-      coreMesh.rotation.x = elapsedTime * 0.08;
-
-      innerMesh.rotation.y = -elapsedTime * 0.22;
-      innerMesh.rotation.z = elapsedTime * 0.1;
-
-      particles.rotation.y = elapsedTime * 0.09;
-      particles.rotation.x = -elapsedTime * 0.04;
-
-      ringMesh.rotation.z = elapsedTime * 0.07;
-      ringMesh2.rotation.z = -elapsedTime * 0.05;
-
-      // Gentle resting respiration pulse (14 bpm = ~0.23 Hz)
-      const breathScale = 1 + Math.sin(elapsedTime * 1.45) * 0.035;
-      coreMesh.scale.set(breathScale, breathScale, breathScale);
-      particles.scale.set(breathScale, breathScale, breathScale);
-
-      // Emissive pulse on active query state
-      if (isPulse) {
-        const pulse = 1 + Math.sin(elapsedTime * 8) * 0.08;
-        coreMesh.scale.multiplyScalar(pulse);
-        particleMaterial.opacity = 0.95;
-      } else {
-        particleMaterial.opacity = 0.75;
-      }
-
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    // 8. Cleanup & Disposal
+    // 8. Lifecycle Teardown
     return () => {
       cancelAnimationFrame(animationFrameId);
-      window.removeEventListener("resize", onResize);
-      container.removeEventListener("mousemove", onMouseMove);
-
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
+      container.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("resize", handleResize);
 
       coreGeometry.dispose();
       coreMaterial.dispose();
@@ -227,29 +255,39 @@ export default function CognitiveNeuralCore({
       innerMaterial.dispose();
       particleGeometry.dispose();
       particleMaterial.dispose();
-      ringGeometry.dispose();
-      ringGeometry2.dispose();
-      ringMaterial.dispose();
       renderer.dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
     };
-  }, [isPulse, accentColor]);
+  }, [accentColor, isPulse, mode]);
 
   if (!webGLSupported) {
     return (
       <div
-        className={`flex items-center justify-center ${className}`}
+        className={className}
         style={{
           width: "100%",
-          height: "380px",
-          borderRadius: "24px",
-          background: "radial-gradient(circle, rgba(22, 185, 254, 0.15) 0%, transparent 70%)",
+          height: "100%",
+          minHeight: "360px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "rgba(19, 27, 38, 0.6)",
+          borderRadius: "20px",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          color: "#94A3B8",
+          padding: "24px",
+          textAlign: "center",
         }}
       >
-        <img
-          src="/cura_harmony_logo_1791226392255.jpg"
-          alt="CURA Cognitive Harmony"
-          style={{ width: "220px", height: "auto", borderRadius: "16px" }}
-        />
+        <div style={{ fontSize: "14px", fontWeight: 600, color: "#F8FAFC", marginBottom: "8px" }}>
+          Neural Core (Static Fallback)
+        </div>
+        <div style={{ fontSize: "12px", maxWidth: "280px" }}>
+          WebGL context is currently unavailable. Neural telemetry and model inference remain active.
+        </div>
       </div>
     );
   }
@@ -257,13 +295,14 @@ export default function CognitiveNeuralCore({
   return (
     <div
       ref={containerRef}
-      className={`relative cursor-grab active:cursor-grabbing select-none ${className}`}
+      className={className}
       style={{
         width: "100%",
-        height: "380px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        height: "100%",
+        minHeight: "380px",
+        cursor: "grab",
+        touchAction: "none",
+        position: "relative",
       }}
     />
   );

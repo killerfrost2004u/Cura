@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { IconFlask, IconBrain, IconBolt, IconSparkle, IconCpu, IconActivity } from "./CuraIcons";
 
 export default function TestingNavbar() {
   const pathname = usePathname();
@@ -11,26 +12,26 @@ export default function TestingNavbar() {
     {
       href: "/testing",
       label: "Cockpit Hub",
-      icon: "🧪",
-      accent: "#0284C7",
+      Icon: IconFlask,
+      accent: "#16B9FE",
     },
     {
       href: "/testing/alzheimer",
       label: "Alzheimer’s Care",
-      icon: "🧠",
-      accent: "#00A884",
+      Icon: IconBrain,
+      accent: "#3FEDBA",
     },
     {
       href: "/testing/adhd",
       label: "ADHD Flow",
-      icon: "⚡",
-      accent: "#7C3AED",
+      Icon: IconBolt,
+      accent: "#AF6AFB",
     },
     {
       href: "/testing/normal",
-      label: "Everyday Assistant",
-      icon: "✨",
-      accent: "#16B9FE",
+      label: "Everyday Research",
+      Icon: IconSparkle,
+      accent: "#60EFEB",
     },
   ];
 
@@ -41,18 +42,18 @@ export default function TestingNavbar() {
         top: 0,
         zIndex: 100,
         width: "100%",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        backgroundColor: "rgba(19, 27, 38, 0.85)",
+        backdropFilter: "blur(20px) saturate(160%)",
+        WebkitBackdropFilter: "blur(20px) saturate(160%)",
+        backgroundColor: "rgba(12, 20, 31, 0.82)",
         borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.25)",
+        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.35)",
       }}
     >
       <div
         style={{
-          maxWidth: "1400px",
+          maxWidth: "1440px",
           margin: "0 auto",
-          padding: "12px 24px",
+          padding: "14px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -74,129 +75,151 @@ export default function TestingNavbar() {
             src="/Cura icon.svg"
             alt="CURA Icon"
             style={{
-              width: "38px",
-              height: "38px",
-              filter: "drop-shadow(0 0 10px rgba(22, 185, 254, 0.4))",
+              width: "36px",
+              height: "36px",
+              filter: "drop-shadow(0 0 12px rgba(22, 185, 254, 0.45))",
             }}
           />
           <img
             src="/Cura Word.svg"
             alt="CURA Wordmark"
             style={{
-              height: "24px",
+              height: "22px",
               width: "auto",
             }}
           />
           <span
             style={{
-              padding: "3px 10px",
+              padding: "4px 10px",
               borderRadius: "9999px",
               fontSize: "11px",
               fontWeight: "700",
-              letterSpacing: "0.05em",
+              letterSpacing: "0.06em",
               textTransform: "uppercase",
-              background: "rgba(2, 132, 199, 0.15)",
+              background: "rgba(22, 185, 254, 0.12)",
               color: "#38BDF8",
               border: "1px solid rgba(56, 189, 248, 0.3)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
             }}
           >
-            Engineering Test Suite
+            <span
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                backgroundColor: "#38BDF8",
+                boxShadow: "0 0 6px #38BDF8",
+              }}
+            />
+            Testing Cockpit v2.4
           </span>
         </Link>
 
-        {/* Central Switcher Pills */}
+        {/* Mode Navigation Pills with Apple Tactile Feedback */}
         <nav
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "8px",
-            background: "rgba(12, 20, 31, 0.7)",
+            gap: "6px",
+            background: "rgba(26, 36, 51, 0.65)",
             padding: "4px 6px",
-            borderRadius: "9999px",
+            borderRadius: "14px",
             border: "1px solid rgba(255, 255, 255, 0.08)",
           }}
         >
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+          {navLinks.map((item) => {
+            const isActive = pathname === item.href;
+            const ItemIcon = item.Icon;
             return (
               <Link
-                key={link.href}
-                href={link.href}
+                key={item.href}
+                href={item.href}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "6px",
-                  padding: "7px 16px",
-                  borderRadius: "9999px",
+                  gap: "8px",
+                  padding: "8px 14px",
+                  borderRadius: "10px",
                   fontSize: "13px",
-                  fontWeight: isActive ? "700" : "500",
+                  fontWeight: isActive ? 700 : 500,
                   textDecoration: "none",
-                  transition: "all 0.2s ease",
-                  backgroundColor: isActive
-                    ? link.accent
-                    : "transparent",
                   color: isActive ? "#FFFFFF" : "#94A3B8",
+                  backgroundColor: isActive
+                    ? `${item.accent}24`
+                    : "transparent",
+                  border: isActive
+                    ? `1px solid ${item.accent}66`
+                    : "1px solid transparent",
                   boxShadow: isActive
-                    ? `0 2px 12px ${link.accent}55`
+                    ? `0 2px 10px ${item.accent}20`
                     : "none",
+                  transition:
+                    "transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 140ms ease-out, color 140ms ease-out",
                 }}
               >
-                <span>{link.icon}</span>
-                <span>{link.label}</span>
+                <ItemIcon
+                  size={16}
+                  color={isActive ? item.accent : "#94A3B8"}
+                />
+                <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Backend & AI Telemetry Pill + Root Handover Link */}
+        {/* Live Telemetry Beacon (Cloudflare GPU + 60fps WebGL) */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: "12px",
+            fontSize: "12px",
           }}
         >
           <div
             style={{
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
-              gap: "8px",
-              padding: "6px 14px",
+              gap: "7px",
+              padding: "6px 12px",
               borderRadius: "9999px",
-              background: "rgba(16, 185, 129, 0.12)",
+              backgroundColor: "rgba(16, 185, 129, 0.1)",
               border: "1px solid rgba(16, 185, 129, 0.3)",
-              fontSize: "12px",
               color: "#34D399",
-              fontWeight: "600",
+              fontWeight: 600,
             }}
           >
+            <IconCpu size={14} color="#34D399" />
             <span
               style={{
-                width: "7px",
-                height: "7px",
+                width: "6px",
+                height: "6px",
                 borderRadius: "50%",
-                background: "#10B981",
-                boxShadow: "0 0 8px #10B981",
+                backgroundColor: "#10B981",
+                boxShadow: "0 0 6px #10B981",
               }}
             />
-            Cloudflare GPU • DeepSeek-R1 32B
+            DeepSeek-R1 Active
           </div>
 
-          <Link
-            href="/"
+          <div
             style={{
-              fontSize: "12px",
-              fontWeight: "600",
-              color: "#94A3B8",
-              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
               padding: "6px 12px",
-              borderRadius: "8px",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              transition: "color 0.2s ease",
+              borderRadius: "9999px",
+              backgroundColor: "rgba(22, 185, 254, 0.08)",
+              border: "1px solid rgba(22, 185, 254, 0.25)",
+              color: "#38BDF8",
+              fontWeight: 600,
             }}
           >
-            ← Frontend Root
-          </Link>
+            <IconActivity size={14} color="#38BDF8" />
+            WebGL: 60 FPS
+          </div>
         </div>
       </div>
     </header>

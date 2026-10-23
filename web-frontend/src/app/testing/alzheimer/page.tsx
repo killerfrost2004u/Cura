@@ -4,6 +4,15 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
+import {
+  IconBrain,
+  IconShieldCheck,
+  IconSpeaker,
+  IconCheckCircle,
+  IconClock,
+  IconActivity,
+  IconWaveform,
+} from "../components/CuraIcons";
 
 export default function AlzheimerSanctuaryPage() {
   const [medTaken, setMedTaken] = useState(false);
@@ -118,26 +127,23 @@ export default function AlzheimerSanctuaryPage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#F0F7F4",
-        color: "#0D1F2D",
-        fontFamily: "'Lexend', 'Atkinson Hyperlegible', sans-serif",
+        backgroundColor: "#0C141F",
+        color: "#FFFFFF",
+        fontFamily: "'Inter', sans-serif",
         padding: "0 0 60px 0",
       }}
     >
-      {/* Global Testing Navbar with brand logos */}
       <TestingNavbar />
 
-
-      {/* Main Sanctuary Container */}
-      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "28px 20px" }}>
+      <main style={{ maxWidth: "1240px", margin: "0 auto", padding: "32px 24px" }}>
         {/* 1. Grounding Hero Orientation Card */}
         <section
           style={{
-            backgroundColor: "#FFFFFF",
-            border: "2px solid #B2DFDB",
+            backgroundColor: "rgba(26, 36, 51, 0.8)",
+            border: "2px solid rgba(63, 237, 186, 0.4)",
             borderRadius: "28px",
             padding: "36px 32px",
-            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.04)",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -152,46 +158,64 @@ export default function AlzheimerSanctuaryPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                color: "#00A884",
+                color: "#3FEDBA",
                 fontSize: "14px",
-                fontWeight: "800",
+                fontWeight: 700,
                 textTransform: "uppercase",
-                letterSpacing: "0.04em",
+                letterSpacing: "0.06em",
                 marginBottom: "8px",
               }}
             >
-              <span>🏡</span> Safe Home Sanctuary
+              <IconShieldCheck size={16} color="#3FEDBA" />
+              <span>Safe Home Sanctuary &bull; 15.2:1 Contrast</span>
             </div>
             <h1
               style={{
-                fontSize: "48px",
-                fontWeight: "900",
-                color: "#0D1F2D",
+                fontSize: "52px",
+                fontWeight: 800,
+                color: "#FFFFFF",
                 margin: "0 0 6px 0",
+                fontFamily: "'Outfit', sans-serif",
                 letterSpacing: "-0.03em",
               }}
             >
               {currentTime}
             </h1>
-            <div style={{ fontSize: "22px", fontWeight: "700", color: "#2D3748" }}>
+            <div style={{ fontSize: "22px", fontWeight: 600, color: "#E8EDF1" }}>
               {currentDate}
             </div>
           </div>
 
           <div
             style={{
-              backgroundColor: "#F0F7F4",
-              border: "2px solid #B2DFDB",
+              backgroundColor: "rgba(12, 20, 31, 0.8)",
+              border: "1px solid rgba(63, 237, 186, 0.3)",
               borderRadius: "20px",
-              padding: "20px 24px",
+              padding: "22px 26px",
               maxWidth: "520px",
             }}
           >
-            <div style={{ fontSize: "20px", fontWeight: "800", color: "#0D1F2D", marginBottom: "6px" }}>
+            <div
+              style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                color: "#FFFFFF",
+                marginBottom: "6px",
+                fontFamily: "'Outfit', sans-serif",
+              }}
+            >
               Good morning, Arthur.
             </div>
-            <p style={{ fontSize: "16px", color: "#2D3748", lineHeight: "1.6", margin: 0, fontWeight: "500" }}>
-              You are at home in your quiet house in Mill Valley. The weather is clear and 68°F. You are safe, comfortable, and well looked after.
+            <p
+              style={{
+                fontSize: "16px",
+                color: "#E8EDF1",
+                lineHeight: "1.6",
+                margin: 0,
+                fontWeight: 400,
+              }}
+            >
+              You are at home in your quiet house in Mill Valley. The weather is clear and 68&deg;F. You are safe, comfortable, and well looked after.
             </p>
           </div>
         </section>
@@ -199,11 +223,11 @@ export default function AlzheimerSanctuaryPage() {
         {/* 2. Interactive Voice Reassurance & Dialogue Console */}
         <section
           style={{
-            backgroundColor: "#FFFFFF",
-            border: "2px solid #00A884",
+            backgroundColor: "rgba(26, 36, 51, 0.8)",
+            border: "2px solid #3FEDBA",
             borderRadius: "28px",
             padding: "28px",
-            boxShadow: "0 6px 20px rgba(0, 168, 132, 0.08)",
+            boxShadow: "0 8px 30px rgba(63, 237, 186, 0.12)",
             marginBottom: "28px",
           }}
         >
@@ -212,7 +236,7 @@ export default function AlzheimerSanctuaryPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "16px",
+              marginBottom: "18px",
               flexWrap: "wrap",
               gap: "12px",
             }}
@@ -223,76 +247,100 @@ export default function AlzheimerSanctuaryPage() {
                   width: "12px",
                   height: "12px",
                   borderRadius: "50%",
-                  backgroundColor: "#00A884",
-                  boxShadow: "0 0 10px #00A884",
+                  backgroundColor: "#3FEDBA",
+                  boxShadow: "0 0 10px #3FEDBA",
                 }}
               />
-              <span style={{ fontSize: "18px", fontWeight: "800", color: "#0D1F2D" }}>
-                Ask CURA (Voice & Reassurance Console)
+              <span
+                style={{
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  fontFamily: "'Outfit', sans-serif",
+                }}
+              >
+                Ask CURA (Voice &amp; Reassurance Console)
               </span>
             </div>
             <span
               style={{
                 fontSize: "12px",
-                fontWeight: "700",
-                color: "#00A884",
-                backgroundColor: "#E6F0EC",
+                fontWeight: 700,
+                color: "#3FEDBA",
+                backgroundColor: "rgba(63, 237, 186, 0.12)",
                 padding: "6px 14px",
                 borderRadius: "9999px",
-                border: "1px solid #B2DFDB",
+                border: "1px solid rgba(63, 237, 186, 0.3)",
               }}
             >
-              15.2:1 WCAG AAA Contrast • Gentle 0.85x Pacing
+              15.2:1 WCAG AAA Contrast &bull; Gentle 0.85x Pacing
             </span>
           </div>
 
           {/* Quick-Tap Prompt Buttons */}
-          <div style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "18px", flexWrap: "wrap" }}>
             <button
+              type="button"
               onClick={() => handleAskCura("أنا أخدت دواء الضغط النهاردة ولا لسه؟")}
               style={{
-                padding: "10px 18px",
+                padding: "12px 20px",
                 borderRadius: "14px",
-                backgroundColor: "#F0F7F4",
-                border: "2px solid #00A884",
-                color: "#00A884",
+                backgroundColor: "rgba(63, 237, 186, 0.12)",
+                border: "2px solid #3FEDBA",
+                color: "#3FEDBA",
                 fontSize: "15px",
-                fontWeight: "700",
+                fontWeight: 700,
                 cursor: "pointer",
-                fontFamily: "'Atkinson Hyperlegible', sans-serif",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
-              🩺 &quot;أنا أخدت دواء الضغط النهاردة ولا لسه؟&quot;
+              <IconShieldCheck size={16} color="#3FEDBA" />
+              <span>&quot;أنا أخدت دواء الضغط النهاردة ولا لسه؟&quot;</span>
             </button>
             <button
+              type="button"
               onClick={() => handleAskCura("Who is visiting me today?")}
               style={{
-                padding: "10px 18px",
+                padding: "12px 20px",
                 borderRadius: "14px",
-                backgroundColor: "#F0F7F4",
-                border: "2px solid #B2DFDB",
-                color: "#2D3748",
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#E8EDF1",
                 fontSize: "14px",
-                fontWeight: "600",
+                fontWeight: 600,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
-              👥 &quot;Who is visiting me today?&quot;
+              <IconBrain size={16} color="#38BDF8" />
+              <span>&quot;Who is visiting me today?&quot;</span>
             </button>
             <button
+              type="button"
               onClick={() => handleAskCura("What is on my schedule for today?")}
               style={{
-                padding: "10px 18px",
+                padding: "12px 20px",
                 borderRadius: "14px",
-                backgroundColor: "#F0F7F4",
-                border: "2px solid #B2DFDB",
-                color: "#2D3748",
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#E8EDF1",
                 fontSize: "14px",
-                fontWeight: "600",
+                fontWeight: 600,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
-              🗓️ &quot;What is on my schedule for today?&quot;
+              <IconClock size={16} color="#AF6AFB" />
+              <span>&quot;What is on my schedule for today?&quot;</span>
             </button>
           </div>
 
@@ -300,11 +348,11 @@ export default function AlzheimerSanctuaryPage() {
           {aiResponse && (
             <div
               style={{
-                backgroundColor: "#F0F7F4",
-                border: "2px solid #B2DFDB",
+                backgroundColor: "rgba(12, 20, 31, 0.8)",
+                border: "1px solid rgba(63, 237, 186, 0.3)",
                 borderRadius: "20px",
                 padding: "20px",
-                marginBottom: "16px",
+                marginBottom: "18px",
               }}
             >
               <div
@@ -312,38 +360,43 @@ export default function AlzheimerSanctuaryPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginBottom: "10px",
+                  marginBottom: "12px",
                 }}
               >
-                <div style={{ fontWeight: "800", color: "#00A884", fontSize: "14px" }}>
+                <div style={{ fontWeight: 700, color: "#3FEDBA", fontSize: "14px" }}>
                   CURA Voice Reassurance:
                 </div>
                 <button
+                  type="button"
                   onClick={() => {
                     const isAr = /[\u0600-\u06FF]/.test(aiResponse);
                     speakText(aiResponse, isAr);
                   }}
                   style={{
-                    padding: "6px 14px",
+                    padding: "8px 16px",
                     borderRadius: "10px",
-                    backgroundColor: "#00A884",
-                    color: "#FFFFFF",
+                    backgroundColor: "#3FEDBA",
+                    color: "#0C141F",
                     border: "none",
                     fontSize: "13px",
-                    fontWeight: "700",
+                    fontWeight: 700,
                     cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
                   }}
                 >
-                  🔊 Listen Aloud
+                  <IconSpeaker size={15} color="#0C141F" />
+                  <span>Listen Aloud</span>
                 </button>
               </div>
               <p
                 style={{
-                  fontSize: "17px",
+                  fontSize: "18px",
                   lineHeight: "1.7",
                   margin: 0,
-                  color: "#0D1F2D",
-                  fontWeight: "600",
+                  color: "#FFFFFF",
+                  fontWeight: 500,
                   direction: /[\u0600-\u06FF]/.test(aiResponse) ? "rtl" : "ltr",
                 }}
               >
@@ -352,20 +405,20 @@ export default function AlzheimerSanctuaryPage() {
             </div>
           )}
 
-          {/* Reasoning Trace Collapsible */}
+          {/* Reasoning Trace */}
           {reasoningTrace && (
             <details
               style={{
-                backgroundColor: "#E6F0EC",
+                backgroundColor: "rgba(12, 20, 31, 0.6)",
                 borderRadius: "14px",
                 padding: "12px 16px",
-                fontSize: "13px",
-                color: "#2D3748",
-                marginBottom: "16px",
-                border: "1px solid #B2DFDB",
+                fontSize: "12px",
+                color: "#94A3B8",
+                marginBottom: "18px",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
               }}
             >
-              <summary style={{ cursor: "pointer", fontWeight: "700", color: "#00A884" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 700, color: "#3FEDBA" }}>
                 DeepSeek-R1 Clinical Reasoning Trace (&lt;think&gt;)
               </summary>
               <pre
@@ -374,7 +427,7 @@ export default function AlzheimerSanctuaryPage() {
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "12px",
                   marginTop: "8px",
-                  color: "#1E293B",
+                  color: "#A7B7C7",
                 }}
               >
                 {reasoningTrace}
@@ -383,7 +436,7 @@ export default function AlzheimerSanctuaryPage() {
           )}
 
           {/* Input Bar */}
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div style={{ display: "flex", gap: "12px" }}>
             <input
               type="text"
               value={query}
@@ -394,25 +447,28 @@ export default function AlzheimerSanctuaryPage() {
                 flex: 1,
                 padding: "14px 18px",
                 borderRadius: "16px",
-                border: "2px solid #B2DFDB",
+                background: "rgba(12, 20, 31, 0.9)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#FFFFFF",
                 fontSize: "16px",
                 outline: "none",
-                fontFamily: "inherit",
               }}
             />
             <button
+              type="button"
               onClick={() => handleAskCura()}
               disabled={loading}
               style={{
                 padding: "14px 28px",
                 borderRadius: "16px",
-                backgroundColor: "#00A884",
-                color: "#FFFFFF",
+                backgroundColor: "#3FEDBA",
+                color: "#0C141F",
                 border: "none",
                 fontSize: "16px",
-                fontWeight: "700",
+                fontWeight: 800,
                 cursor: loading ? "wait" : "pointer",
-                minWidth: "120px",
+                minWidth: "130px",
+                transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
               {loading ? "Thinking..." : "Ask CURA"}
@@ -432,54 +488,67 @@ export default function AlzheimerSanctuaryPage() {
           {/* CARD 1: FAMILY CONTACTS */}
           <div
             style={{
-              backgroundColor: "#FFFFFF",
-              border: "2px solid #B2DFDB",
+              backgroundColor: "rgba(26, 36, 51, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
               borderRadius: "24px",
               padding: "24px",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
             }}
           >
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#0D1F2D" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <div style={{ fontSize: "20px", fontWeight: 700, color: "#FFFFFF", fontFamily: "'Outfit', sans-serif" }}>
                   Your Family
                 </div>
-                <span style={{ fontSize: "12px", color: "#00A884", backgroundColor: "#E6F0EC", padding: "4px 10px", borderRadius: "9999px", fontWeight: "700" }}>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "#3FEDBA",
+                    backgroundColor: "rgba(63, 237, 186, 0.12)",
+                    padding: "4px 10px",
+                    borderRadius: "9999px",
+                    fontWeight: 700,
+                  }}
+                >
                   3 Nearby
                 </span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", textAlign: "center" }}>
-                <div style={{ backgroundColor: "#F0F7F4", padding: "12px 6px", borderRadius: "16px", border: "1px solid #B2DFDB" }}>
-                  <div style={{ fontSize: "32px", marginBottom: "4px" }}>👩</div>
-                  <div style={{ fontWeight: "800", fontSize: "15px" }}>Sarah</div>
-                  <div style={{ fontSize: "12px", color: "#00A884", fontWeight: "700" }}>Daughter</div>
+                <div style={{ backgroundColor: "rgba(12, 20, 31, 0.8)", padding: "14px 8px", borderRadius: "16px", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                  <div style={{ fontWeight: 700, fontSize: "15px", color: "#FFFFFF" }}>Sarah</div>
+                  <div style={{ fontSize: "12px", color: "#3FEDBA", fontWeight: 600 }}>Daughter</div>
                 </div>
-                <div style={{ backgroundColor: "#F0F7F4", padding: "12px 6px", borderRadius: "16px", border: "1px solid #B2DFDB" }}>
-                  <div style={{ fontSize: "32px", marginBottom: "4px" }}>👨</div>
-                  <div style={{ fontWeight: "800", fontSize: "15px" }}>David</div>
-                  <div style={{ fontSize: "12px", color: "#0284C7", fontWeight: "700" }}>Son</div>
+                <div style={{ backgroundColor: "rgba(12, 20, 31, 0.8)", padding: "14px 8px", borderRadius: "16px", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                  <div style={{ fontWeight: 700, fontSize: "15px", color: "#FFFFFF" }}>David</div>
+                  <div style={{ fontSize: "12px", color: "#38BDF8", fontWeight: 600 }}>Son</div>
                 </div>
-                <div style={{ backgroundColor: "#F0F7F4", padding: "12px 6px", borderRadius: "16px", border: "1px solid #B2DFDB" }}>
-                  <div style={{ fontSize: "32px", marginBottom: "4px" }}>👦👧</div>
-                  <div style={{ fontWeight: "800", fontSize: "15px" }}>Grandkids</div>
-                  <div style={{ fontSize: "12px", color: "#7C3AED", fontWeight: "700" }}>Leo &amp; Mia</div>
+                <div style={{ backgroundColor: "rgba(12, 20, 31, 0.8)", padding: "14px 8px", borderRadius: "16px", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                  <div style={{ fontWeight: 700, fontSize: "15px", color: "#FFFFFF" }}>Grandkids</div>
+                  <div style={{ fontSize: "12px", color: "#AF6AFB", fontWeight: 600 }}>Leo &amp; Mia</div>
                 </div>
               </div>
             </div>
             <button
+              type="button"
               onClick={() => speakText("Calling Sarah, your daughter, right now.", false)}
               style={{
                 marginTop: "20px",
                 padding: "16px",
                 borderRadius: "16px",
-                backgroundColor: "#F0F7F4",
-                border: "2px solid #00A884",
-                color: "#0D1F2D",
+                backgroundColor: "rgba(63, 237, 186, 0.12)",
+                border: "2px solid #3FEDBA",
+                color: "#3FEDBA",
                 fontSize: "16px",
-                fontWeight: "800",
+                fontWeight: 700,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -487,65 +556,82 @@ export default function AlzheimerSanctuaryPage() {
                 gap: "8px",
               }}
             >
-              📞 Call Sarah Now
+              <IconShieldCheck size={18} color="#3FEDBA" />
+              <span>Call Sarah Now</span>
             </button>
           </div>
 
           {/* CARD 2: MORNING MEDICINE */}
           <div
             style={{
-              backgroundColor: "#FFFFFF",
-              border: "2px solid #B2DFDB",
+              backgroundColor: "rgba(26, 36, 51, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
               borderRadius: "24px",
               padding: "24px",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
             }}
           >
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#0D1F2D" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <div style={{ fontSize: "20px", fontWeight: 700, color: "#FFFFFF", fontFamily: "'Outfit', sans-serif" }}>
                   Morning Medicine
                 </div>
-                <span style={{ fontSize: "12px", color: "#00A884", backgroundColor: "#E6F0EC", padding: "4px 10px", borderRadius: "9999px", fontWeight: "700" }}>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "#3FEDBA",
+                    backgroundColor: "rgba(63, 237, 186, 0.12)",
+                    padding: "4px 10px",
+                    borderRadius: "9999px",
+                    fontWeight: 700,
+                  }}
+                >
                   Concor 5mg
                 </span>
               </div>
               <div
                 style={{
-                  backgroundColor: "#F0F7F4",
+                  backgroundColor: "rgba(12, 20, 31, 0.8)",
                   padding: "16px",
                   borderRadius: "16px",
-                  border: "1px solid #B2DFDB",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
                   display: "flex",
                   alignItems: "center",
                   gap: "14px",
                 }}
               >
-                <div style={{ fontSize: "36px" }}>💊</div>
+                <IconCheckCircle size={28} color="#3FEDBA" />
                 <div>
-                  <div style={{ fontWeight: "800", fontSize: "16px", color: "#0D1F2D" }}>
+                  <div style={{ fontWeight: 700, fontSize: "16px", color: "#FFFFFF" }}>
                     Blood Pressure Capsule
                   </div>
-                  <div style={{ fontSize: "13px", color: "#4A5568", marginTop: "2px" }}>
+                  <div style={{ fontSize: "13px", color: "#94A3B8", marginTop: "2px" }}>
                     1 tablet with a glass of water on the dining table
                   </div>
                 </div>
               </div>
             </div>
             <button
+              type="button"
               onClick={handleMedicationClick}
               style={{
                 marginTop: "20px",
                 padding: "16px",
                 borderRadius: "16px",
-                backgroundColor: medTaken ? "#E6F0EC" : "#00A884",
-                color: medTaken ? "#00A884" : "#FFFFFF",
-                border: medTaken ? "2px solid #00A884" : "none",
-                fontSize: "17px",
-                fontWeight: "800",
+                backgroundColor: medTaken ? "rgba(63, 237, 186, 0.2)" : "#3FEDBA",
+                color: medTaken ? "#3FEDBA" : "#0C141F",
+                border: medTaken ? "2px solid #3FEDBA" : "none",
+                fontSize: "16px",
+                fontWeight: 800,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -553,41 +639,41 @@ export default function AlzheimerSanctuaryPage() {
                 gap: "8px",
               }}
             >
-              {medTaken ? "✓ Marked as Taken (Thank you, Arthur!)" : "✓ Mark as Taken"}
+              <IconCheckCircle size={18} color={medTaken ? "#3FEDBA" : "#0C141F"} />
+              <span>{medTaken ? "Marked as Taken (Thank you, Arthur!)" : "Mark as Taken"}</span>
             </button>
           </div>
 
           {/* CARD 3: TODAY'S GENTLE SCHEDULE */}
           <div
             style={{
-              backgroundColor: "#FFFFFF",
-              border: "2px solid #B2DFDB",
+              backgroundColor: "rgba(26, 36, 51, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
               borderRadius: "24px",
               padding: "24px",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
             }}
           >
-            <div style={{ fontSize: "20px", fontWeight: "800", color: "#0D1F2D", marginBottom: "16px" }}>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#FFFFFF", marginBottom: "16px", fontFamily: "'Outfit', sans-serif" }}>
               Today&apos;s Schedule
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div style={{ padding: "12px 14px", backgroundColor: "#F0F7F4", borderRadius: "14px", border: "1px solid #B2DFDB" }}>
-                <div style={{ fontWeight: "800", fontSize: "15px", color: "#0D1F2D" }}>
-                  11:30 AM — Walk in the Garden
+              <div style={{ padding: "12px 14px", backgroundColor: "rgba(12, 20, 31, 0.8)", borderRadius: "14px", border: "1px solid rgba(63, 237, 186, 0.3)" }}>
+                <div style={{ fontWeight: 700, fontSize: "15px", color: "#3FEDBA" }}>
+                  11:30 AM &bull; Walk in the Garden
                 </div>
-                <div style={{ fontSize: "13px", color: "#4A5568" }}>Strolling the flowers with Sarah</div>
+                <div style={{ fontSize: "13px", color: "#94A3B8" }}>Strolling the flowers with Sarah</div>
               </div>
-              <div style={{ padding: "12px 14px", backgroundColor: "#FFFFFF", borderRadius: "14px", border: "1px solid #E2E8F0" }}>
-                <div style={{ fontWeight: "800", fontSize: "15px", color: "#0D1F2D" }}>
-                  01:00 PM — Lunch &amp; Warm Soup
+              <div style={{ padding: "12px 14px", backgroundColor: "rgba(12, 20, 31, 0.8)", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                <div style={{ fontWeight: 700, fontSize: "15px", color: "#FFFFFF" }}>
+                  01:00 PM &bull; Lunch &amp; Warm Soup
                 </div>
-                <div style={{ fontSize: "13px", color: "#4A5568" }}>Roasted tomato soup and warm bread</div>
+                <div style={{ fontSize: "13px", color: "#94A3B8" }}>Roasted tomato soup and warm bread</div>
               </div>
-              <div style={{ padding: "12px 14px", backgroundColor: "#FFFFFF", borderRadius: "14px", border: "1px solid #E2E8F0" }}>
-                <div style={{ fontWeight: "800", fontSize: "15px", color: "#0D1F2D" }}>
-                  03:00 PM — Classical Music &amp; Rest
+              <div style={{ padding: "12px 14px", backgroundColor: "rgba(12, 20, 31, 0.8)", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                <div style={{ fontWeight: 700, fontSize: "15px", color: "#FFFFFF" }}>
+                  03:00 PM &bull; Classical Music &amp; Rest
                 </div>
-                <div style={{ fontSize: "13px", color: "#4A5568" }}>Mozart string quartets in the armchair</div>
+                <div style={{ fontSize: "13px", color: "#94A3B8" }}>Mozart string quartets in the armchair</div>
               </div>
             </div>
           </div>
@@ -595,49 +681,48 @@ export default function AlzheimerSanctuaryPage() {
           {/* CARD 4: MEMORIES & STORY NARRATION */}
           <div
             style={{
-              backgroundColor: "#FFFFFF",
-              border: "2px solid #B2DFDB",
+              backgroundColor: "rgba(26, 36, 51, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
               borderRadius: "24px",
               padding: "24px",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
             }}
           >
             <div>
-              <div style={{ fontSize: "20px", fontWeight: "800", color: "#0D1F2D", marginBottom: "8px" }}>
+              <div style={{ fontSize: "20px", fontWeight: 700, color: "#FFFFFF", marginBottom: "6px", fontFamily: "'Outfit', sans-serif" }}>
                 Memory Album
               </div>
-              <div style={{ fontSize: "13px", color: "#4A5568", marginBottom: "14px" }}>
+              <div style={{ fontSize: "13px", color: "#94A3B8", marginBottom: "14px" }}>
                 Pacific Coast Highway, 1984 with Clara
               </div>
               <div
                 style={{
                   height: "120px",
                   borderRadius: "16px",
-                  backgroundColor: "#E6F0EC",
+                  backgroundColor: "rgba(12, 20, 31, 0.8)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "40px",
-                  border: "2px solid #B2DFDB",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
                 }}
               >
-                🌊🌅
+                <IconWaveform size={40} color="#3FEDBA" />
               </div>
             </div>
             <button
+              type="button"
               onClick={handleStoryToggle}
               style={{
                 marginTop: "20px",
                 padding: "16px",
                 borderRadius: "16px",
-                backgroundColor: "#F0F7F4",
-                border: "2px solid #7C3AED",
-                color: "#7C3AED",
+                backgroundColor: "rgba(175, 106, 251, 0.12)",
+                border: "2px solid #AF6AFB",
+                color: "#AF6AFB",
                 fontSize: "16px",
-                fontWeight: "800",
+                fontWeight: 700,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -645,7 +730,8 @@ export default function AlzheimerSanctuaryPage() {
                 gap: "8px",
               }}
             >
-              {playingStory ? "⏸ Stop Narration" : "▶ Listen to Story Narration"}
+              <IconSpeaker size={18} color="#AF6AFB" />
+              <span>{playingStory ? "Stop Narration" : "Listen to Story Narration"}</span>
             </button>
           </div>
         </section>
@@ -653,8 +739,8 @@ export default function AlzheimerSanctuaryPage() {
         {/* 4. Large Emergency SOS Button */}
         <section
           style={{
-            backgroundColor: "#FFFFFF",
-            border: "2px solid #DC2626",
+            backgroundColor: "rgba(220, 38, 38, 0.12)",
+            border: "2px solid #EF4444",
             borderRadius: "28px",
             padding: "24px 28px",
             display: "flex",
@@ -662,38 +748,42 @@ export default function AlzheimerSanctuaryPage() {
             justifyContent: "space-between",
             flexWrap: "wrap",
             gap: "20px",
-            boxShadow: "0 6px 20px rgba(220, 38, 38, 0.12)",
+            boxShadow: "0 6px 20px rgba(239, 68, 68, 0.2)",
           }}
         >
           <div>
-            <div style={{ fontSize: "22px", fontWeight: "900", color: "#DC2626", marginBottom: "4px" }}>
+            <div style={{ fontSize: "22px", fontWeight: 800, color: "#EF4444", marginBottom: "4px", fontFamily: "'Outfit', sans-serif" }}>
               Need immediate help or feeling unsure?
             </div>
-            <div style={{ fontSize: "15px", color: "#4A5568" }}>
+            <div style={{ fontSize: "15px", color: "#E8EDF1" }}>
               Press the red button anytime. Dedicated nurse Maria is 2 minutes away.
             </div>
           </div>
           <button
+            type="button"
             onClick={handleSosClick}
             style={{
-              padding: "20px 36px",
+              padding: "18px 36px",
               borderRadius: "20px",
-              backgroundColor: "#DC2626",
+              backgroundColor: "#EF4444",
               color: "#FFFFFF",
               border: "none",
-              fontSize: "20px",
-              fontWeight: "900",
+              fontSize: "18px",
+              fontWeight: 800,
               cursor: "pointer",
-              boxShadow: "0 8px 24px rgba(220, 38, 38, 0.35)",
+              boxShadow: "0 8px 24px rgba(239, 68, 68, 0.4)",
               display: "flex",
               alignItems: "center",
-              gap: "12px",
+              gap: "10px",
+              transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
             }}
           >
-            🚨 SOS CALL CAREGIVER
+            <IconShieldCheck size={20} color="#FFFFFF" />
+            <span>SOS CALL CAREGIVER</span>
           </button>
         </section>
       </main>
+
       <TestingFooter />
     </div>
   );

@@ -4,6 +4,14 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
+import {
+  IconSparkle,
+  IconCpu,
+  IconActivity,
+  IconMicrophone,
+  IconSpeaker,
+  IconShieldCheck,
+} from "../components/CuraIcons";
 
 interface ChatMessage {
   id: string;
@@ -26,7 +34,6 @@ export default function NormalAssistantPage() {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "reasoning">("chat");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
@@ -127,68 +134,101 @@ export default function NormalAssistantPage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#131B26",
+        backgroundColor: "#0C141F",
         color: "#E8EDF1",
         fontFamily: "'Inter', sans-serif",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      {/* Global Testing Navbar with brand logos */}
       <TestingNavbar />
 
-
-      {/* Main Container */}
-      <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "28px 20px", flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
-        {/* Quick Test Chips */}
-        <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: "12px", color: "rgba(232, 237, 241, 0.6)", fontWeight: "600" }}>
+      <main
+        style={{
+          maxWidth: "1080px",
+          margin: "0 auto",
+          padding: "36px 24px",
+          flex: 1,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* Quick Test Scenario Chips */}
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            marginBottom: "20px",
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>
             Test Queries:
           </span>
           <button
+            type="button"
             onClick={() => handleSend("What is the weather in Cairo today?")}
             style={{
               padding: "8px 14px",
               borderRadius: "12px",
-              backgroundColor: "rgba(22, 185, 254, 0.12)",
-              border: "1px solid rgba(22, 185, 254, 0.3)",
-              color: "#60EFEB",
+              backgroundColor: "rgba(22, 185, 254, 0.1)",
+              border: "1px solid rgba(22, 185, 254, 0.25)",
+              color: "#38BDF8",
               fontSize: "13px",
-              fontWeight: "600",
+              fontWeight: 600,
               cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
             }}
           >
-            🌤️ &quot;What is the weather in Cairo today?&quot;
+            <IconSparkle size={14} color="#38BDF8" />
+            <span>&quot;What is the weather in Cairo today?&quot;</span>
           </button>
           <button
+            type="button"
             onClick={() => handleSend("How does Cloudflare Workers AI process DeepSeek-R1 reasoning?")}
             style={{
               padding: "8px 14px",
               borderRadius: "12px",
-              backgroundColor: "rgba(255, 255, 255, 0.06)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
               color: "#E8EDF1",
               fontSize: "13px",
-              fontWeight: "600",
+              fontWeight: 600,
               cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
             }}
           >
-            ⚡ &quot;How does Cloudflare Workers AI process DeepSeek-R1?&quot;
+            <IconCpu size={14} color="#AF6AFB" />
+            <span>&quot;How does Cloudflare process DeepSeek-R1?&quot;</span>
           </button>
           <button
+            type="button"
             onClick={() => handleSend("I have a slight headache and feel tired. What should I check?")}
             style={{
               padding: "8px 14px",
               borderRadius: "12px",
-              backgroundColor: "rgba(63, 237, 186, 0.12)",
-              border: "1px solid rgba(63, 237, 186, 0.3)",
+              backgroundColor: "rgba(63, 237, 186, 0.1)",
+              border: "1px solid rgba(63, 237, 186, 0.25)",
               color: "#3FEDBA",
               fontSize: "13px",
-              fontWeight: "600",
+              fontWeight: 600,
               cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
             }}
           >
-            🩺 &quot;I have a slight headache, what should I check?&quot;
+            <IconShieldCheck size={14} color="#3FEDBA" />
+            <span>&quot;I have a slight headache, what should I check?&quot;</span>
           </button>
         </div>
 
@@ -219,17 +259,17 @@ export default function NormalAssistantPage() {
                   maxWidth: "85%",
                   backgroundColor:
                     m.sender === "user" ? "#16B9FE" : "rgba(26, 36, 51, 0.8)",
-                  color: m.sender === "user" ? "#131B26" : "#FFFFFF",
+                  color: m.sender === "user" ? "#0C141F" : "#FFFFFF",
                   border:
                     m.sender === "user"
                       ? "none"
-                      : "1px solid rgba(255, 255, 255, 0.1)",
+                      : "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius:
                     m.sender === "user"
                       ? "20px 20px 4px 20px"
                       : "20px 20px 20px 4px",
                   padding: "16px 20px",
-                  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
+                  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.3)",
                   backdropFilter: "blur(16px)",
                 }}
               >
@@ -245,8 +285,8 @@ export default function NormalAssistantPage() {
                   <span
                     style={{
                       fontSize: "12px",
-                      fontWeight: "800",
-                      color: m.sender === "user" ? "#0F172A" : "#16B9FE",
+                      fontWeight: 800,
+                      color: m.sender === "user" ? "#0C141F" : "#38BDF8",
                     }}
                   >
                     {m.sender === "user" ? "You" : "CURA Intelligence Core"}
@@ -264,9 +304,9 @@ export default function NormalAssistantPage() {
                 <p
                   style={{
                     fontSize: "15px",
-                    lineHeight: "1.6",
+                    lineHeight: "1.65",
                     margin: 0,
-                    fontWeight: "500",
+                    fontWeight: 500,
                   }}
                 >
                   {m.text}
@@ -274,20 +314,25 @@ export default function NormalAssistantPage() {
 
                 {m.sender === "cura" && (
                   <button
+                    type="button"
                     onClick={() => speakText(m.text)}
                     style={{
-                      marginTop: "10px",
+                      marginTop: "12px",
                       padding: "4px 10px",
                       borderRadius: "8px",
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
                       border: "none",
                       color: "#60EFEB",
                       fontSize: "12px",
-                      fontWeight: "600",
+                      fontWeight: 600,
                       cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
                     }}
                   >
-                    🔊 Listen
+                    <IconSpeaker size={13} color="#60EFEB" />
+                    <span>Listen</span>
                   </button>
                 )}
 
@@ -296,30 +341,30 @@ export default function NormalAssistantPage() {
                   <details
                     style={{
                       marginTop: "12px",
-                      backgroundColor: "rgba(19, 27, 38, 0.85)",
+                      backgroundColor: "rgba(12, 20, 31, 0.85)",
                       borderRadius: "12px",
                       padding: "10px 14px",
-                      border: "1px solid rgba(22, 185, 254, 0.2)",
+                      fontSize: "12px",
+                      color: "#A7B7C7",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
                     }}
                   >
                     <summary
                       style={{
                         cursor: "pointer",
-                        fontSize: "12px",
-                        color: "#60EFEB",
-                        fontWeight: "700",
+                        fontWeight: 600,
+                        color: "#38BDF8",
                       }}
                     >
-                      DeepSeek-R1 Multi-Step Reasoning Trace (&lt;think&gt;)
+                      DeepSeek-R1 CoT Trace (&lt;think&gt;)
                     </summary>
                     <pre
                       style={{
                         whiteSpace: "pre-wrap",
                         fontFamily: "'JetBrains Mono', monospace",
                         fontSize: "11px",
-                        color: "#94A3B8",
-                        margin: "8px 0 0",
-                        lineHeight: "1.5",
+                        marginTop: "8px",
+                        lineHeight: "1.6",
                       }}
                     >
                       {m.reasoning}
@@ -331,9 +376,9 @@ export default function NormalAssistantPage() {
           ))}
 
           {loading && (
-            <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#60EFEB", fontSize: "14px", padding: "10px" }}>
-              <span style={{ animation: "pulseGlow 1.2s infinite" }}>⚡</span>
-              DeepSeek-R1 Distill Qwen 32B GPU reasoning in progress...
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#38BDF8", fontSize: "13px" }}>
+              <IconCpu size={16} color="#38BDF8" />
+              <span>DeepSeek-R1 is thinking...</span>
             </div>
           )}
         </div>
@@ -341,48 +386,40 @@ export default function NormalAssistantPage() {
         {/* Input Dock */}
         <div
           style={{
-            backgroundColor: "rgba(26, 36, 51, 0.9)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
-            borderRadius: "24px",
-            padding: "10px 14px",
             display: "flex",
-            alignItems: "center",
             gap: "12px",
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.4)",
+            backgroundColor: "rgba(26, 36, 51, 0.8)",
+            padding: "12px",
+            borderRadius: "20px",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
           }}
         >
-          {/* Push-to-Talk Microphone */}
           <button
+            type="button"
             onClick={toggleRecording}
+            title={recording ? "Stop Recording" : "Voice Input"}
             style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "50%",
-              backgroundColor: recording ? "#EF4444" : "#16B9FE",
-              color: "#131B26",
+              padding: "12px",
+              borderRadius: "14px",
+              backgroundColor: recording ? "#EF4444" : "rgba(255, 255, 255, 0.06)",
+              color: "#FFFFFF",
               border: "none",
+              cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "20px",
-              cursor: "pointer",
-              boxShadow: recording
-                ? "0 0 16px #EF4444"
-                : "0 0 16px rgba(22, 185, 254, 0.4)",
-              transition: "all 0.2s ease",
+              transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
             }}
-            title={recording ? "Recording... Click to stop" : "Click to speak"}
           >
-            {recording ? "⏹" : "🎤"}
+            <IconMicrophone size={18} color="#FFFFFF" />
           </button>
-
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type any question (e.g. 'What is the weather in Cairo today?')..."
+            placeholder="Ask CURA clinical research or health questions..."
             style={{
               flex: 1,
               backgroundColor: "transparent",
@@ -390,28 +427,30 @@ export default function NormalAssistantPage() {
               color: "#FFFFFF",
               fontSize: "15px",
               outline: "none",
-              fontFamily: "inherit",
             }}
           />
-
           <button
+            type="button"
             onClick={() => handleSend()}
             disabled={loading}
             style={{
               padding: "12px 24px",
-              borderRadius: "16px",
+              borderRadius: "14px",
               backgroundColor: "#16B9FE",
-              color: "#131B26",
-              border: "none",
+              color: "#0C141F",
+              fontWeight: 800,
               fontSize: "14px",
-              fontWeight: "700",
+              border: "none",
               cursor: loading ? "wait" : "pointer",
+              boxShadow: "0 4px 14px rgba(22, 185, 254, 0.35)",
+              transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
             }}
           >
-            Send
+            {loading ? "..." : "Send"}
           </button>
         </div>
       </main>
+
       <TestingFooter />
     </div>
   );
