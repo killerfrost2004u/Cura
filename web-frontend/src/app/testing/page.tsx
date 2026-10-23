@@ -6,6 +6,7 @@ import TestingNavbar from "./components/TestingNavbar";
 import TestingFooter from "./components/TestingFooter";
 import CognitiveNeuralCore from "./components/CognitiveNeuralCore";
 import VoiceMicButton from "./components/VoiceMicButton";
+import ThinkingOrb from "./components/ThinkingOrb";
 import { speakNaturalText, stopSpeaking, isArabicText } from "./utils/speech";
 import {
   IconFlask,
@@ -743,6 +744,16 @@ export default function AITestingCockpitPage() {
               ))}
             </div>
           </div>
+
+          {/* Cognitive Reasoning Animated Orb */}
+          {loading && (
+            <div style={{ marginBottom: "24px" }}>
+              <ThinkingOrb
+                mode={selectedMode}
+                accentColor={getAccentColor()}
+              />
+            </div>
+          )}
 
           {/* Dual-Column Results Console */}
           {result && (

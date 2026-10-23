@@ -5,6 +5,7 @@ import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
 import VoiceMicButton from "../components/VoiceMicButton";
+import ThinkingOrb from "../components/ThinkingOrb";
 import { speakNaturalText, stopSpeaking, isArabicText } from "../utils/speech";
 import {
   IconBolt,
@@ -597,33 +598,12 @@ export default function AdhdFocusSanctuaryPage() {
 
           {/* Thinking State */}
           {loading && (
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-                color: "#AF6AFB",
-                fontSize: "13px",
-                padding: "10px 16px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(175, 106, 251, 0.08)",
-                border: "1px solid rgba(175, 106, 251, 0.2)",
-                marginBottom: "16px",
-              }}
-            >
-              <IconCpu size={16} color="#AF6AFB" />
-              <span>Unwinding task paralysis with DeepSeek-R1...</span>
-              <span
-                style={{
-                  fontFamily: "monospace",
-                  fontWeight: 700,
-                  backgroundColor: "rgba(175, 106, 251, 0.2)",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                {elapsedSeconds}s
-              </span>
+            <div style={{ marginBottom: "16px" }}>
+              <ThinkingOrb
+                mode="adhd"
+                accentColor="#AF6AFB"
+                secondsElapsed={elapsedSeconds}
+              />
             </div>
           )}
 

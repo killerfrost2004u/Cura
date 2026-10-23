@@ -1,5 +1,5 @@
-// CURA Multilingual Natural Voice & BiDi Synthesis Engine
-// Prioritizes Egyptian Arabic (ar-EG: Salma, Shakir) and Natural English (Jenny, Guy, Google)
+// CURA Multimodal Speech Synthesis Engine
+// Combines Azure Neural Edge TTS (/api/tts) with browser Web Speech API fallback
 
 export function isArabicText(text: string): boolean {
   if (!text) return false;
@@ -10,146 +10,136 @@ export interface SpeakOptions {
   rate?: number;
   pitch?: number;
   volume?: number;
+  voice?: string;
   preferEgyptian?: boolean;
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (err: any) => void;
 }
 
-let cachedVoices: SpeechSynthesisVoice[] = [];
-
-export function getAvailableVoices(): SpeechSynthesisVoice[] {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-    return [];
-  }
-  if (cachedVoices.length > 0) return cachedVoices;
-  const voices = window.speechSynthesis.getVoices();
-  if (voices && voices.length > 0) {
-    cachedVoices = voices;
-  }
-  return voices;
-}
-
-// Selects highest fidelity natural voice with strict Egyptian Arabic prioritization
-export function selectBestVoice(isArabic: boolean, preferEgyptian = true): SpeechSynthesisVoice | null {
-  const voices = getAvailableVoices();
-  if (!voices || voices.length === 0) return null;
-
-  if (isArabic) {
-    // 1. Egyptian Arabic Natural Neural (Microsoft Salma, Shakir Online)
-    const egNatural = voices.find(
-      (v) =>
-        (v.lang === "ar-EG" || v.lang.startsWith("ar")) &&
-        (v.name.includes("Shakir") || v.name.includes("Salma") || v.name.includes("Egypt")) &&
-        (v.name.includes("Natural") || v.name.includes("Online"))
-    );
-    if (egNatural) return egNatural;
-
-    // 2. Any Egyptian Arabic voice (e.g. Google ar-EG, Hoda)
-    const egVoice = voices.find(
-      (v) => (v.lang === "ar-EG" || v.name.toLowerCase().includes("egypt"))
-    );
-    if (egVoice) return egVoice;
-
-    // 3. Any Natural/Online Arabic voice (e.g. Hamed, Zariyah)
-    const arNatural = voices.find(
-      (v) => v.lang.startsWith("ar") && (v.name.includes("Natural") || v.name.includes("Online"))
-    );
-    if (arNatural) return arNatural;
-
-    // 4. Any Arabic voice
-    const anyAr = voices.find((v) => v.lang.startsWith("ar") || v.lang.includes("ar"));
-    if (anyAr) return anyAr;
-  } else {
-    // 1. Natural Neural English (Microsoft Jenny, Guy, Aria, Google US)
-    const enNatural = voices.find(
-      (v) =>
-        v.lang.startsWith("en") &&
-        (v.name.includes("Natural") || v.name.includes("Online") || v.name.includes("Neural"))
-    );
-    if (enNatural) return enNatural;
-
-    // 2. Google US English
-    const googleEn = voices.find(
-      (v) => v.lang.startsWith("en") && v.name.includes("Google")
-    );
-    if (googleEn) return googleEn;
-
-    // 3. Any English voice
-    const anyEn = voices.find((v) => v.lang.startsWith("en"));
-    if (anyEn) return anyEn;
-  }
-
-  return voices[0] || null;
-}
+let activeAudio: HTMLAudioElement | null = null;
 
 export function stopSpeaking(): void {
+  if (activeAudio) {
+    try {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+    } catch {}
+    activeAudio = null;
+  }
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
   }
 }
 
-export function speakNaturalText(text: string, options: SpeakOptions = {}): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      resolve();
-      return;
-    }
+/**
+ * Synthesizes and plays high-definition neural speech audio.
+ * Uses /api/tts (Azure Neural ar-EG-SalmaNeural for Egyptian Arabic & en-US-JennyNeural for English).
+ * Gracefully falls back to browser SpeechSynthesis if offline.
+ */
+export async function speakNaturalText(text: string, options: SpeakOptions = {}): Promise<void> {
+  stopSpeaking();
 
-    // Cancel ongoing speech
-    window.speechSynthesis.cancel();
+  if (!text || !text.trim()) {
+    return;
+  }
 
-    if (!text || !text.trim()) {
-      resolve();
-      return;
-    }
+  const isArabic = isArabicText(text);
 
-    const isArabic = isArabicText(text);
+  // Default to SalmaNeural for Egyptian Arabic, JennyNeural for English
+  const defaultVoice = isArabic ? "ar-EG-SalmaNeural" : "en-US-JennyNeural";
+  const selectedVoice = options.voice || defaultVoice;
 
-    const executeSpeak = () => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      const voice = selectBestVoice(isArabic, options.preferEgyptian ?? true);
-      if (voice) {
-        utterance.voice = voice;
-        utterance.lang = voice.lang;
-      } else {
-        utterance.lang = isArabic ? "ar-EG" : "en-US";
-      }
+  try {
+    options.onStart?.();
 
-      // Smooth human pacing: 0.92 for warm natural Egyptian cadence
-      utterance.rate = options.rate ?? (isArabic ? 0.92 : 1.0);
-      utterance.pitch = options.pitch ?? 1.0;
-      utterance.volume = options.volume ?? 1.0;
+    // 1. Attempt High-Fidelity Server Neural TTS
+    const res = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text,
+        voice: selectedVoice,
+        rate: options.rate || 1.0,
+      }),
+    });
 
-      utterance.onstart = () => {
-        options.onStart?.();
-      };
+    if (res.ok) {
+      const blob = await res.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      activeAudio = audio;
 
-      utterance.onend = () => {
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        activeAudio = null;
         options.onEnd?.();
-        resolve();
       };
 
-      utterance.onerror = (e) => {
-        options.onError?.(e);
-        resolve(); // Don't reject to keep UI flowing
+      audio.onerror = (e) => {
+        console.warn("Audio element playback error, falling back to Web Speech:", e);
+        URL.revokeObjectURL(audioUrl);
+        activeAudio = null;
+        fallbackWebSpeech(text, isArabic, options);
       };
 
-      window.speechSynthesis.speak(utterance);
+      await audio.play();
+      return;
+    } else {
+      console.warn("Server TTS failed with status:", res.status, "Falling back to Web Speech.");
+    }
+  } catch (err) {
+    console.warn("Server TTS fetch error, falling back to Web Speech:", err);
+  }
+
+  // 2. Client Web Speech Synthesis Fallback
+  fallbackWebSpeech(text, isArabic, options);
+}
+
+function fallbackWebSpeech(text: string, isArabic: boolean, options: SpeakOptions) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    options.onEnd?.();
+    return;
+  }
+
+  try {
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+
+    if (isArabic) {
+      const arVoice = voices.find(
+        (v) =>
+          (v.lang.startsWith("ar") || v.lang === "ar-EG") &&
+          (v.name.includes("Salma") || v.name.includes("Shakir") || v.name.includes("Natural"))
+      ) || voices.find((v) => v.lang.startsWith("ar"));
+      if (arVoice) utterance.voice = arVoice;
+      utterance.lang = "ar-EG";
+      utterance.rate = options.rate || 0.9;
+    } else {
+      const enVoice = voices.find(
+        (v) =>
+          v.lang.startsWith("en") &&
+          (v.name.includes("Natural") || v.name.includes("Online") || v.name.includes("Jenny"))
+      ) || voices.find((v) => v.lang.startsWith("en"));
+      if (enVoice) utterance.voice = enVoice;
+      utterance.lang = "en-US";
+      utterance.rate = options.rate || 1.0;
+    }
+
+    utterance.onend = () => {
+      options.onEnd?.();
     };
 
-    const currentVoices = window.speechSynthesis.getVoices();
-    if (currentVoices && currentVoices.length > 0) {
-      cachedVoices = currentVoices;
-      executeSpeak();
-    } else {
-      // Wait for voices to load in browser
-      window.speechSynthesis.onvoiceschanged = () => {
-        cachedVoices = window.speechSynthesis.getVoices();
-        executeSpeak();
-      };
-      // Fallback timeout in case onvoiceschanged does not fire
-      setTimeout(executeSpeak, 100);
-    }
-  });
+    utterance.onerror = (e) => {
+      options.onError?.(e);
+      options.onEnd?.();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  } catch (e) {
+    options.onError?.(e);
+    options.onEnd?.();
+  }
 }

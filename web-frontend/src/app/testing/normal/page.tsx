@@ -5,6 +5,7 @@ import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
 import VoiceMicButton from "../components/VoiceMicButton";
+import ThinkingOrb from "../components/ThinkingOrb";
 import { speakNaturalText, stopSpeaking, isArabicText } from "../utils/speech";
 import {
   IconSparkle,
@@ -489,34 +490,11 @@ export default function NormalAssistantPage() {
           })}
 
           {loading && (
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-                color: "#38BDF8",
-                fontSize: "13px",
-                padding: "10px 16px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(22, 185, 254, 0.08)",
-                border: "1px solid rgba(22, 185, 254, 0.2)",
-                alignSelf: "flex-start",
-              }}
-            >
-              <IconCpu size={16} color="#38BDF8" />
-              <span>DeepSeek-R1 is thinking on Cloudflare GPU...</span>
-              <span
-                style={{
-                  fontFamily: "monospace",
-                  fontWeight: 700,
-                  backgroundColor: "rgba(22, 185, 254, 0.2)",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                {elapsedSeconds}s
-              </span>
-            </div>
+            <ThinkingOrb
+              mode="normal"
+              accentColor="#16B9FE"
+              secondsElapsed={elapsedSeconds}
+            />
           )}
         </div>
 

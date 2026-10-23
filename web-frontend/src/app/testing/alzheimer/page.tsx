@@ -5,6 +5,7 @@ import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
 import VoiceMicButton from "../components/VoiceMicButton";
+import ThinkingOrb from "../components/ThinkingOrb";
 import { speakNaturalText, stopSpeaking, isArabicText } from "../utils/speech";
 import {
   IconBrain,
@@ -470,33 +471,12 @@ export default function AlzheimerSanctuaryPage() {
 
           {/* Thinking State */}
           {loading && (
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-                color: "#3FEDBA",
-                fontSize: "13px",
-                padding: "10px 16px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(63, 237, 186, 0.08)",
-                border: "1px solid rgba(63, 237, 186, 0.2)",
-                marginBottom: "16px",
-              }}
-            >
-              <IconCpu size={16} color="#3FEDBA" />
-              <span>CURA is consulting clinical reasoning memory...</span>
-              <span
-                style={{
-                  fontFamily: "monospace",
-                  fontWeight: 700,
-                  backgroundColor: "rgba(63, 237, 186, 0.2)",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                {elapsedSeconds}s
-              </span>
+            <div style={{ marginBottom: "16px" }}>
+              <ThinkingOrb
+                mode="alzheimer"
+                accentColor="#3FEDBA"
+                secondsElapsed={elapsedSeconds}
+              />
             </div>
           )}
 
