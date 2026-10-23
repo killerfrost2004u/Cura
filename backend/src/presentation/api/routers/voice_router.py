@@ -59,6 +59,7 @@ async def interact_text(
         "data": {
             "user_query": req.text,
             "response_text": final_text,
+            "reasoning_content": llm_res.get("reasoning_content", ""),
             "mode": req.mode.value,
             "tools_executed": executed_tools,
             "repetition": repetition_info,
@@ -85,6 +86,7 @@ async def demo_interact(
         "data": {
             "transcribed_text": result["user_text"],
             "response_text": result["bot_text"],
+            "reasoning_content": result.get("reasoning_content", ""),
             "mode": result["mode"].value,
             "tools_executed": result["tools_executed"],
         }

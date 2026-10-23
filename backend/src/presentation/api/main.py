@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -9,6 +12,7 @@ from src.presentation.api.routers.patient_router import router as patient_router
 from src.presentation.api.routers.medication_router import router as medication_router
 from src.presentation.api.routers.emergency_router import router as emergency_router
 from src.presentation.websockets.hardware_stream import router as websocket_router
+from src.presentation.websockets.voice_stream import router as voice_ws_router
 
 # Configure logging
 logging.basicConfig(
@@ -59,6 +63,7 @@ app.include_router(emergency_router, prefix=api_v1_prefix)
 
 # Include WebSocket Routers
 app.include_router(websocket_router)
+app.include_router(voice_ws_router)
 
 @app.get("/")
 async def root():

@@ -83,7 +83,9 @@ class ProcessVoiceInteractionUseCase:
         return {
             "user_text": user_text,
             "bot_text": bot_response_text,
+            "reasoning_content": llm_output.get("reasoning_content", ""),
             "audio_response": synthesized_voice,
             "mode": mode,
             "tools_executed": executed_tools,
         }
+
