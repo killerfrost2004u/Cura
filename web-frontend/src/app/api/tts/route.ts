@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
+export const runtime = "nodejs";
 export const maxDuration = 30;
 
 function isArabicText(text: string): boolean {
