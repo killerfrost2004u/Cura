@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
+import VoiceMicButton from "../components/VoiceMicButton";
+import { speakNaturalText, stopSpeaking, isArabicText } from "../utils/speech";
 import {
   IconBrain,
   IconShieldCheck,
@@ -12,6 +14,7 @@ import {
   IconClock,
   IconActivity,
   IconWaveform,
+  IconCpu,
 } from "../components/CuraIcons";
 
 export default function AlzheimerSanctuaryPage() {
@@ -21,12 +24,25 @@ export default function AlzheimerSanctuaryPage() {
   const [currentDate, setCurrentDate] = useState("Monday, May 20");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(
-    "صباح الخير يا فندم! متقلقش خالص، كل أمورك مستقرة وصحتك كويسة جداً. قرص دواء الضغط (كونكور 5 مجم) متسجل إنه تم أخذه الساعة 9:00 صباحاً مع بنتك سارة."
+    "صباح الخير يا فندم! متقلقش خالص، كل أمورك مستقرة وصحتك كويسة جداً. قرص دواء الضغط (كونكور 5 مجم) متسجل إنه تم أخذه الساعة 9:00 صباحاً مع بنتك سارة وكوباية عصير برتقال فريش."
   );
   const [reasoningTrace, setReasoningTrace] = useState<string | null>(
     "1. Intent: Memory check regarding morning medication.\n2. Verification: Verified Concor 5mg logged at 09:00 AM alongside Sarah Vance.\n3. Safety: Strict reassurance protocol to prevent double-dosing hazard."
   );
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loading) {
+      setElapsedSeconds(0);
+      timer = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [loading]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -47,20 +63,23 @@ export default function AlzheimerSanctuaryPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const speakText = (text: string, isArabic = false) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.85; // Calming, unhurried pacing for elderly comprehension
-      utterance.pitch = 1.0;
-      if (isArabic) {
-        utterance.lang = "ar-EG";
-      }
-      window.speechSynthesis.speak(utterance);
+  const speakText = (text: string, _isArabic?: boolean) => {
+    if (isSpeaking) {
+      stopSpeaking();
+      setIsSpeaking(false);
+      return;
     }
+
+    setIsSpeaking(true);
+    speakNaturalText(text, {
+      preferEgyptian: true,
+      rate: 0.86, // Soothing unhurried pacing for elderly reassurance
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
   };
 
-  const handleAskCura = async (textToSend?: string) => {
+  const handleAskCura = async (textToSend?: string, isFromMic = false) => {
     const text = textToSend || query;
     if (!text.trim()) return;
 
@@ -79,14 +98,17 @@ export default function AlzheimerSanctuaryPage() {
       if (json.success && json.data) {
         setAiResponse(json.data.response_text);
         setReasoningTrace(json.data.reasoning_content || null);
-        const isAr = /[\u0600-\u06FF]/.test(json.data.response_text);
-        speakText(json.data.response_text, isAr);
+        if (isFromMic) {
+          speakText(json.data.response_text);
+        }
       }
     } catch {
       const fallback =
-        "صباح الخير! كل حاجة بخير ومتسجلة عندنا. متقلقش خالص يا فندم.";
+        "صباح الخير! كل حاجة بخير ومتسجلة عندنا بالدقيقة. متقلقش خالص يا فندم، صحتك مستقرة وأنت بأمان في بيتك.";
       setAiResponse(fallback);
-      speakText(fallback, true);
+      if (isFromMic) {
+        speakText(fallback);
+      }
     } finally {
       setLoading(false);
     }
@@ -368,36 +390,44 @@ export default function AlzheimerSanctuaryPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    const isAr = /[\u0600-\u06FF]/.test(aiResponse);
-                    speakText(aiResponse, isAr);
-                  }}
+                  onClick={() => speakText(aiResponse)}
                   style={{
                     padding: "8px 16px",
                     borderRadius: "10px",
-                    backgroundColor: "#3FEDBA",
-                    color: "#0C141F",
-                    border: "none",
+                    backgroundColor: isSpeaking ? "rgba(63, 237, 186, 0.2)" : "#3FEDBA",
+                    color: isSpeaking ? "#3FEDBA" : "#0C141F",
+                    border: isSpeaking ? "1px solid #3FEDBA" : "none",
                     fontSize: "13px",
                     fontWeight: 700,
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
+                    transition: "all 140ms ease",
                   }}
                 >
-                  <IconSpeaker size={15} color="#0C141F" />
-                  <span>Listen Aloud</span>
+                  <IconSpeaker size={15} color={isSpeaking ? "#3FEDBA" : "#0C141F"} />
+                  <span>
+                    {isSpeaking
+                      ? "إيقاف الصوت (Pause)"
+                      : isArabicText(aiResponse)
+                      ? "استمع بالصوت المصري"
+                      : "Listen Aloud"}
+                  </span>
                 </button>
               </div>
               <p
                 style={{
                   fontSize: "18px",
-                  lineHeight: "1.7",
+                  lineHeight: "1.75",
                   margin: 0,
                   color: "#FFFFFF",
                   fontWeight: 500,
-                  direction: /[\u0600-\u06FF]/.test(aiResponse) ? "rtl" : "ltr",
+                  direction: isArabicText(aiResponse) ? "rtl" : "ltr",
+                  textAlign: isArabicText(aiResponse) ? "right" : "left",
+                  fontFamily: isArabicText(aiResponse)
+                    ? "'Cairo', 'Segoe UI', Tahoma, sans-serif"
+                    : "'Inter', sans-serif",
                 }}
               >
                 {aiResponse}
@@ -416,9 +446,11 @@ export default function AlzheimerSanctuaryPage() {
                 color: "#94A3B8",
                 marginBottom: "18px",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
+                direction: isArabicText(reasoningTrace) ? "rtl" : "ltr",
+                textAlign: isArabicText(reasoningTrace) ? "right" : "left",
               }}
             >
-              <summary style={{ cursor: "pointer", fontWeight: 700, color: "#3FEDBA" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 700, color: "#3FEDBA", direction: "ltr" }}>
                 DeepSeek-R1 Clinical Reasoning Trace (&lt;think&gt;)
               </summary>
               <pre
@@ -427,7 +459,8 @@ export default function AlzheimerSanctuaryPage() {
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "12px",
                   marginTop: "8px",
-                  color: "#A7B7C7",
+                  color: "#CBD5E1",
+                  lineHeight: "1.6",
                 }}
               >
                 {reasoningTrace}
@@ -435,14 +468,61 @@ export default function AlzheimerSanctuaryPage() {
             </details>
           )}
 
-          {/* Input Bar */}
-          <div style={{ display: "flex", gap: "12px" }}>
+          {/* Thinking State */}
+          {loading && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+                color: "#3FEDBA",
+                fontSize: "13px",
+                padding: "10px 16px",
+                borderRadius: "12px",
+                backgroundColor: "rgba(63, 237, 186, 0.08)",
+                border: "1px solid rgba(63, 237, 186, 0.2)",
+                marginBottom: "16px",
+              }}
+            >
+              <IconCpu size={16} color="#3FEDBA" />
+              <span>CURA is consulting clinical reasoning memory...</span>
+              <span
+                style={{
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  backgroundColor: "rgba(63, 237, 186, 0.2)",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                }}
+              >
+                {elapsedSeconds}s
+              </span>
+            </div>
+          )}
+
+          {/* Input Bar with VoiceMicButton */}
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <VoiceMicButton
+              onTranscript={(transcript) => {
+                setQuery(transcript);
+                handleAskCura(transcript, true);
+              }}
+              accentColor="#3FEDBA"
+              lang="ar-EG"
+              size={20}
+              title="تحدث بالصوت المصري (Voice Input)"
+            />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAskCura()}
-              placeholder="Type your question or reassuring memory here..."
+              placeholder={
+                isArabicText(query)
+                  ? "اكتب سؤالك هنا أو اطمئن على مواعيد الدواء..."
+                  : "Type your question or reassuring memory here..."
+              }
+              dir={isArabicText(query) ? "rtl" : "ltr"}
               style={{
                 flex: 1,
                 padding: "14px 18px",
@@ -452,6 +532,10 @@ export default function AlzheimerSanctuaryPage() {
                 color: "#FFFFFF",
                 fontSize: "16px",
                 outline: "none",
+                textAlign: isArabicText(query) ? "right" : "left",
+                fontFamily: isArabicText(query)
+                  ? "'Cairo', 'Segoe UI', Tahoma, sans-serif"
+                  : "'Inter', sans-serif",
               }}
             />
             <button

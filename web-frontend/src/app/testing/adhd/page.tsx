@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TestingNavbar from "../components/TestingNavbar";
 import TestingFooter from "../components/TestingFooter";
+import VoiceMicButton from "../components/VoiceMicButton";
+import { speakNaturalText, stopSpeaking, isArabicText } from "../utils/speech";
 import {
   IconBolt,
   IconCheckCircle,
@@ -13,6 +15,7 @@ import {
   IconShieldCheck,
   IconActivity,
   IconCrosshair,
+  IconCpu,
 } from "../components/CuraIcons";
 
 interface MicroTask {
@@ -32,12 +35,25 @@ export default function AdhdFocusSanctuaryPage() {
   ]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(
     "Take a slow, deep breath. Having multiple urgent tasks causes decision freeze, and that is completely okay. Let's ignore the big list and pick just ONE tiny 5-minute action: open your workspace and write down the very first sentence. Ready? Let's start our 15-minute focus sprint together!"
   );
   const [reasoningTrace, setReasoningTrace] = useState<string | null>(
     "1. Intent: Executive dysfunction & task paralysis.\n2. Strategy: Eliminate multi-task overwhelm. Enforce single micro-step isolation.\n3. Reward: Attach dopamine milestone upon kickoff."
   );
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loading) {
+      setElapsedSeconds(0);
+      timer = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [loading]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -62,16 +78,22 @@ export default function AdhdFocusSanctuaryPage() {
   };
 
   const speakText = (text: string) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-      utterance.pitch = 1.0;
-      window.speechSynthesis.speak(utterance);
+    if (isSpeaking) {
+      stopSpeaking();
+      setIsSpeaking(false);
+      return;
     }
+
+    setIsSpeaking(true);
+    speakNaturalText(text, {
+      preferEgyptian: true,
+      rate: 0.95,
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
   };
 
-  const handleAskCura = async (textToSend?: string) => {
+  const handleAskCura = async (textToSend?: string, isFromMic = false) => {
     const text = textToSend || query;
     if (!text.trim()) return;
 
@@ -90,10 +112,18 @@ export default function AdhdFocusSanctuaryPage() {
       if (json.success && json.data) {
         setAiResponse(json.data.response_text);
         setReasoningTrace(json.data.reasoning_content || null);
-        speakText(json.data.response_text);
+        if (isFromMic) {
+          speakText(json.data.response_text);
+        }
       }
     } catch {
-      setAiResponse("Breathe in slowly. Let's pick one single task and work on it for 5 minutes.");
+      const fallback = isArabicText(text)
+        ? "تنفس بهدوء. مش لازم نخلص كل حاجة النهاردة، هنبدأ بخطوة واحدة بسيطة مدتها 5 دقائق."
+        : "Breathe in slowly. Let's pick one single task and work on it for 5 minutes.";
+      setAiResponse(fallback);
+      if (isFromMic) {
+        speakText(fallback);
+      }
     } finally {
       setLoading(false);
     }
@@ -488,22 +518,45 @@ export default function AdhdFocusSanctuaryPage() {
                   style={{
                     padding: "6px 12px",
                     borderRadius: "8px",
-                    backgroundColor: "rgba(175, 106, 251, 0.15)",
+                    backgroundColor: isSpeaking
+                      ? "rgba(175, 106, 251, 0.3)"
+                      : "rgba(175, 106, 251, 0.15)",
                     color: "#AF6AFB",
-                    border: "1px solid rgba(175, 106, 251, 0.3)",
+                    border: isSpeaking
+                      ? "1px solid #AF6AFB"
+                      : "1px solid rgba(175, 106, 251, 0.3)",
                     fontSize: "12px",
                     fontWeight: 600,
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
+                    transition: "all 140ms ease",
                   }}
                 >
                   <IconSpeaker size={14} color="#AF6AFB" />
-                  <span>Listen</span>
+                  <span>
+                    {isSpeaking
+                      ? "Pause"
+                      : isArabicText(aiResponse)
+                      ? "استمع بالصوت المصري"
+                      : "Listen"}
+                  </span>
                 </button>
               </div>
-              <p style={{ fontSize: "15px", lineHeight: "1.65", margin: 0, color: "#FFFFFF" }}>
+              <p
+                style={{
+                  fontSize: "15px",
+                  lineHeight: "1.7",
+                  margin: 0,
+                  color: "#FFFFFF",
+                  direction: isArabicText(aiResponse) ? "rtl" : "ltr",
+                  textAlign: isArabicText(aiResponse) ? "right" : "left",
+                  fontFamily: isArabicText(aiResponse)
+                    ? "'Cairo', 'Segoe UI', Tahoma, sans-serif"
+                    : "'Inter', sans-serif",
+                }}
+              >
                 {aiResponse}
               </p>
             </div>
@@ -520,9 +573,11 @@ export default function AdhdFocusSanctuaryPage() {
                 color: "#94A3B8",
                 marginBottom: "16px",
                 border: "1px solid rgba(255, 255, 255, 0.05)",
+                direction: isArabicText(reasoningTrace) ? "rtl" : "ltr",
+                textAlign: isArabicText(reasoningTrace) ? "right" : "left",
               }}
             >
-              <summary style={{ cursor: "pointer", fontWeight: 600, color: "#AF6AFB" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 600, color: "#AF6AFB", direction: "ltr" }}>
                 DeepSeek-R1 Cognitive Triage Trace (&lt;think&gt;)
               </summary>
               <pre
@@ -531,7 +586,8 @@ export default function AdhdFocusSanctuaryPage() {
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "12px",
                   marginTop: "8px",
-                  color: "#A7B7C7",
+                  color: "#CBD5E1",
+                  lineHeight: "1.6",
                 }}
               >
                 {reasoningTrace}
@@ -539,14 +595,61 @@ export default function AdhdFocusSanctuaryPage() {
             </details>
           )}
 
-          {/* Input Bar */}
-          <div style={{ display: "flex", gap: "12px" }}>
+          {/* Thinking State */}
+          {loading && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+                color: "#AF6AFB",
+                fontSize: "13px",
+                padding: "10px 16px",
+                borderRadius: "12px",
+                backgroundColor: "rgba(175, 106, 251, 0.08)",
+                border: "1px solid rgba(175, 106, 251, 0.2)",
+                marginBottom: "16px",
+              }}
+            >
+              <IconCpu size={16} color="#AF6AFB" />
+              <span>Unwinding task paralysis with DeepSeek-R1...</span>
+              <span
+                style={{
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  backgroundColor: "rgba(175, 106, 251, 0.2)",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                }}
+              >
+                {elapsedSeconds}s
+              </span>
+            </div>
+          )}
+
+          {/* Input Bar with VoiceMicButton */}
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <VoiceMicButton
+              onTranscript={(transcript) => {
+                setQuery(transcript);
+                handleAskCura(transcript, true);
+              }}
+              accentColor="#AF6AFB"
+              lang="auto"
+              size={18}
+              title="Voice dictate your thoughts"
+            />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAskCura()}
-              placeholder="Tell CURA what you are stuck on..."
+              placeholder={
+                isArabicText(query)
+                  ? "قول لـ CURA إيه اللي موقفك أو مسبب لك تشتت..."
+                  : "Tell CURA what you are stuck on..."
+              }
+              dir={isArabicText(query) ? "rtl" : "ltr"}
               style={{
                 flex: 1,
                 padding: "14px 18px",
@@ -556,6 +659,10 @@ export default function AdhdFocusSanctuaryPage() {
                 color: "#FFFFFF",
                 fontSize: "15px",
                 outline: "none",
+                textAlign: isArabicText(query) ? "right" : "left",
+                fontFamily: isArabicText(query)
+                  ? "'Cairo', 'Segoe UI', Tahoma, sans-serif"
+                  : "'Inter', sans-serif",
               }}
             />
             <button

@@ -5,6 +5,8 @@ import Link from "next/link";
 import TestingNavbar from "./components/TestingNavbar";
 import TestingFooter from "./components/TestingFooter";
 import CognitiveNeuralCore from "./components/CognitiveNeuralCore";
+import VoiceMicButton from "./components/VoiceMicButton";
+import { speakNaturalText, stopSpeaking, isArabicText } from "./utils/speech";
 import {
   IconFlask,
   IconBrain,
@@ -52,18 +54,32 @@ export default function AITestingCockpitPage() {
       mode: "alzheimer" as const,
     },
     {
-      label: "Executive dysfunction anti-paralysis breakdown",
+      label: "فحص دواء الضغط (مصر)",
+      prompt: "صباح الخير، أنا أخدت قرص دواء الضغط النهاردة ولا لسه؟",
+      mode: "alzheimer" as const,
+    },
+    {
+      label: "Square Root vs Cubic Root",
+      prompt: "tell me the difference a square root and cubic root",
+      mode: "normal" as const,
+    },
+    {
+      label: "مقارنة الجذور الرياضية",
+      prompt: "ما هو الفرق بين الجذر التربيعي والتكعيبي؟",
+      mode: "normal" as const,
+    },
+    {
+      label: "ADHD Task Paralysis Breakdown",
       prompt: "I have 5 urgent engineering tasks, 40 emails, and feel completely paralyzed. What is my exact next single action?",
       mode: "adhd" as const,
     },
-    {
-      label: "Synthesize medical research paper",
-      prompt: "Summarize recent phase 3 monoclonal antibody clinical trials targeting amyloid-beta clearance in early Alzheimer's.",
-      mode: "normal" as const,
-    },
   ];
 
-  const handleSend = async (textToSend?: string, modeOverride?: "normal" | "alzheimer" | "adhd") => {
+  const handleSend = async (
+    textToSend?: string,
+    modeOverride?: "normal" | "alzheimer" | "adhd",
+    isFromMic = false
+  ) => {
     const text = textToSend || query;
     if (!text.trim()) return;
 
@@ -96,20 +112,24 @@ export default function AITestingCockpitPage() {
           mode: json.data.mode,
           latencyMs: elapsed,
         });
-        speakText(json.data.response_text);
+        if (isFromMic) {
+          speakText(json.data.response_text);
+        }
       } else {
         throw new Error(json.error || "Inference failed");
       }
     } catch {
       const elapsed = Math.round(performance.now() - startTime);
+      const isAr = isArabicText(text);
       setResult({
         userQuery: text,
-        responseText:
-          activeMode === "alzheimer"
-            ? "Good morning Elena. You took your morning medication on schedule at 09:02 AM. Everything is peaceful and on track."
-            : activeMode === "adhd"
-            ? "Sprint Protocol Initiated: Close all secondary browser tabs. Your single focal action for the next 15 minutes is drafting the backend API test suite. Timer starting."
-            : "CURA Cognitive Engine initialized. Model telemetry indicates standard clinical research flow is operating within nominal boundaries.",
+        responseText: isAr
+          ? "صباح الخير يا فندم. كل أمورك مستقرة تماماً وتم تسجيل الجرعات بنجاح. أنا بجانبك دائماً لأي استفسار."
+          : activeMode === "alzheimer"
+          ? "Good morning Elena. You took your morning medication on schedule at 09:02 AM. Everything is peaceful and on track."
+          : activeMode === "adhd"
+          ? "Sprint Protocol Initiated: Close all secondary browser tabs. Your single focal action for the next 15 minutes is drafting the backend API test suite. Timer starting."
+          : "CURA Cognitive Engine initialized. Model telemetry indicates standard clinical research flow is operating within nominal boundaries.",
         reasoningContent:
           "Simulation fallback executed under deterministic safety protocols. Cloudflare Workers AI edge cache hit.",
         provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
@@ -122,19 +142,19 @@ export default function AITestingCockpitPage() {
   };
 
   const speakText = (text: string) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const isAr = /[\u0600-\u06FF]/.test(text);
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = selectedMode === "alzheimer" ? 0.88 : 1.0;
-      if (isAr) utterance.lang = "ar-EG";
-
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-
-      window.speechSynthesis.speak(utterance);
+    if (isSpeaking) {
+      stopSpeaking();
+      setIsSpeaking(false);
+      return;
     }
+
+    setIsSpeaking(true);
+    speakNaturalText(text, {
+      preferEgyptian: true,
+      rate: selectedMode === "alzheimer" ? 0.88 : 1.0,
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
   };
 
   const getAccentColor = () => {
@@ -622,12 +642,28 @@ export default function AITestingCockpitPage() {
                 marginBottom: "14px",
               }}
             >
+              <VoiceMicButton
+                onTranscript={(transcript) => {
+                  setQuery(transcript);
+                  handleSend(transcript, selectedMode, true);
+                }}
+                accentColor={getAccentColor()}
+                lang="auto"
+                size={18}
+                title="Voice Input (Arabic & English)"
+              />
+
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Enter clinical prompt (e.g., 'Did I take my morning pills?', 'I feel paralyzed with work')..."
+                placeholder={
+                  isArabicText(query)
+                    ? "اكتب سؤالك هنا أو اطلب مساعدة طبية أو استفساراً بحثياً..."
+                    : "Enter clinical prompt (e.g., 'Did I take my morning pills?', 'I feel paralyzed with work')..."
+                }
+                dir={isArabicText(query) ? "rtl" : "ltr"}
                 style={{
                   flex: 1,
                   background: "rgba(12, 20, 31, 0.8)",
@@ -637,6 +673,10 @@ export default function AITestingCockpitPage() {
                   color: "#FFFFFF",
                   fontSize: "14px",
                   outline: "none",
+                  textAlign: isArabicText(query) ? "right" : "left",
+                  fontFamily: isArabicText(query)
+                    ? "'Cairo', 'Segoe UI', Tahoma, sans-serif"
+                    : "inherit",
                 }}
               />
 
@@ -647,7 +687,7 @@ export default function AITestingCockpitPage() {
                 style={{
                   padding: "12px 22px",
                   borderRadius: "12px",
-                  background: "linear-gradient(135deg, #16B9FE 0%, #0284C7 100%)",
+                  background: `linear-gradient(135deg, ${getAccentColor()} 0%, #0284C7 100%)`,
                   border: "none",
                   color: "#FFFFFF",
                   fontWeight: 700,
@@ -656,7 +696,7 @@ export default function AITestingCockpitPage() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "8px",
-                  boxShadow: "0 4px 16px rgba(22, 185, 254, 0.4)",
+                  boxShadow: `0 4px 16px ${getAccentColor()}44`,
                   transition: "transform 140ms cubic-bezier(0.23, 1, 0.32, 1)",
                   opacity: loading ? 0.6 : 1,
                 }}
@@ -773,20 +813,28 @@ export default function AITestingCockpitPage() {
                         onClick={() => speakText(result.responseText)}
                         title="Play Speech Synthesis"
                         style={{
-                          background: isSpeaking ? "#3FEDBA22" : "rgba(255, 255, 255, 0.06)",
+                          background: isSpeaking ? "rgba(63, 237, 186, 0.25)" : "rgba(255, 255, 255, 0.06)",
                           border: isSpeaking ? "1px solid #3FEDBA" : "1px solid rgba(255, 255, 255, 0.12)",
                           borderRadius: "8px",
-                          padding: "6px 10px",
+                          padding: "6px 12px",
                           color: isSpeaking ? "#3FEDBA" : "#FFFFFF",
                           cursor: "pointer",
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "6px",
                           fontSize: "12px",
+                          fontWeight: 700,
+                          transition: "all 140ms ease",
                         }}
                       >
                         <IconSpeaker size={14} color={isSpeaking ? "#3FEDBA" : "currentColor"} />
-                        <span>{isSpeaking ? "Speaking" : "Listen"}</span>
+                        <span>
+                          {isSpeaking
+                            ? "Pause Audio"
+                            : isArabicText(result.responseText)
+                            ? "استمع بالصوت المصري"
+                            : "Listen (Neural)"}
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -800,14 +848,14 @@ export default function AITestingCockpitPage() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <span>TARGET: Elena Vance &bull; Display Mode: Alzheimer&apos;s</span>
-                    <span style={{ color: "#3FEDBA" }}>Speech Synthesis: 0.88x Normal</span>
+                    <span>TARGET: Elena Vance &bull; Profile: {selectedMode.toUpperCase()}</span>
+                    <span style={{ color: getAccentColor() }}>Neural Voice: Natural Egyptian / US</span>
                   </div>
 
                   <div
                     style={{
                       fontSize: "15px",
-                      lineHeight: "1.7",
+                      lineHeight: "1.75",
                       color: "#FFFFFF",
                       background: "rgba(12, 20, 31, 0.6)",
                       padding: "18px",
@@ -815,6 +863,11 @@ export default function AITestingCockpitPage() {
                       border: "1px solid rgba(255, 255, 255, 0.05)",
                       marginBottom: "16px",
                       whiteSpace: "pre-line",
+                      direction: isArabicText(result.responseText) ? "rtl" : "ltr",
+                      textAlign: isArabicText(result.responseText) ? "right" : "left",
+                      fontFamily: isArabicText(result.responseText)
+                        ? "'Cairo', 'Segoe UI', Tahoma, sans-serif"
+                        : "inherit",
                     }}
                   >
                     {result.responseText}
