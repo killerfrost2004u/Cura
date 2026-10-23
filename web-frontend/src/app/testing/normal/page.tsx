@@ -2,6 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
+import TestingNavbar from "../components/TestingNavbar";
+import TestingFooter from "../components/TestingFooter";
 
 interface ChatMessage {
   id: string;
@@ -132,136 +134,9 @@ export default function NormalAssistantPage() {
         flexDirection: "column",
       }}
     >
-      {/* Top Header */}
-      <nav
-        style={{
-          height: "64px",
-          backgroundColor: "rgba(26, 36, 51, 0.8)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 28px",
-          position: "sticky",
-          top: 0,
-          zIndex: 40,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Link
-            href="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              textDecoration: "none",
-              color: "#FFFFFF",
-            }}
-          >
-            <div
-              style={{
-                width: "38px",
-                height: "38px",
-                borderRadius: "12px",
-                background: "linear-gradient(135deg, #16B9FE, #60EFEB)",
-                color: "#131B26",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "900",
-                fontSize: "18px",
-              }}
-            >
-              C
-            </div>
-            <div>
-              <div style={{ fontSize: "18px", fontWeight: "800", fontFamily: "'Outfit', sans-serif" }}>
-                CURA
-              </div>
-              <div style={{ fontSize: "11px", color: "#16B9FE", fontWeight: "600" }}>
-                Adaptive Multimodal Assistant
-              </div>
-            </div>
-          </Link>
-        </div>
+      {/* Global Testing Navbar with brand logos */}
+      <TestingNavbar />
 
-        {/* Live GPU Badge */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            backgroundColor: "rgba(22, 185, 254, 0.1)",
-            border: "1px solid rgba(22, 185, 254, 0.25)",
-            padding: "6px 16px",
-            borderRadius: "9999px",
-            fontSize: "12px",
-            color: "#60EFEB",
-            fontWeight: "600",
-          }}
-        >
-          <span
-            style={{
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              backgroundColor: "#10B981",
-              boxShadow: "0 0 8px #10B981",
-            }}
-          />
-          Cloudflare Workers AI Live • DeepSeek-R1 32B GPU
-        </div>
-
-        {/* Links to Other Dedicated Modes */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Link
-            href="/testing"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#E8EDF1",
-              textDecoration: "none",
-            }}
-          >
-            ← Testing Hub
-          </Link>
-          <Link
-            href="/testing/alzheimer"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "rgba(63, 237, 186, 0.12)",
-              border: "1px solid rgba(63, 237, 186, 0.3)",
-              fontSize: "13px",
-              fontWeight: "700",
-              color: "#3FEDBA",
-              textDecoration: "none",
-            }}
-          >
-            Alzheimer&apos;s Mode →
-          </Link>
-          <Link
-            href="/testing/adhd"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "rgba(175, 106, 251, 0.12)",
-              border: "1px solid rgba(175, 106, 251, 0.3)",
-              fontSize: "13px",
-              fontWeight: "700",
-              color: "#AF6AFB",
-              textDecoration: "none",
-            }}
-          >
-            ADHD Mode →
-          </Link>
-        </div>
-      </nav>
 
       {/* Main Container */}
       <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "28px 20px", flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
@@ -537,6 +412,7 @@ export default function NormalAssistantPage() {
           </button>
         </div>
       </main>
+      <TestingFooter />
     </div>
   );
 }

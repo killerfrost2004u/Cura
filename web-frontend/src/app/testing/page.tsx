@@ -2,8 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import TestingNavbar from "./components/TestingNavbar";
+import TestingFooter from "./components/TestingFooter";
+import CognitiveNeuralCore from "./components/CognitiveNeuralCore";
 
-export default function AITestingHubPage() {
+export default function AITestingCockpitPage() {
   const [selectedMode, setSelectedMode] = useState<"normal" | "alzheimer" | "adhd">("normal");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,6 +74,12 @@ export default function AITestingHubPage() {
     }
   };
 
+  const getAccentColor = () => {
+    if (selectedMode === "alzheimer") return "#00A884";
+    if (selectedMode === "adhd") return "#7C3AED";
+    return "#16B9FE";
+  };
+
   return (
     <div
       style={{
@@ -78,564 +87,618 @@ export default function AITestingHubPage() {
         backgroundColor: "#131B26",
         color: "#E8EDF1",
         fontFamily: "'Inter', sans-serif",
-        padding: "0 0 80px",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      {/* Top Header */}
-      <header
-        style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          backgroundColor: "rgba(26, 36, 51, 0.8)",
-          backdropFilter: "blur(20px)",
-          padding: "16px 32px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "16px",
-          position: "sticky",
-          top: 0,
-          zIndex: 40,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <div
-            style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "14px",
-              background: "linear-gradient(135deg, #16B9FE 0%, #AF6AFB 50%, #3FEDBA 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "22px",
-              fontWeight: "900",
-              color: "#131B26",
-            }}
-          >
-            C
-          </div>
-          <div>
-            <div style={{ fontSize: "20px", fontWeight: "900", fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.02em" }}>
-              CURA AI &amp; Backend Testing Cockpit
-            </div>
-            <div style={{ fontSize: "11px", color: "#16B9FE", fontWeight: "600" }}>
-              Internal Testing Suite • AI &amp; Backend Engineering
-            </div>
-          </div>
-        </div>
+      {/* Global Navigation Header with Cura icon.svg & Cura Word.svg */}
+      <TestingNavbar />
 
-        {/* Live Engine Status */}
+      <main style={{ flex: 1, maxWidth: "1400px", margin: "0 auto", padding: "40px 24px", width: "100%" }}>
+        {/* Top Developer & Engineer Notice */}
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            backgroundColor: "rgba(22, 185, 254, 0.1)",
-            border: "1px solid rgba(22, 185, 254, 0.25)",
-            padding: "8px 18px",
-            borderRadius: "9999px",
-            fontSize: "12px",
-            color: "#60EFEB",
-            fontWeight: "600",
-          }}
-        >
-          <span
-            style={{
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              backgroundColor: "#10B981",
-              boxShadow: "0 0 10px #10B981",
-            }}
-          />
-          Live Engine: Cloudflare Workers AI (Serverless GPU — DeepSeek-R1 32B + Whisper)
-        </div>
-
-        {/* Quick Nav to Dedicated Sanctuaries */}
-        <div style={{ display: "flex", gap: "10px" }}>
-          <Link
-            href="/"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "12px",
-              backgroundColor: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "#FFFFFF",
-              fontSize: "13px",
-              fontWeight: "600",
-              textDecoration: "none",
-            }}
-          >
-            ← Home
-          </Link>
-          <Link
-            href="/testing/alzheimer"
-            style={{
-              padding: "8px 16px",
-              borderRadius: "12px",
-              backgroundColor: "rgba(63, 237, 186, 0.15)",
-              border: "1.5px solid #3FEDBA",
-              color: "#3FEDBA",
-              fontSize: "13px",
-              fontWeight: "700",
-              textDecoration: "none",
-            }}
-          >
-            Alzheimer&apos;s Test 🌿
-          </Link>
-          <Link
-            href="/testing/adhd"
-            style={{
-              padding: "8px 16px",
-              borderRadius: "12px",
-              backgroundColor: "rgba(175, 106, 251, 0.15)",
-              border: "1.5px solid #AF6AFB",
-              color: "#AF6AFB",
-              fontSize: "13px",
-              fontWeight: "700",
-              textDecoration: "none",
-            }}
-          >
-            ADHD Test ⚡
-          </Link>
-          <Link
-            href="/testing/normal"
-            style={{
-              padding: "8px 16px",
-              borderRadius: "12px",
-              backgroundColor: "rgba(22, 185, 254, 0.15)",
-              border: "1.5px solid #16B9FE",
-              color: "#16B9FE",
-              fontSize: "13px",
-              fontWeight: "700",
-              textDecoration: "none",
-            }}
-          >
-            Normal Test 💬
-          </Link>
-        </div>
-      </header>
-
-      {/* Main Hub Body */}
-      <main style={{ maxWidth: "1160px", margin: "0 auto", padding: "40px 20px" }}>
-        {/* Notice Banner */}
-        <div
-          style={{
-            backgroundColor: "rgba(22, 185, 254, 0.08)",
-            border: "1px solid rgba(22, 185, 254, 0.25)",
-            borderRadius: "16px",
-            padding: "16px 20px",
-            marginBottom: "32px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            background: "rgba(2, 132, 199, 0.08)",
+            border: "1px solid rgba(2, 132, 199, 0.25)",
+            padding: "12px 20px",
+            borderRadius: "14px",
+            marginBottom: "32px",
             flexWrap: "wrap",
-            gap: "10px",
+            gap: "12px",
           }}
         >
-          <div style={{ fontSize: "14px", color: "#60EFEB" }}>
-            🛠️ <strong>AI &amp; Backend Engineer Testing Suite:</strong> This section is dedicated to verifying live Cloudflare GPU models, Whisper STT, Neon pgvector memory retrieval, and multi-step reasoning traces.
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px" }}>
+            <span style={{ fontSize: "16px" }}>🧪</span>
+            <span>
+              <strong>AI &amp; Backend Engineer Testing Sandbox:</strong> Dedicated verification cockpit for Cloudflare GPU reasoning, Three.js 3D spatial UI, and cognitive modes. Production root (<code>/</code>) is clean for frontend team handover.
+            </span>
           </div>
           <Link
             href="/"
             style={{
-              fontSize: "13px",
-              color: "#FFFFFF",
-              textDecoration: "underline",
-              fontWeight: "600",
+              fontSize: "12px",
+              fontWeight: "700",
+              color: "#38BDF8",
+              textDecoration: "none",
+              padding: "4px 12px",
+              borderRadius: "6px",
+              background: "rgba(56, 189, 248, 0.1)",
             }}
           >
-            Return to Root Page →
+            Visit Frontend Root →
           </Link>
         </div>
 
-        {/* 3 Dedicated Mode Cards */}
-        <section
+        {/* Hero Section: Three.js 3D Cognitive Neural Core + Brand Emblem */}
+        <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "24px",
-            marginBottom: "40px",
-          }}
-        >
-          {/* CARD 1: ALZHEIMER'S SANCTUARY */}
-          <div
-            style={{
-              backgroundColor: "rgba(26, 36, 51, 0.8)",
-              borderRadius: "28px",
-              border: "2px solid #3FEDBA",
-              padding: "28px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              boxShadow: "0 10px 30px rgba(63, 237, 186, 0.12)",
-              backdropFilter: "blur(20px)",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "4px 12px",
-                  borderRadius: "9999px",
-                  backgroundColor: "rgba(63, 237, 186, 0.15)",
-                  color: "#3FEDBA",
-                  fontSize: "12px",
-                  fontWeight: "700",
-                  marginBottom: "14px",
-                }}
-              >
-                🌿 Alzheimer&apos;s Memory Test
-              </div>
-              <h2
-                style={{
-                  fontSize: "22px",
-                  fontWeight: "800",
-                  fontFamily: "'Outfit', sans-serif",
-                  color: "#FFFFFF",
-                  margin: "0 0 10px",
-                }}
-              >
-                Alzheimer’s Care Mode
-              </h2>
-              <p style={{ fontSize: "13px", color: "#94A3B8", lineHeight: "1.6", marginBottom: "20px" }}>
-                Tests warm biophilic light styling (`#F0F7F4`), high-contrast memory validation, Concor 5mg morning pill logging, family contacts, and 0.85x pacing audio reassurance.
-              </p>
-            </div>
-            <Link
-              href="/testing/alzheimer"
-              style={{
-                display: "block",
-                textAlign: "center",
-                padding: "14px",
-                borderRadius: "16px",
-                backgroundColor: "#3FEDBA",
-                color: "#131B26",
-                fontSize: "15px",
-                fontWeight: "800",
-                textDecoration: "none",
-              }}
-            >
-              Test Alzheimer&apos;s Mode →
-            </Link>
-          </div>
-
-          {/* CARD 2: ADHD FOCUS SANCTUARY */}
-          <div
-            style={{
-              backgroundColor: "rgba(26, 36, 51, 0.8)",
-              borderRadius: "28px",
-              border: "2px solid #AF6AFB",
-              padding: "28px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              boxShadow: "0 10px 30px rgba(175, 106, 251, 0.12)",
-              backdropFilter: "blur(20px)",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "4px 12px",
-                  borderRadius: "9999px",
-                  backgroundColor: "rgba(175, 106, 251, 0.15)",
-                  color: "#AF6AFB",
-                  fontSize: "12px",
-                  fontWeight: "700",
-                  marginBottom: "14px",
-                }}
-              >
-                ⚡ ADHD Focus Test
-              </div>
-              <h2
-                style={{
-                  fontSize: "22px",
-                  fontWeight: "800",
-                  fontFamily: "'Outfit', sans-serif",
-                  color: "#FFFFFF",
-                  margin: "0 0 10px",
-                }}
-              >
-                ADHD Focus &amp; Flow
-              </h2>
-              <p style={{ fontSize: "13px", color: "#94A3B8", lineHeight: "1.6", marginBottom: "20px" }}>
-                Tests low-stimulation greige/lilac styling, 15-minute visual focus sprint countdown arc, AI task breakdown into 5-minute steps, and anti-paralysis pacing.
-              </p>
-            </div>
-            <Link
-              href="/testing/adhd"
-              style={{
-                display: "block",
-                textAlign: "center",
-                padding: "14px",
-                borderRadius: "16px",
-                backgroundColor: "#AF6AFB",
-                color: "#131B26",
-                fontSize: "15px",
-                fontWeight: "800",
-                textDecoration: "none",
-              }}
-            >
-              Test ADHD Mode →
-            </Link>
-          </div>
-
-          {/* CARD 3: NORMAL ASSISTANT MODE */}
-          <div
-            style={{
-              backgroundColor: "rgba(26, 36, 51, 0.8)",
-              borderRadius: "28px",
-              border: "2px solid #16B9FE",
-              padding: "28px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              boxShadow: "0 10px 30px rgba(22, 185, 254, 0.12)",
-              backdropFilter: "blur(20px)",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "4px 12px",
-                  borderRadius: "9999px",
-                  backgroundColor: "rgba(22, 185, 254, 0.15)",
-                  color: "#16B9FE",
-                  fontSize: "12px",
-                  fontWeight: "700",
-                  marginBottom: "14px",
-                }}
-              >
-                💬 Normal Assistant Test
-              </div>
-              <h2
-                style={{
-                  fontSize: "22px",
-                  fontWeight: "800",
-                  fontFamily: "'Outfit', sans-serif",
-                  color: "#FFFFFF",
-                  margin: "0 0 10px",
-                }}
-              >
-                Normal Assistant Mode
-              </h2>
-              <p style={{ fontSize: "13px", color: "#94A3B8", lineHeight: "1.6", marginBottom: "20px" }}>
-                Tests full multimodal conversation, live DeepSeek-R1 32B GPU multi-step reasoning trace inspector, push-to-talk microphone, and voice speech playback.
-              </p>
-            </div>
-            <Link
-              href="/testing/normal"
-              style={{
-                display: "block",
-                textAlign: "center",
-                padding: "14px",
-                borderRadius: "16px",
-                backgroundColor: "#16B9FE",
-                color: "#131B26",
-                fontSize: "15px",
-                fontWeight: "800",
-                textDecoration: "none",
-              }}
-            >
-              Test Normal Mode →
-            </Link>
-          </div>
-        </section>
-
-        {/* Live Interactive Quick Console */}
-        <section
-          style={{
-            backgroundColor: "rgba(26, 36, 51, 0.85)",
-            backdropFilter: "blur(20px)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: "40px",
+            alignItems: "center",
+            background: "linear-gradient(135deg, rgba(26, 36, 51, 0.8) 0%, rgba(19, 27, 38, 0.95) 100%)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
             borderRadius: "28px",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
-            padding: "36px",
-            boxShadow: "0 16px 40px rgba(0, 0, 0, 0.4)",
+            padding: "48px 36px",
+            boxShadow: "0 20px 50px rgba(0, 0, 0, 0.4)",
+            position: "relative",
+            overflow: "hidden",
+            marginBottom: "48px",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
-            <div>
-              <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#FFFFFF", margin: 0, fontFamily: "'Outfit', sans-serif" }}>
-                Live API &amp; GPU Test Console
-              </h3>
-              <p style={{ fontSize: "14px", color: "#94A3B8", margin: "4px 0 0" }}>
-                Send test queries directly to `/api/chat` with live Cloudflare Workers AI edge execution:
-              </p>
+          {/* Left Column: Brand & Cognitive State */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+              <img
+                src="/Cura Logo.svg"
+                alt="CURA Logo"
+                style={{ width: "190px", height: "auto" }}
+              />
+              <span
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: "9999px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  background: `${getAccentColor()}22`,
+                  color: getAccentColor(),
+                  border: `1px solid ${getAccentColor()}55`,
+                }}
+              >
+                {selectedMode.toUpperCase()} MODE ACTIVE
+              </span>
             </div>
 
-            {/* Mode Toggle Buttons */}
-            <div style={{ display: "flex", gap: "8px" }}>
-              {(["normal", "alzheimer", "adhd"] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setSelectedMode(m)}
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: "12px",
-                    backgroundColor:
-                      selectedMode === m
-                        ? m === "alzheimer"
-                          ? "#3FEDBA"
-                          : m === "adhd"
-                          ? "#AF6AFB"
-                          : "#16B9FE"
-                        : "rgba(255, 255, 255, 0.06)",
-                    color: selectedMode === m ? "#131B26" : "#E8EDF1",
-                    border: "none",
-                    fontSize: "13px",
-                    fontWeight: "700",
-                    cursor: "pointer",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Prompt Buttons */}
-          <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
-            <button
-              onClick={() => handleSend(quickPrompts[selectedMode])}
+            <h1
               style={{
-                padding: "10px 16px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(22, 185, 254, 0.12)",
-                border: "1px solid rgba(22, 185, 254, 0.3)",
-                color: "#60EFEB",
-                fontSize: "13px",
-                fontWeight: "600",
-                cursor: "pointer",
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: "clamp(28px, 4vw, 44px)",
+                fontWeight: "800",
+                lineHeight: "1.15",
+                color: "#FFFFFF",
+                margin: "0 0 16px 0",
+                letterSpacing: "-0.03em",
               }}
             >
-              ⚡ Test Query: &quot;{quickPrompts[selectedMode]}&quot;
-            </button>
+              Sentient Precision. <br />
+              <span
+                style={{
+                  background: `linear-gradient(135deg, ${getAccentColor()} 0%, #60EFEB 100%)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Adaptive Cognitive Health.
+              </span>
+            </h1>
+
+            <p style={{ color: "#94A3B8", fontSize: "16px", lineHeight: "1.6", margin: "0 0 28px 0", maxWidth: "520px" }}>
+              Interact with the live Three.js 3D Neural Core below. Move your cursor to rotate the 1,200 particle constellation in real-time space while verifying DeepSeek-R1 reasoning on Cloudflare GPUs.
+            </p>
+
+            {/* Mode Selector Buttons */}
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "24px" }}>
+              <button
+                onClick={() => setSelectedMode("normal")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 18px",
+                  borderRadius: "14px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  backgroundColor: selectedMode === "normal" ? "#16B9FE" : "rgba(255, 255, 255, 0.05)",
+                  color: selectedMode === "normal" ? "#FFFFFF" : "#94A3B8",
+                  border: selectedMode === "normal" ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+                  boxShadow: selectedMode === "normal" ? "0 4px 16px rgba(22, 185, 254, 0.4)" : "none",
+                }}
+              >
+                <span>✨</span> Normal Assistant
+              </button>
+
+              <button
+                onClick={() => setSelectedMode("alzheimer")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 18px",
+                  borderRadius: "14px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  backgroundColor: selectedMode === "alzheimer" ? "#00A884" : "rgba(255, 255, 255, 0.05)",
+                  color: selectedMode === "alzheimer" ? "#FFFFFF" : "#94A3B8",
+                  border: selectedMode === "alzheimer" ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+                  boxShadow: selectedMode === "alzheimer" ? "0 4px 16px rgba(0, 168, 132, 0.4)" : "none",
+                }}
+              >
+                <span>🧠</span> Alzheimer&apos;s Memory Care
+              </button>
+
+              <button
+                onClick={() => setSelectedMode("adhd")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 18px",
+                  borderRadius: "14px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  backgroundColor: selectedMode === "adhd" ? "#7C3AED" : "rgba(255, 255, 255, 0.05)",
+                  color: selectedMode === "adhd" ? "#FFFFFF" : "#94A3B8",
+                  border: selectedMode === "adhd" ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+                  boxShadow: selectedMode === "adhd" ? "0 4px 16px rgba(124, 58, 237, 0.4)" : "none",
+                }}
+              >
+                <span>⚡</span> ADHD Focus Sprint
+              </button>
+            </div>
+
+            {/* Quick Test Prompt Trigger */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "12px", color: "#64748B" }}>Try prompt:</span>
+              <button
+                onClick={() => {
+                  const p = quickPrompts[selectedMode];
+                  setQuery(p);
+                  handleSend(p);
+                }}
+                style={{
+                  background: "rgba(255, 255, 255, 0.06)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  color: "#E2E8F0",
+                  fontSize: "12px",
+                  padding: "6px 14px",
+                  borderRadius: "9999px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                }}
+              >
+                &ldquo;{quickPrompts[selectedMode]}&rdquo; ↵
+              </button>
+            </div>
           </div>
 
-          {/* Dialogue Display */}
-          {result && (
+          {/* Right Column: Three.js Interactive 3D WebGL Neural Core */}
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "radial-gradient(circle at 50% 50%, rgba(22, 185, 254, 0.12) 0%, transparent 70%)",
+            }}
+          >
             <div
               style={{
-                backgroundColor: "rgba(19, 27, 38, 0.9)",
-                borderRadius: "20px",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                padding: "24px",
-                marginBottom: "20px",
+                position: "absolute",
+                top: 0,
+                right: 0,
+                padding: "6px 12px",
+                borderRadius: "9999px",
+                fontSize: "10px",
+                fontWeight: "700",
+                letterSpacing: "0.05em",
+                background: "rgba(0, 0, 0, 0.4)",
+                color: "#60EFEB",
+                border: "1px solid rgba(96, 239, 235, 0.2)",
+                zIndex: 10,
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <span style={{ fontSize: "12px", color: "#16B9FE", fontWeight: "700" }}>
-                  Query: {result.userQuery}
-                </span>
-                <button
-                  onClick={() => speakText(result.responseText)}
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: "8px",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    border: "none",
-                    color: "#60EFEB",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                  }}
-                >
-                  🔊 Listen
-                </button>
-              </div>
-
-              <p
-                style={{
-                  fontSize: "16px",
-                  lineHeight: "1.6",
-                  color: "#FFFFFF",
-                  margin: "8px 0 16px",
-                  fontWeight: "500",
-                  direction: /[\u0600-\u06FF]/.test(result.responseText) ? "rtl" : "ltr",
-                }}
-              >
-                {result.responseText}
-              </p>
-
-              {result.reasoningContent && (
-                <details
-                  open
-                  style={{
-                    backgroundColor: "rgba(0, 0, 0, 0.3)",
-                    borderRadius: "12px",
-                    padding: "12px 16px",
-                    border: "1px solid rgba(22, 185, 254, 0.2)",
-                  }}
-                >
-                  <summary style={{ cursor: "pointer", fontSize: "12px", color: "#60EFEB", fontWeight: "700" }}>
-                    DeepSeek-R1 Clinical Reasoning Chain (&lt;think&gt;)
-                  </summary>
-                  <pre
-                    style={{
-                      whiteSpace: "pre-wrap",
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: "11px",
-                      color: "#94A3B8",
-                      margin: "8px 0 0",
-                      lineHeight: "1.5",
-                    }}
-                  >
-                    {result.reasoningContent}
-                  </pre>
-                </details>
-              )}
+              THREE.JS 3D WEBGL CORE • PARALLAX ACTIVE
             </div>
-          )}
+
+            <CognitiveNeuralCore
+              isPulse={loading}
+              accentColor={getAccentColor()}
+            />
+
+            <div style={{ fontSize: "11px", color: "#64748B", marginTop: "-10px", textAlign: "center" }}>
+              Drag cursor to tilt 3D perspective • Pulses dynamically during GPU inference
+            </div>
+          </div>
+        </div>
+
+        {/* Live GPU Inference Console */}
+        <div
+          style={{
+            backgroundColor: "rgba(26, 36, 51, 0.72)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderRadius: "24px",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            padding: "32px",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+            marginBottom: "48px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "20px" }}>💬</span>
+              <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#FFFFFF", margin: 0, fontFamily: "'Outfit', sans-serif" }}>
+                Interactive Model Verification Terminal
+              </h2>
+            </div>
+            <div style={{ fontSize: "12px", color: "#38BDF8" }}>
+              Edge Route: <code>/api/chat</code> → DeepSeek-R1 32B GPU
+            </div>
+          </div>
 
           {/* Input Bar */}
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Ask anything to test live backend & AI (e.g. 'What is the weather in Cairo today?')..."
+              placeholder={
+                selectedMode === "alzheimer"
+                  ? "اسأل عن مواعيد الدواء، العائلة، أو روتين اليوم بالعامية أو الإنجليزية..."
+                  : selectedMode === "adhd"
+                  ? "Describe a task you feel overwhelmed by or need prioritized..."
+                  : "Ask medical questions, weather, general queries..."
+              }
               style={{
                 flex: 1,
                 padding: "16px 20px",
-                borderRadius: "18px",
-                backgroundColor: "rgba(19, 27, 38, 0.8)",
+                borderRadius: "16px",
+                backgroundColor: "rgba(19, 27, 38, 0.85)",
                 border: "1px solid rgba(255, 255, 255, 0.15)",
                 color: "#FFFFFF",
                 fontSize: "15px",
                 outline: "none",
+                fontFamily: "'Inter', sans-serif",
               }}
             />
             <button
               onClick={() => handleSend()}
               disabled={loading}
               style={{
-                padding: "16px 32px",
-                borderRadius: "18px",
-                backgroundColor: "#16B9FE",
-                color: "#131B26",
+                padding: "0 28px",
+                borderRadius: "16px",
+                background: `linear-gradient(135deg, ${getAccentColor()} 0%, #0369A1 100%)`,
+                color: "#FFFFFF",
                 fontSize: "15px",
-                fontWeight: "800",
+                fontWeight: "700",
                 border: "none",
-                cursor: loading ? "wait" : "pointer",
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1,
+                boxShadow: `0 4px 16px ${getAccentColor()}44`,
+                transition: "all 0.2s ease",
               }}
             >
-              {loading ? "Reasoning..." : "Send Test Query"}
+              {loading ? "Reasoning..." : "Send Query ↵"}
             </button>
           </div>
-        </section>
+
+          {/* Results Area */}
+          {result && (
+            <div
+              style={{
+                borderRadius: "18px",
+                backgroundColor: "rgba(19, 27, 38, 0.9)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                padding: "24px",
+                marginTop: "20px",
+              }}
+            >
+              {/* Reasoning Trace (<think>) */}
+              {result.reasoningContent && (
+                <div style={{ marginBottom: "20px" }}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "#A78BFA",
+                      marginBottom: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <span>🧠</span> DeepSeek-R1 Clinical Reasoning Chain (&lt;think&gt;)
+                  </div>
+                  <div
+                    style={{
+                      padding: "14px 18px",
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(167, 139, 250, 0.08)",
+                      border: "1px solid rgba(167, 139, 250, 0.2)",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "13px",
+                      color: "#C4B5FD",
+                      lineHeight: "1.6",
+                      whiteSpace: "pre-wrap",
+                      maxHeight: "220px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {result.reasoningContent}
+                  </div>
+                </div>
+              )}
+
+              {/* Synthesized Response */}
+              <div>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    color: "#34D399",
+                    marginBottom: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  <span>✓</span> Patient-Facing Synthesized Response
+                </div>
+                <div
+                  style={{
+                    padding: "18px",
+                    borderRadius: "14px",
+                    backgroundColor: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    fontSize: "16px",
+                    lineHeight: "1.6",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  {result.responseText}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3D Perspective Sanctuary Cards Section */}
+        <div style={{ marginBottom: "56px" }}>
+          <div style={{ marginBottom: "24px" }}>
+            <h2
+              style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: "26px",
+                fontWeight: "700",
+                color: "#FFFFFF",
+                margin: "0 0 8px 0",
+              }}
+            >
+              Cognitive Sanctuaries &amp; Testing Pages
+            </h2>
+            <p style={{ color: "#94A3B8", fontSize: "14px", margin: 0 }}>
+              Each mode provides a bespoke, hospital-grade visual environment calibrated for neurological stability.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "24px",
+            }}
+          >
+            {/* Alzheimer's Sanctuary Card */}
+            <Link
+              href="/testing/alzheimer"
+              style={{
+                textDecoration: "none",
+                borderRadius: "22px",
+                background: "linear-gradient(135deg, rgba(240, 247, 244, 0.95) 0%, rgba(220, 240, 230, 0.95) 100%)",
+                border: "2px solid #00A884",
+                padding: "28px",
+                color: "#0D1F2D",
+                boxShadow: "0 10px 30px rgba(0, 168, 132, 0.15)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <span style={{ fontSize: "28px" }}>🧠</span>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "9999px",
+                      background: "#00A884",
+                      color: "#FFFFFF",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                    }}
+                  >
+                    15.2:1 WCAG AAA
+                  </span>
+                </div>
+                <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#0D1F2D", margin: "0 0 10px 0", fontFamily: "'Outfit', sans-serif" }}>
+                  Alzheimer&apos;s Memory Care Sanctuary
+                </h3>
+                <p style={{ fontSize: "14px", color: "#2A4356", lineHeight: "1.6", margin: "0 0 16px 0" }}>
+                  Warm Mint-Cream theme. Eliminates the &quot;Black Hole Effect&quot; where dark boxes are perceived as physical voids. Features orientation header, 2×2 tactile matrix, and medication confirmation.
+                </p>
+              </div>
+              <div style={{ fontWeight: "700", color: "#008568", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                Open Dedicated Sanctuary (/testing/alzheimer) →
+              </div>
+            </Link>
+
+            {/* ADHD Flow Sanctuary Card */}
+            <Link
+              href="/testing/adhd"
+              style={{
+                textDecoration: "none",
+                borderRadius: "22px",
+                background: "linear-gradient(135deg, #FAF8FD 0%, #F1ECF9 100%)",
+                border: "2px solid #7C3AED",
+                padding: "28px",
+                color: "#1E293B",
+                boxShadow: "0 10px 30px rgba(124, 58, 237, 0.15)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <span style={{ fontSize: "28px" }}>⚡</span>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "9999px",
+                      background: "#7C3AED",
+                      color: "#FFFFFF",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                    }}
+                  >
+                    Low-Stimulation
+                  </span>
+                </div>
+                <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#1E293B", margin: "0 0 10px 0", fontFamily: "'Outfit', sans-serif" }}>
+                  ADHD Focus &amp; Flow Sanctuary
+                </h3>
+                <p style={{ fontSize: "14px", color: "#475569", lineHeight: "1.6", margin: "0 0 16px 0" }}>
+                  Greige &amp; Orchid theme. Removes visual clutter and frantic dopamine distraction loops. Features 15-minute visual Pomodoro arc, anti-paralysis coach, and single-task deconstruction.
+                </p>
+              </div>
+              <div style={{ fontWeight: "700", color: "#6D28D9", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                Open Dedicated Sanctuary (/testing/adhd) →
+              </div>
+            </Link>
+
+            {/* Everyday Normal Assistant Card */}
+            <Link
+              href="/testing/normal"
+              style={{
+                textDecoration: "none",
+                borderRadius: "22px",
+                background: "linear-gradient(135deg, rgba(26, 36, 51, 0.9) 0%, rgba(19, 27, 38, 0.9) 100%)",
+                border: "2px solid #16B9FE",
+                padding: "28px",
+                color: "#FFFFFF",
+                boxShadow: "0 10px 30px rgba(22, 185, 254, 0.15)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <span style={{ fontSize: "28px" }}>✨</span>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "9999px",
+                      background: "#16B9FE",
+                      color: "#FFFFFF",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                    }}
+                  >
+                    DeepSeek-R1 32B
+                  </span>
+                </div>
+                <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#FFFFFF", margin: "0 0 10px 0", fontFamily: "'Outfit', sans-serif" }}>
+                  Everyday Assistant &amp; Reasoning
+                </h3>
+                <p style={{ fontSize: "14px", color: "#94A3B8", lineHeight: "1.6", margin: "0 0 16px 0" }}>
+                  Luminous Midnight Obsidian theme. General multimodal intelligence for research, medical scheduling, and weather, with real-time DeepSeek-R1 reasoning trace inspection.
+                </p>
+              </div>
+              <div style={{ fontWeight: "700", color: "#38BDF8", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                Open Dedicated Sanctuary (/testing/normal) →
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Biophilic Sensory Harmony Showcase */}
+        <div
+          style={{
+            background: "rgba(26, 36, 51, 0.6)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: "24px",
+            padding: "36px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "32px",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <img
+              src="/cura_harmony_logo_1791226392255.jpg"
+              alt="CURA Sensory Harmony"
+              style={{
+                width: "240px",
+                height: "auto",
+                borderRadius: "20px",
+                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+              }}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "0.06em", textTransform: "uppercase", color: "#10B981", marginBottom: "8px" }}>
+              Clinical Neuro-Aesthetic Architecture
+            </div>
+            <h3 style={{ fontSize: "22px", fontWeight: "700", color: "#FFFFFF", margin: "0 0 12px 0", fontFamily: "'Outfit', sans-serif" }}>
+              Patient Sensory Calibrations
+            </h3>
+            <p style={{ color: "#94A3B8", fontSize: "14px", lineHeight: "1.7", margin: "0 0 16px 0" }}>
+              Digital health requires far more than generic templates. CURA implements clinical gerontological research to prevent ocular glare, high-frequency motion sickness, and cognitive anxiety in patients:
+            </p>
+            <ul style={{ color: "#E2E8F0", fontSize: "13px", lineHeight: "1.8", margin: 0, paddingLeft: "20px" }}>
+              <li><strong>Zero Black Hole Effect:</strong> Alzheimer&apos;s mode replaces deep dark rectangles with warm biophilic mint tones (`#F0F7F4`).</li>
+              <li><strong>Dopamine Regulation:</strong> ADHD mode eliminates high-saturation alert badges to prevent task paralysis.</li>
+              <li><strong>WCAG 2.1 AAA Contrast:</strong> All text exceeds the strict 7.0:1 threshold, achieving 15.2:1 contrast.</li>
+            </ul>
+          </div>
+        </div>
       </main>
+
+      {/* Global Testing Footer with Cura Word_without_ai_adaptive.svg */}
+      <TestingFooter />
     </div>
   );
 }

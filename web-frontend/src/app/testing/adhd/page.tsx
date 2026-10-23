@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import TestingNavbar from "../components/TestingNavbar";
+import TestingFooter from "../components/TestingFooter";
 
 interface MicroTask {
   id: string;
@@ -99,106 +101,9 @@ export default function AdhdFocusSanctuaryPage() {
         padding: "0 0 60px 0",
       }}
     >
-      {/* Top Navigation */}
-      <nav
-        style={{
-          height: "64px",
-          backgroundColor: "#FFFFFF",
-          borderBottom: "1px solid #E2E8F0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 28px",
-          position: "sticky",
-          top: 0,
-          zIndex: 40,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Link
-            href="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              textDecoration: "none",
-              color: "#1E293B",
-            }}
-          >
-            <div
-              style={{
-                width: "38px",
-                height: "38px",
-                borderRadius: "12px",
-                backgroundColor: "#7C3AED",
-                color: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-              }}
-            >
-              ⚡
-            </div>
-            <div>
-              <div style={{ fontSize: "18px", fontWeight: "800", letterSpacing: "-0.02em" }}>
-                CURA
-              </div>
-              <div style={{ fontSize: "11px", color: "#7C3AED", fontWeight: "700" }}>
-                ADHD Focus &amp; Flow Sanctuary
-              </div>
-            </div>
-          </Link>
-        </div>
+      {/* Global Testing Navbar with brand logos */}
+      <TestingNavbar />
 
-        {/* Links */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Link
-            href="/testing"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "#F1F5F9",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#475569",
-              textDecoration: "none",
-            }}
-          >
-            ← Testing Hub
-          </Link>
-          <Link
-            href="/testing/alzheimer"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "#F0F7F4",
-              border: "1px solid #B2DFDB",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#00A884",
-              textDecoration: "none",
-            }}
-          >
-            Alzheimer&apos;s Sanctuary →
-          </Link>
-          <Link
-            href="/testing/normal"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "#F0F9FF",
-              border: "1px solid #BAE6FD",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#0284C7",
-              textDecoration: "none",
-            }}
-          >
-            Normal Assistant →
-          </Link>
-        </div>
-      </nav>
 
       <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "32px 20px" }}>
         {/* Header Summary */}
@@ -558,6 +463,7 @@ export default function AdhdFocusSanctuaryPage() {
           </div>
         </section>
       </main>
+      <TestingFooter />
     </div>
   );
 }

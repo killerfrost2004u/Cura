@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import TestingNavbar from "../components/TestingNavbar";
+import TestingFooter from "../components/TestingFooter";
 
 export default function AlzheimerSanctuaryPage() {
   const [medTaken, setMedTaken] = useState(false);
@@ -122,108 +124,9 @@ export default function AlzheimerSanctuaryPage() {
         padding: "0 0 60px 0",
       }}
     >
-      {/* Top Clinical Navigation Bar */}
-      <nav
-        style={{
-          height: "64px",
-          backgroundColor: "#E6F0EC",
-          borderBottom: "2px solid #B2DFDB",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 28px",
-          position: "sticky",
-          top: 0,
-          zIndex: 40,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <Link
-            href="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              textDecoration: "none",
-              color: "#0D1F2D",
-            }}
-          >
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "12px",
-                backgroundColor: "#00A884",
-                color: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "20px",
-                fontWeight: "bold",
-              }}
-            >
-              ♥
-            </div>
-            <div>
-              <div style={{ fontSize: "18px", fontWeight: "800", letterSpacing: "-0.02em" }}>
-                CURA
-              </div>
-              <div style={{ fontSize: "11px", color: "#00A884", fontWeight: "700" }}>
-                Alzheimer&apos;s Memory Care Sanctuary
-              </div>
-            </div>
-          </Link>
-        </div>
+      {/* Global Testing Navbar with brand logos */}
+      <TestingNavbar />
 
-        {/* Mode Switcher Nav Links */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Link
-            href="/testing"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #B2DFDB",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#2D3748",
-              textDecoration: "none",
-            }}
-          >
-            ← Testing Hub
-          </Link>
-          <Link
-            href="/testing/adhd"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #B2DFDB",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#7C3AED",
-              textDecoration: "none",
-            }}
-          >
-            ADHD Focus Mode →
-          </Link>
-          <Link
-            href="/testing/normal"
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #B2DFDB",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#0284C7",
-              textDecoration: "none",
-            }}
-          >
-            Normal Assistant →
-          </Link>
-        </div>
-      </nav>
 
       {/* Main Sanctuary Container */}
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "28px 20px" }}>
@@ -791,6 +694,7 @@ export default function AlzheimerSanctuaryPage() {
           </button>
         </section>
       </main>
+      <TestingFooter />
     </div>
   );
 }
