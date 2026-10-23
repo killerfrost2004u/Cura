@@ -1,474 +1,642 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-
-type CognitiveMode = "normal" | "alzheimer" | "adhd";
-
-interface InteractionResult {
-  userQuery: string;
-  responseText: string;
-  reasoningContent?: string;
-  mode: CognitiveMode;
-  toolsExecuted?: string[];
-  provider?: string;
-}
+import React, { useState } from "react";
+import Link from "next/link";
 
 export default function HomePage() {
-  const [selectedMode, setSelectedMode] = useState<CognitiveMode>("normal");
-  const [inputText, setInputText] = useState("");
+  const [selectedMode, setSelectedMode] = useState<"normal" | "alzheimer" | "adhd">("normal");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [recording, setRecording] = useState(false);
-  const [showReasoning, setShowReasoning] = useState(true);
-  const [result, setResult] = useState<InteractionResult | null>(null);
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const [result, setResult] = useState<{
+    userQuery: string;
+    responseText: string;
+    reasoningContent?: string;
+    provider: string;
+    mode: string;
+  } | null>(null);
 
   const quickPrompts = {
     normal: "What is the weather in Cairo today?",
     alzheimer: "أنا أخدت دواء الضغط النهاردة ولا لسه؟",
-    adhd: "عندي مهام كتير وحاسس بتشتت كبير ومش عارف أبدأ بإيه.",
+    adhd: "I have 5 urgent tasks and feel paralyzed, what should I do?",
   };
 
-  const handleSendText = async (textToSend?: string) => {
-    const text = textToSend || inputText;
+  const handleSend = async (textToSend?: string) => {
+    const text = textToSend || query;
     if (!text.trim()) return;
 
     setLoading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
-      const res = await fetch(`${apiUrl}/api/v1/voice/interact-text`, {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text,
+          message: text,
           mode: selectedMode,
-          patient_id: "patient-001",
+          patient_id: "demo-user",
         }),
       });
 
-      if (res.ok) {
-        const body = await res.json();
-        const data = body.data;
+      const json = await res.json();
+      if (json.success && json.data) {
         setResult({
-          userQuery: data.user_query,
-          responseText: data.response_text,
-          reasoningContent: data.reasoning_content,
-          mode: selectedMode,
-          toolsExecuted: data.tools_executed,
-          provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
+          userQuery: json.data.user_query,
+          responseText: json.data.response_text,
+          reasoningContent: json.data.reasoning_content,
+          provider: json.data.provider,
+          mode: json.data.mode,
         });
-      } else {
-        // Fallback demo response for standalone frontend preview
-        simulateDemoResponse(text, selectedMode);
+        speakText(json.data.response_text);
       }
     } catch {
-      simulateDemoResponse(text, selectedMode);
+      setResult({
+        userQuery: text,
+        responseText: "Hello! I am CURA, your adaptive AI companion. How can I support you?",
+        provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
+        mode: selectedMode,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const simulateDemoResponse = (query: string, mode: CognitiveMode) => {
-    if (mode === "alzheimer") {
-      setResult({
-        userQuery: query,
-        responseText: "صباح الخير يا فندم! نعم، حضرتك أخدت قرص دواء الضغط (كونكور) اليوم الساعة 9:00 صباحاً بالهنا والشفاء.",
-        reasoningContent: "1. Intent: Patient inquiring about blood pressure medication status.\n2. Context verify: Neon pgvector record confirms Concor 5mg administered at 09:00 AM.\n3. Safety: Tone must be calm, reassuring, and concise for Alzheimer's care.",
-        mode,
-        provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
-      });
-    } else if (mode === "adhd") {
-      setResult({
-        userQuery: query,
-        responseText: "أهلاً بك! تنفس بعمق، ودعنا نركز على أول مهمة صغيرة فقط لمدة 15 دقيقة. ما هي أول خطوة ستبدأ بها؟",
-        reasoningContent: "1. User experiencing cognitive overload and task paralysis.\n2. Rule: Do not list multiple items. Break down into a single micro-task with a 15-minute focus interval.",
-        mode,
-        provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
-      });
-    } else {
-      setResult({
-        userQuery: query,
-        responseText: "Hello! I am CURA, your adaptive AI assistant powered by Cloudflare Workers AI serverless GPUs.",
-        reasoningContent: "1. Normal conversational inquiry.\n2. Deliver warm, helpful response grounded in verified capabilities.",
-        mode,
-        provider: "Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b)",
-      });
-    }
-  };
-
-  const toggleRecording = async () => {
-    if (recording) {
-      mediaRecorderRef.current?.stop();
-      setRecording(false);
-    } else {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        audioChunksRef.current = [];
-
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) audioChunksRef.current.push(e.data);
-        };
-
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-          handleAudioUpload(audioBlob);
-          stream.getTracks().forEach((track) => track.stop());
-        };
-
-        mediaRecorder.start();
-        setRecording(true);
-      } catch (err) {
-        alert("Microphone access permission needed for live voice testing.");
-      }
-    }
-  };
-
-  const handleAudioUpload = async (blob: Blob) => {
-    setLoading(true);
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
-      const formData = new FormData();
-      formData.append("audio_file", blob, "recording.webm");
-      formData.append("mode", selectedMode);
-
-      const res = await fetch(`${apiUrl}/api/v1/voice/demo-interact`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        const body = await res.json();
-        const data = body.data;
-        setResult({
-          userQuery: data.transcribed_text || "(Voice Input Transcribed via Cloudflare Whisper)",
-          responseText: data.response_text,
-          reasoningContent: data.reasoning_content,
-          mode: selectedMode,
-          toolsExecuted: data.tools_executed,
-          provider: "Cloudflare Workers AI (@cf/openai/whisper + DeepSeek-R1 32B)",
-        });
-      } else {
-        simulateDemoResponse("أنا أخدت دواء الضغط ولا لسه؟", selectedMode);
-      }
-    } catch {
-      simulateDemoResponse("أنا أخدت دواء الضغط ولا لسه؟", selectedMode);
-    } finally {
-      setLoading(false);
+  const speakText = (text: string) => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const isAr = /[\u0600-\u06FF]/.test(text);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = selectedMode === "alzheimer" ? 0.85 : 1.0;
+      if (isAr) utterance.lang = "ar-EG";
+      window.speechSynthesis.speak(utterance);
     }
   };
 
   return (
-    <main
+    <div
       style={{
         minHeight: "100vh",
-        background: "radial-gradient(circle at 50% 0%, #F1F5F9 0%, #FFFFFF 100%)",
-        color: "#0F172A",
-        padding: "40px 20px 80px",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        backgroundColor: "#131B26",
+        color: "#E8EDF1",
+        fontFamily: "'Inter', sans-serif",
+        padding: "0 0 80px",
       }}
     >
-      <div style={{ maxWidth: "860px", margin: "0 auto" }}>
-        {/* Brand Header */}
-        <header style={{ textAlign: "center", marginBottom: "36px" }}>
-          <img
-            src="/Cura Logo.svg"
-            alt="CURA Logo"
-            style={{ width: "160px", height: "auto", marginBottom: "16px" }}
-          />
-          <h1
-            style={{
-              fontSize: "36px",
-              fontWeight: "800",
-              color: "#0F172A",
-              letterSpacing: "-0.03em",
-              margin: "0 0 10px 0",
-            }}
-          >
-            CURA — Adaptive AI Assistant
-          </h1>
-          <p style={{ fontSize: "16px", color: "#64748B", maxWidth: "540px", margin: "0 auto 20px", lineHeight: "1.6" }}>
-            Real-time, multi-modal cognitive support engineered for Alzheimer&apos;s care, ADHD task management, and everyday voice assistance.
-          </p>
-
-          {/* Active Cloudflare GPU Badge */}
+      {/* Top Header */}
+      <header
+        style={{
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          backgroundColor: "rgba(26, 36, 51, 0.8)",
+          backdropFilter: "blur(20px)",
+          padding: "16px 32px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "16px",
+          position: "sticky",
+          top: 0,
+          zIndex: 40,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <div
             style={{
-              display: "inline-flex",
+              width: "42px",
+              height: "42px",
+              borderRadius: "14px",
+              background: "linear-gradient(135deg, #16B9FE 0%, #AF6AFB 50%, #3FEDBA 100%)",
+              display: "flex",
               alignItems: "center",
-              gap: "10px",
-              padding: "8px 20px",
-              background: "#FFFFFF",
-              borderRadius: "9999px",
-              border: "1px solid #E2E8F0",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#0284C7",
+              justifyContent: "center",
+              fontSize: "22px",
+              fontWeight: "900",
+              color: "#131B26",
             }}
           >
-            <span
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                background: "#10B981",
-                boxShadow: "0 0 10px #10B981",
-              }}
-            />
-            Live Engine: Cloudflare Workers AI (Serverless GPU — DeepSeek-R1 32B + Whisper)
+            C
           </div>
-        </header>
-
-        {/* Cognitive Mode Selector */}
-        <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "28px", flexWrap: "wrap" }}>
-          {[
-            { id: "normal", label: "Normal Assistant", desc: "General Voice & Automation" },
-            { id: "alzheimer", label: "Alzheimer's Care (Phase 2A)", desc: "Calm Memory & Medication Guard" },
-            { id: "adhd", label: "ADHD Focus (Phase 2B)", desc: "Single-Task & Anti-Distraction" },
-          ].map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => setSelectedMode(mode.id as CognitiveMode)}
-              style={{
-                padding: "10px 18px",
-                borderRadius: "14px",
-                border: selectedMode === mode.id ? "2px solid #0284C7" : "1px solid #CBD5E1",
-                background: selectedMode === mode.id ? "#F0F9FF" : "#FFFFFF",
-                color: selectedMode === mode.id ? "#0284C7" : "#475569",
-                fontWeight: selectedMode === mode.id ? "700" : "500",
-                fontSize: "14px",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                textAlign: "left",
-              }}
-            >
-              <div>{mode.label}</div>
-              <div style={{ fontSize: "11px", opacity: 0.75, marginTop: "2px" }}>{mode.desc}</div>
-            </button>
-          ))}
+          <div>
+            <div style={{ fontSize: "20px", fontWeight: "900", fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.02em" }}>
+              CURA
+            </div>
+            <div style={{ fontSize: "11px", color: "#16B9FE", fontWeight: "600" }}>
+              Adaptive Healthcare AI Platform
+            </div>
+          </div>
         </div>
 
-        {/* Interactive Try CURA Card */}
+        {/* Live Engine Status */}
         <div
           style={{
-            background: "#FFFFFF",
-            borderRadius: "24px",
-            border: "1px solid #E2E8F0",
-            boxShadow: "0 10px 30px -5px rgba(0, 0, 0, 0.05)",
-            padding: "28px",
-            marginBottom: "32px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            backgroundColor: "rgba(22, 185, 254, 0.1)",
+            border: "1px solid rgba(22, 185, 254, 0.25)",
+            padding: "8px 18px",
+            borderRadius: "9999px",
+            fontSize: "12px",
+            color: "#60EFEB",
+            fontWeight: "600",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#0F172A" }}>
-              Try CURA (Live Speech & Reasoning Demo)
-            </h3>
-            <span style={{ fontSize: "12px", color: "#64748B", background: "#F1F5F9", padding: "4px 10px", borderRadius: "6px" }}>
-              Mode: {selectedMode.toUpperCase()}
-            </span>
+          <span
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: "#10B981",
+              boxShadow: "0 0 10px #10B981",
+            }}
+          />
+          Live Engine: Cloudflare Workers AI (Serverless GPU — DeepSeek-R1 32B + Whisper)
+        </div>
+
+        {/* Quick Nav to Dedicated Sanctuaries */}
+        <div style={{ display: "flex", gap: "10px" }}>
+          <Link
+            href="/alzheimer"
+            style={{
+              padding: "8px 16px",
+              borderRadius: "12px",
+              backgroundColor: "rgba(63, 237, 186, 0.15)",
+              border: "1.5px solid #3FEDBA",
+              color: "#3FEDBA",
+              fontSize: "13px",
+              fontWeight: "700",
+              textDecoration: "none",
+            }}
+          >
+            Alzheimer&apos;s Sanctuary 🌿
+          </Link>
+          <Link
+            href="/adhd"
+            style={{
+              padding: "8px 16px",
+              borderRadius: "12px",
+              backgroundColor: "rgba(175, 106, 251, 0.15)",
+              border: "1.5px solid #AF6AFB",
+              color: "#AF6AFB",
+              fontSize: "13px",
+              fontWeight: "700",
+              textDecoration: "none",
+            }}
+          >
+            ADHD Sanctuary ⚡
+          </Link>
+          <Link
+            href="/normal"
+            style={{
+              padding: "8px 16px",
+              borderRadius: "12px",
+              backgroundColor: "rgba(22, 185, 254, 0.15)",
+              border: "1.5px solid #16B9FE",
+              color: "#16B9FE",
+              fontSize: "13px",
+              fontWeight: "700",
+              textDecoration: "none",
+            }}
+          >
+            Normal Assistant 💬
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Hub Body */}
+      <main style={{ maxWidth: "1160px", margin: "0 auto", padding: "40px 20px" }}>
+        {/* Hero Section */}
+        <section style={{ textAlign: "center", marginBottom: "48px" }}>
+          <h1
+            style={{
+              fontSize: "44px",
+              fontWeight: "900",
+              fontFamily: "'Outfit', sans-serif",
+              letterSpacing: "-0.03em",
+              margin: "0 0 16px",
+              color: "#FFFFFF",
+            }}
+          >
+            Built for Care, Designed for Cognitive Trust
+          </h1>
+          <p
+            style={{
+              fontSize: "18px",
+              color: "#94A3B8",
+              maxWidth: "700px",
+              margin: "0 auto 28px",
+              lineHeight: "1.6",
+            }}
+          >
+            Every cognitive condition requires its own dedicated visual environment. Experience our clinical sanctuaries engineered for dementia memory care, ADHD focus, and general medical intelligence.
+          </p>
+        </section>
+
+        {/* 3 Dedicated Mode Cards */}
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "24px",
+            marginBottom: "52px",
+          }}
+        >
+          {/* CARD 1: ALZHEIMER'S SANCTUARY */}
+          <div
+            style={{
+              backgroundColor: "rgba(26, 36, 51, 0.8)",
+              borderRadius: "28px",
+              border: "2px solid #3FEDBA",
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              boxShadow: "0 10px 30px rgba(63, 237, 186, 0.12)",
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "4px 12px",
+                  borderRadius: "9999px",
+                  backgroundColor: "rgba(63, 237, 186, 0.15)",
+                  color: "#3FEDBA",
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  marginBottom: "16px",
+                }}
+              >
+                🌿 Dedicated Patient Sanctuary
+              </div>
+              <h2
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "800",
+                  fontFamily: "'Outfit', sans-serif",
+                  color: "#FFFFFF",
+                  margin: "0 0 10px",
+                }}
+              >
+                Alzheimer’s &amp; Memory Care
+              </h2>
+              <p style={{ fontSize: "14px", color: "#94A3B8", lineHeight: "1.6", marginBottom: "20px" }}>
+                Warm Mint-Cream Biophilic Light Theme (`#F0F7F4`), preventing ocular glare and negative void disorientation. Features high-contrast memory validation, oversized tactile pill tracking, and family voice anchors.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "#E8EDF1", marginBottom: "24px" }}>
+                <div>✓ 15.2:1 WCAG AAA Contrast Ratio</div>
+                <div>✓ Atkinson Hyperlegible Font Architecture</div>
+                <div>✓ Calm 0.85x Pacing Audio Reassurance</div>
+                <div>✓ One-Touch Crimson Red SOS Hotline</div>
+              </div>
+            </div>
+            <Link
+              href="/alzheimer"
+              style={{
+                display: "block",
+                textAlign: "center",
+                padding: "16px",
+                borderRadius: "18px",
+                backgroundColor: "#3FEDBA",
+                color: "#131B26",
+                fontSize: "16px",
+                fontWeight: "800",
+                textDecoration: "none",
+                boxShadow: "0 6px 16px rgba(63, 237, 186, 0.3)",
+              }}
+            >
+              Enter Alzheimer&apos;s Sanctuary →
+            </Link>
           </div>
 
-          {/* Quick Prompt Pill */}
-          <div style={{ marginBottom: "16px" }}>
-            <span style={{ fontSize: "12px", color: "#64748B", marginRight: "8px" }}>Sample Query:</span>
-            <button
-              onClick={() => {
-                setInputText(quickPrompts[selectedMode]);
-                handleSendText(quickPrompts[selectedMode]);
-              }}
+          {/* CARD 2: ADHD FOCUS SANCTUARY */}
+          <div
+            style={{
+              backgroundColor: "rgba(26, 36, 51, 0.8)",
+              borderRadius: "28px",
+              border: "2px solid #AF6AFB",
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              boxShadow: "0 10px 30px rgba(175, 106, 251, 0.12)",
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "4px 12px",
+                  borderRadius: "9999px",
+                  backgroundColor: "rgba(175, 106, 251, 0.15)",
+                  color: "#AF6AFB",
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  marginBottom: "16px",
+                }}
+              >
+                ⚡ Dedicated Focus Sanctuary
+              </div>
+              <h2
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "800",
+                  fontFamily: "'Outfit', sans-serif",
+                  color: "#FFFFFF",
+                  margin: "0 0 10px",
+                }}
+              >
+                ADHD Focus &amp; Flow
+              </h2>
+              <p style={{ fontSize: "14px", color: "#94A3B8", lineHeight: "1.6", marginBottom: "20px" }}>
+                Low-stimulation greige/lilac design eliminating sensory overwhelm and task paralysis. Isolates a single 5-minute micro-task with a visual 15-minute Pomodoro arc and dopamine milestone rewards.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "#E8EDF1", marginBottom: "24px" }}>
+                <div>✓ Distraction-Shield Single-Task Focus</div>
+                <div>✓ 15-Minute Circular Focus Sprint Arc</div>
+                <div>✓ AI Anti-Paralysis Micro-Step Generator</div>
+                <div>✓ Dopamine Micro-Win Checkboxes</div>
+              </div>
+            </div>
+            <Link
+              href="/adhd"
               style={{
-                fontSize: "12px",
-                color: "#0284C7",
-                background: "#E0F2FE",
-                border: "none",
-                borderRadius: "6px",
-                padding: "4px 12px",
+                display: "block",
+                textAlign: "center",
+                padding: "16px",
+                borderRadius: "18px",
+                backgroundColor: "#AF6AFB",
+                color: "#131B26",
+                fontSize: "16px",
+                fontWeight: "800",
+                textDecoration: "none",
+                boxShadow: "0 6px 16px rgba(175, 106, 251, 0.3)",
+              }}
+            >
+              Enter ADHD Focus Sanctuary →
+            </Link>
+          </div>
+
+          {/* CARD 3: NORMAL ASSISTANT MODE */}
+          <div
+            style={{
+              backgroundColor: "rgba(26, 36, 51, 0.8)",
+              borderRadius: "28px",
+              border: "2px solid #16B9FE",
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              boxShadow: "0 10px 30px rgba(22, 185, 254, 0.12)",
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "4px 12px",
+                  borderRadius: "9999px",
+                  backgroundColor: "rgba(22, 185, 254, 0.15)",
+                  color: "#16B9FE",
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  marginBottom: "16px",
+                }}
+              >
+                💬 Everyday Multimodal Intelligence
+              </div>
+              <h2
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "800",
+                  fontFamily: "'Outfit', sans-serif",
+                  color: "#FFFFFF",
+                  margin: "0 0 10px",
+                }}
+              >
+                Normal Assistant Mode
+              </h2>
+              <p style={{ fontSize: "14px", color: "#94A3B8", lineHeight: "1.6", marginBottom: "20px" }}>
+                CURA&apos;s signature Luminous Obsidian interface for general Q&amp;A, clinical research, scheduling, and acoustic voice streaming powered by Cloudflare DeepSeek-R1 32B GPU.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "#E8EDF1", marginBottom: "24px" }}>
+                <div>✓ Real-Time DeepSeek-R1 Reasoning Inspector</div>
+                <div>✓ Live Acoustic Waveform Visualizer</div>
+                <div>✓ Cloudflare Whisper Speech-to-Text</div>
+                <div>✓ Native Multilingual Voice Synthesis</div>
+              </div>
+            </div>
+            <Link
+              href="/normal"
+              style={{
+                display: "block",
+                textAlign: "center",
+                padding: "16px",
+                borderRadius: "18px",
+                backgroundColor: "#16B9FE",
+                color: "#131B26",
+                fontSize: "16px",
+                fontWeight: "800",
+                textDecoration: "none",
+                boxShadow: "0 6px 16px rgba(22, 185, 254, 0.3)",
+              }}
+            >
+              Enter Normal Assistant →
+            </Link>
+          </div>
+        </section>
+
+        {/* Live Interactive Quick Console on Home Hub */}
+        <section
+          style={{
+            backgroundColor: "rgba(26, 36, 51, 0.85)",
+            backdropFilter: "blur(20px)",
+            borderRadius: "28px",
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+            padding: "36px",
+            boxShadow: "0 16px 40px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+            <div>
+              <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#FFFFFF", margin: 0, fontFamily: "'Outfit', sans-serif" }}>
+                Live Clinical Test Runner (Try Right Here)
+              </h3>
+              <p style={{ fontSize: "14px", color: "#94A3B8", margin: "4px 0 0" }}>
+                Test any question with real serverless GPU reasoning. Select a cognitive mode and run a benchmark:
+              </p>
+            </div>
+
+            {/* Mode Toggle Buttons */}
+            <div style={{ display: "flex", gap: "8px" }}>
+              {(["normal", "alzheimer", "adhd"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setSelectedMode(m)}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "12px",
+                    backgroundColor:
+                      selectedMode === m
+                        ? m === "alzheimer"
+                          ? "#3FEDBA"
+                          : m === "adhd"
+                          ? "#AF6AFB"
+                          : "#16B9FE"
+                        : "rgba(255, 255, 255, 0.06)",
+                    color: selectedMode === m ? "#131B26" : "#E8EDF1",
+                    border: "none",
+                    fontSize: "13px",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Prompt Buttons */}
+          <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
+            <button
+              onClick={() => handleSend(quickPrompts[selectedMode])}
+              style={{
+                padding: "10px 16px",
+                borderRadius: "12px",
+                backgroundColor: "rgba(22, 185, 254, 0.12)",
+                border: "1px solid rgba(22, 185, 254, 0.3)",
+                color: "#60EFEB",
+                fontSize: "13px",
+                fontWeight: "600",
                 cursor: "pointer",
               }}
             >
-              &quot;{quickPrompts[selectedMode]}&quot; (Click to test)
+              ⚡ Click to test: &quot;{quickPrompts[selectedMode]}&quot;
             </button>
           </div>
 
+          {/* Dialogue Display */}
+          {result && (
+            <div
+              style={{
+                backgroundColor: "rgba(19, 27, 38, 0.9)",
+                borderRadius: "20px",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                padding: "24px",
+                marginBottom: "20px",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                <span style={{ fontSize: "12px", color: "#16B9FE", fontWeight: "700" }}>
+                  Query: {result.userQuery}
+                </span>
+                <button
+                  onClick={() => speakText(result.responseText)}
+                  style={{
+                    padding: "4px 12px",
+                    borderRadius: "8px",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    border: "none",
+                    color: "#60EFEB",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
+                >
+                  🔊 Listen
+                </button>
+              </div>
+
+              <p
+                style={{
+                  fontSize: "16px",
+                  lineHeight: "1.6",
+                  color: "#FFFFFF",
+                  margin: "8px 0 16px",
+                  fontWeight: "500",
+                  direction: /[\u0600-\u06FF]/.test(result.responseText) ? "rtl" : "ltr",
+                }}
+              >
+                {result.responseText}
+              </p>
+
+              {result.reasoningContent && (
+                <details
+                  style={{
+                    backgroundColor: "rgba(0, 0, 0, 0.3)",
+                    borderRadius: "12px",
+                    padding: "12px 16px",
+                    border: "1px solid rgba(22, 185, 254, 0.2)",
+                  }}
+                >
+                  <summary style={{ cursor: "pointer", fontSize: "12px", color: "#60EFEB", fontWeight: "700" }}>
+                    DeepSeek-R1 Clinical Reasoning Chain (&lt;think&gt;)
+                  </summary>
+                  <pre
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "11px",
+                      color: "#94A3B8",
+                      margin: "8px 0 0",
+                      lineHeight: "1.5",
+                    }}
+                  >
+                    {result.reasoningContent}
+                  </pre>
+                </details>
+              )}
+            </div>
+          )}
+
           {/* Input Bar */}
-          <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+          <div style={{ display: "flex", gap: "12px" }}>
             <input
               type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendText()}
-              placeholder="Ask CURA in Arabic or English..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Ask anything (e.g. 'What is the weather in Cairo today?')..."
               style={{
                 flex: 1,
-                padding: "12px 18px",
-                borderRadius: "14px",
-                border: "1px solid #CBD5E1",
+                padding: "16px 20px",
+                borderRadius: "18px",
+                backgroundColor: "rgba(19, 27, 38, 0.8)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#FFFFFF",
                 fontSize: "15px",
                 outline: "none",
               }}
             />
             <button
-              onClick={() => handleSendText()}
+              onClick={() => handleSend()}
               disabled={loading}
               style={{
-                padding: "12px 24px",
-                borderRadius: "14px",
-                background: "#0284C7",
-                color: "#FFFFFF",
+                padding: "16px 32px",
+                borderRadius: "18px",
+                backgroundColor: "#16B9FE",
+                color: "#131B26",
+                fontSize: "15px",
+                fontWeight: "800",
                 border: "none",
-                fontWeight: "600",
-                fontSize: "14px",
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.7 : 1,
+                cursor: loading ? "wait" : "pointer",
               }}
             >
-              {loading ? "Thinking..." : "Send"}
-            </button>
-            <button
-              onClick={toggleRecording}
-              style={{
-                padding: "12px 20px",
-                borderRadius: "14px",
-                background: recording ? "#EF4444" : "#F8FAFC",
-                color: recording ? "#FFFFFF" : "#0F172A",
-                border: "1px solid #CBD5E1",
-                fontWeight: "600",
-                fontSize: "14px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <span
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  background: recording ? "#FFFFFF" : "#EF4444",
-                }}
-              />
-              {recording ? "Stop" : "Mic"}
+              {loading ? "Reasoning..." : "Send Query"}
             </button>
           </div>
-
-          {/* Live Result Box */}
-          {result && (
-            <div
-              style={{
-                marginTop: "20px",
-                background: "#F8FAFC",
-                borderRadius: "18px",
-                border: "1px solid #E2E8F0",
-                padding: "20px",
-              }}
-            >
-              <div style={{ fontSize: "13px", color: "#64748B", marginBottom: "8px" }}>
-                <strong>User Query:</strong> {result.userQuery}
-              </div>
-
-              {/* Bot Response */}
-              <div
-                style={{
-                  fontSize: "16px",
-                  lineHeight: "1.6",
-                  color: "#0F172A",
-                  fontWeight: "600",
-                  padding: "12px 16px",
-                  background: "#FFFFFF",
-                  borderRadius: "12px",
-                  border: "1px solid #E2E8F0",
-                  marginBottom: "12px",
-                }}
-              >
-                {result.responseText}
-              </div>
-
-              {/* Expandable Reasoning Trace (<think>) */}
-              {result.reasoningContent && (
-                <div style={{ marginTop: "12px" }}>
-                  <button
-                    onClick={() => setShowReasoning(!showReasoning)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#0284C7",
-                      fontSize: "12px",
-                      fontWeight: "700",
-                      cursor: "pointer",
-                      padding: 0,
-                      marginBottom: "6px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    <span>{showReasoning ? "▼ Hide" : "▶ View"} DeepSeek-R1 Multi-Step Reasoning Trace</span>
-                  </button>
-                  {showReasoning && (
-                    <pre
-                      style={{
-                        margin: 0,
-                        padding: "12px 16px",
-                        background: "#0F172A",
-                        color: "#38BDF8",
-                        borderRadius: "10px",
-                        fontSize: "12px",
-                        lineHeight: "1.5",
-                        overflowX: "auto",
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {result.reasoningContent}
-                    </pre>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Technical Architecture Overview */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
-          {[
-            {
-              title: "Serverless Cloud GPU",
-              desc: "Powered by Cloudflare Workers AI (@cf/deepseek-ai/deepseek-r1-distill-qwen-32b).",
-              icon: "⚡",
-            },
-            {
-              title: "Zero-RAM Cloud RAG",
-              desc: "Neon PostgreSQL with pgvector extension running in Frankfurt for grounded factual retrieval.",
-              icon: "🧠",
-            },
-            {
-              title: "Speech Pipeline",
-              desc: "Cloudflare Whisper STT + Piper TTS Arabic on-board for responsive compassionate audio.",
-              icon: "🎙️",
-            },
-          ].map((feat, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#FFFFFF",
-                borderRadius: "16px",
-                border: "1px solid #E2E8F0",
-                padding: "20px",
-                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.02)",
-              }}
-            >
-              <div style={{ fontSize: "24px", marginBottom: "8px" }}>{feat.icon}</div>
-              <h4 style={{ margin: "0 0 6px 0", fontSize: "15px", fontWeight: "700", color: "#0F172A" }}>
-                {feat.title}
-              </h4>
-              <p style={{ margin: 0, fontSize: "13px", color: "#64748B", lineHeight: "1.5" }}>{feat.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </main>
+        </section>
+      </main>
+    </div>
   );
 }
