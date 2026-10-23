@@ -154,7 +154,7 @@ export default function AdhdFocusSanctuaryPage() {
         {/* Links */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <Link
-            href="/"
+            href="/testing"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",
@@ -165,10 +165,10 @@ export default function AdhdFocusSanctuaryPage() {
               textDecoration: "none",
             }}
           >
-            ← Mode Hub
+            ← Testing Hub
           </Link>
           <Link
-            href="/alzheimer"
+            href="/testing/alzheimer"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",
@@ -183,7 +183,7 @@ export default function AdhdFocusSanctuaryPage() {
             Alzheimer&apos;s Sanctuary →
           </Link>
           <Link
-            href="/normal"
+            href="/testing/normal"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",

@@ -178,7 +178,7 @@ export default function AlzheimerSanctuaryPage() {
         {/* Mode Switcher Nav Links */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <Link
-            href="/"
+            href="/testing"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",
@@ -190,10 +190,10 @@ export default function AlzheimerSanctuaryPage() {
               textDecoration: "none",
             }}
           >
-            ← Mode Hub
+            ← Testing Hub
           </Link>
           <Link
-            href="/adhd"
+            href="/testing/adhd"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",
@@ -208,7 +208,7 @@ export default function AlzheimerSanctuaryPage() {
             ADHD Focus Mode →
           </Link>
           <Link
-            href="/normal"
+            href="/testing/normal"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",

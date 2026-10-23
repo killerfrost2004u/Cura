@@ -216,7 +216,7 @@ export default function NormalAssistantPage() {
         {/* Links to Other Dedicated Modes */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <Link
-            href="/"
+            href="/testing"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",
@@ -228,10 +228,10 @@ export default function NormalAssistantPage() {
               textDecoration: "none",
             }}
           >
-            ← Mode Hub
+            ← Testing Hub
           </Link>
           <Link
-            href="/alzheimer"
+            href="/testing/alzheimer"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",
@@ -246,7 +246,7 @@ export default function NormalAssistantPage() {
             Alzheimer&apos;s Mode →
           </Link>
           <Link
-            href="/adhd"
+            href="/testing/adhd"
             style={{
               padding: "8px 14px",
               borderRadius: "10px",
