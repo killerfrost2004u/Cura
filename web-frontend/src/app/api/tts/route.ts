@@ -74,9 +74,9 @@ async function tryMagnificSynthesis(
   text: string,
   requestedVoice?: string,
   isArabic: boolean = true
-): Promise<{ buffer: Buffer; engine: string } | null> {
+): Promise<{ buffer: Buffer; engine: string } | { error: string } | null> {
   const apiKey = DEFAULT_MAGNIFIC_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) return { error: "no_api_key" };
 
   let targetVoice = FATIMA_EGYPTIAN;
   if (isElevenLabsVoiceId(requestedVoice)) {
@@ -91,7 +91,7 @@ async function tryMagnificSynthesis(
       headers: {
         "x-magnific-api-key": apiKey,
         "Content-Type": "application/json",
-        "User-Agent": "CuraHealth/1.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
       body: JSON.stringify({
         text,
@@ -100,24 +100,24 @@ async function tryMagnificSynthesis(
     });
 
     if (!createRes.ok) {
-      console.warn(`Magnific create task returned ${createRes.status}`);
-      return null;
+      const errText = await createRes.text();
+      return { error: `create_failed_${createRes.status}_${errText.slice(0, 100)}` };
     }
 
     const createJson = await createRes.json();
     const taskId = createJson?.data?.task_id;
-    if (!taskId) return null;
+    if (!taskId) return { error: "no_task_id" };
 
-    // Poll for completion (up to 7 seconds, checking every 650ms)
+    // Poll for completion (up to 9 seconds, checking every 650ms)
     let audioUrl: string | null = null;
-    for (let i = 0; i < 11; i++) {
+    for (let i = 0; i < 14; i++) {
       await new Promise((r) => setTimeout(r, 650));
       const statusRes = await fetch(
         `https://api.magnific.com/v1/ai/voiceover/elevenlabs-turbo-v2-5/${taskId}`,
         {
           headers: {
             "x-magnific-api-key": apiKey,
-            "User-Agent": "CuraHealth/1.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           },
         }
       );
@@ -129,16 +129,15 @@ async function tryMagnificSynthesis(
           audioUrl = statusJson.data.generated[0];
           break;
         } else if (status === "FAILED") {
-          console.warn("Magnific voiceover task failed:", statusJson?.data?.error);
-          return null;
+          return { error: `task_failed_${JSON.stringify(statusJson?.data?.error)}` };
         }
       }
     }
 
-    if (!audioUrl) return null;
+    if (!audioUrl) return { error: "task_timeout" };
 
     const audioRes = await fetch(audioUrl);
-    if (!audioRes.ok) return null;
+    if (!audioRes.ok) return { error: `download_failed_${audioRes.status}` };
 
     const arrayBuf = await audioRes.arrayBuffer();
     const buffer = Buffer.from(arrayBuf);
@@ -149,8 +148,8 @@ async function tryMagnificSynthesis(
         engine: `Magnific-ElevenLabs-${voiceLabel} (${targetVoice})`,
       };
     }
-  } catch (err) {
-    console.warn("Magnific synthesis exception:", err);
+  } catch (err: any) {
+    return { error: `exception_${err?.message}` };
   }
 
   return null;
@@ -288,8 +287,9 @@ export async function POST(req: NextRequest) {
     const optimizedText = isArabic ? applyEgyptianPhonologyAndPauses(sanitized) : sanitized;
 
     // 1. Primary: Magnific AI Business Voiceover (Authentic Egyptian Fatima / Mawardy)
+    let magnificDiagnostic = "not_attempted";
     const magnificResult = await tryMagnificSynthesis(optimizedText, requestedVoice, isArabic);
-    if (magnificResult) {
+    if (magnificResult && "buffer" in magnificResult) {
       return new Response(new Uint8Array(magnificResult.buffer), {
         status: 200,
         headers: {
@@ -299,6 +299,8 @@ export async function POST(req: NextRequest) {
           "Cache-Control": "public, max-age=3600, s-maxage=3600",
         },
       });
+    } else if (magnificResult && "error" in magnificResult) {
+      magnificDiagnostic = magnificResult.error;
     }
 
     // 2. Secondary: Direct ElevenLabs Conversational Synthesis
@@ -310,6 +312,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "audio/mpeg",
           "Content-Length": elevenResult.buffer.length.toString(),
           "X-TTS-Engine": elevenResult.engine,
+          "X-Magnific-Diagnostic": magnificDiagnostic,
           "Cache-Control": "public, max-age=3600, s-maxage=3600",
         },
       });
