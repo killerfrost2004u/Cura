@@ -54,12 +54,12 @@ export async function POST(req: NextRequest) {
 
     if (isSimpleGreeting) {
       const responseText = forceEgyptian
-        ? "أهلاً وسهلاً بك! منور جداً 🌸 أنا كيورا (Cura AI) رفيقك الصحي ومساعدك الذكي. عامل إيه النهاردة؟ قولي حابب نركز في إيه أو أساعدك إزاي؟"
+        ? "أهلاً بيك يا فندم! نورتني والله. أنا كيورا، معاك خطوة بخطوة عشان أطمن عليك وأساعدك في أي حاجة محتاجها. طمني، عامل إيه النهاردة؟"
         : "Hello! It is wonderful to connect with you. I am Cura AI, your adaptive health and wellness companion. How are you feeling today, and how can I help you?";
 
       const reasoningContent = forceEgyptian
-        ? `1. استيعاب الرسالة: ترحيب واستقبال بالعامية المصرية الصوتية ("${trimmedQuery}").
-2. النبرة المعتمدة: الترحيب الدافئ والمطمئن من Cura AI المناسب للتوليد الصوتي بدون تعقيدات.
+        ? `1. استيعاب الرسالة: ترحيب واستقبال بالعامية المصرية الأصيلة والمريحة للصوت ("${trimmedQuery}").
+2. النبرة المعتمدة: الترحيب الدافئ والمطمئن من كيورا الخالي من أي مفردات فصحى جافة لتوفير صوت ناعم وسلس.
 3. الجاهزية: تقديم الدعم الصحي والرعاية اليومية.`
         : `1. Intent: Conversational greeting and welcome.
 2. Tone: Warm, engaging, and supportive without unsolicited academic lectures.`;
@@ -177,11 +177,16 @@ function getSystemPrompt(
   spokenMode: boolean = false
 ): string {
   const voiceDirective = spokenMode
-    ? `\nCRITICAL VOICE SYNTHESIS DIRECTIVE:
-The user is interacting via MICROPHONE / VOICE.
-1. You MUST formulate your response in natural, warm, and authentic Egyptian Arabic (باللهجة المصرية العامية الودودة والواضحة) so it sounds like a real caring companion when spoken out loud.
-2. Structure sentences simply and fluidly for natural speech cadence.
-3. NEVER output markdown tables, code fences, asterisks, bullet symbols, or emojis in your final spoken response text (they disrupt text-to-speech engines).\n`
+    ? `\nCRITICAL VOICE SYNTHESIS DIRECTIVE (NATURAL EGYPTIAN DIALECT):
+The user is speaking via MICROPHONE / VOICE. The output will be read aloud by a neural voice synthesizer.
+1. ABSOLUTE DIALECT RULE: You MUST speak exclusively in authentic, warm, and natural Egyptian Arabic (العامية المصرية الحقيقية السلسة).
+2. NEVER use stiff Modern Standard Arabic (الفصحى الجافة) words such as "رفيقك", "خدمتك", "أهلاً وسهلاً بك", "استفساراتك", "قرص".
+3. ALWAYS use natural conversational Egyptian words:
+   - "أهلاً بيك يا فندم", "نورتني والله", "طمني عليك", "إزيك", "عامل إيه".
+   - "متقلقش خالص", "كل حاجة تمام وزي الفل", "أنا معاك خطوة بخطوة".
+   - "حبة دواء" بدلاً من "قرص دواء".
+4. Cadence & Smoothness: Use short, flowing sentences with natural pause points (commas). Avoid long complex clauses.
+5. CLEAN VOICE TEXT: ZERO markdown asterisks (**), NO emojis, NO bullet points, NO code blocks, and NO English terms in the final response text.\n`
     : "";
 
   if (mode === "alzheimer") {
@@ -274,12 +279,12 @@ function generateDynamicMedicalResponse(
     }
 
     if (isArabic) {
-      const greeting = name ? `أهلاً وسهلاً يا ${name}! منور جداً 🌸` : "أهلاً وسهلاً بك! منور جداً 🌸";
+      const greeting = name ? `أهلاً يا ${name}! نورتني والله.` : "أهلاً بيك يا فندم! نورتني والله.";
       return {
-        reasoningContent: `1. استيعاب الرسالة: ترحيب واستقبال ودي بالعامية المصرية ("${query}").
-2. النبرة المعتمدة: الترحيب الدافئ من Cura AI بدون أي استرسال رياضي أو معادلات غير مطلوبة.
-3. الجاهزية: تقديم الدعم الصحي والرعاية اليومية والاستفسارات العلمية.`,
-        responseText: `${greeting} أنا كيورا (Cura AI) رفيقك الصحي ومساعدك الذكي. إزيك النهاردة؟ قولي حابب نركز في إيه أو أساعدك إزاي؟`,
+        reasoningContent: `1. استيعاب الرسالة: ترحيب واستقبال ودي بالعامية المصرية الأصيلة ("${query}").
+2. النبرة المعتمدة: الترحيب الدافئ من كيورا بأسلوب مصري طبيعي وسلس ومناسب للصوت.
+3. الجاهزية: تقديم الرعاية اليومية والاستفسارات الصحية.`,
+        responseText: `${greeting} أنا كيورا معاك خطوة بخطوة عشان أطمن عليك وأساعدك. طمني، عامل إيه النهاردة؟`,
       };
     }
     return {
@@ -416,8 +421,8 @@ function generateDynamicMedicalResponse(
   if (isArabic) {
     return {
       reasoningContent: `1. تصنيف الاستفسار: استعلام عام في بيئة Cura AI الذكية.
-2. معالجة المحتوى: تقديم إجابة مباشرة بالعامية المصرية الودودة.`,
-      responseText: `أهلاً بك! معك كيورا (Cura AI) رفيقك الصحي ومساعدك الذكي. قرأت رسالتك بكل اهتمام، قولي تحب نركز في إيه أو إزاي أساعدك النهاردة؟`,
+2. معالجة المحتوى: تقديم إجابة مباشرة وسلسة بالعامية المصرية الأصيلة.`,
+      responseText: `أهلاً بيك يا فندم! أنا كيورا وسامعك بكل اهتمام. قولي إيه اللي حابب نركز فيه أو أساعدك إزاي النهاردة؟`,
     };
   }
 

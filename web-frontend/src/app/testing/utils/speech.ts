@@ -60,20 +60,16 @@ export async function speakNaturalText(text: string, options: SpeakOptions = {})
 
   const isArabic = isArabicText(clean);
 
-  // Default to SalmaNeural for Egyptian Arabic, JennyNeural for English
-  const defaultVoice = isArabic ? "ar-EG-SalmaNeural" : "en-US-JennyNeural";
-  const selectedVoice = options.voice || defaultVoice;
-
   try {
     options.onStart?.();
 
-    // 1. Attempt High-Fidelity Server Neural TTS (ElevenLabs / Edge)
+    // 1. Attempt High-Fidelity Server Neural TTS (ElevenLabs Conversational / v4)
     const res = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         text: clean,
-        voice: selectedVoice,
+        voice: options.voice, // Only forward if explicitly provided by caller
         rate: options.rate || 1.0,
       }),
     });

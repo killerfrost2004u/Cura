@@ -9,18 +9,25 @@ function isArabicText(text: string): boolean {
   return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text);
 }
 
+function isElevenLabsVoiceId(id?: string): boolean {
+  if (!id) return false;
+  return /^[a-zA-Z0-9]{20}$/.test(id.trim());
+}
+
 function sanitizeTextForTTS(rawText: string): string {
   return rawText
     // Remove reasoning chain
     .replace(/<think>[\s\S]*?<\/think>/gi, "")
     // Remove markdown links [text](url) -> text
     .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+    // Remove surrogate pair emojis
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "")
     // Remove markdown headers, bold, italics, code fences, quotes
     .replace(/[#*`_~>]/g, "")
     // Remove bullet points
     .replace(/^\s*[-•]\s+/gm, "")
     // Collapse excess spaces and newlines
-    .replace(/\n{2,}/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
@@ -39,58 +46,77 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Attempt ElevenLabs Multilingual Neural Synthesis
+    // 1. Attempt ElevenLabs Conversational Neural Synthesis
     if (process.env.ELEVENLABS_API_KEY) {
       try {
         const elevenlabs = new ElevenLabsClient();
-        // Priority: custom ELEVENLABS_ARABIC_VOICE_ID -> requestedVoice -> default Sarah
         const customArabicVoice = process.env.ELEVENLABS_ARABIC_VOICE_ID;
-        const defaultVoice = isArabic
-          ? (customArabicVoice || "EXAVITQu4vr4xnSDxMaL")
-          : "EXAVITQu4vr4xnSDxMaL";
+        
+        let voiceId = "cgSgspJ2msm6clMCkdW9"; // Jessica (Warm, bright, conversational)
 
-        const voiceId = requestedVoice && requestedVoice.length > 15
-          ? requestedVoice
-          : defaultVoice;
-
-        const convertOptions: any = {
-          text,
-          modelId: "eleven_multilingual_v2",
-          voiceSettings: {
-            stability: 0.45,
-            similarityBoost: 0.85,
-            style: 0.15,
-            useSpeakerBoost: true,
-          },
-        };
-
-        if (isArabic) {
-          convertOptions.languageCode = "ar";
+        if (isElevenLabsVoiceId(requestedVoice)) {
+          voiceId = requestedVoice!;
+        } else if (isElevenLabsVoiceId(customArabicVoice)) {
+          voiceId = customArabicVoice!;
+        } else if (!isArabic) {
+          voiceId = "EXAVITQu4vr4xnSDxMaL"; // Sarah for English
         }
 
-        const audioStream = await elevenlabs.textToSpeech.convert(voiceId, convertOptions);
+        // Use eleven_v3_conversational for fluid human cadence, or fallback to eleven_v4 / eleven_multilingual_v2
+        const modelsToTry = ["eleven_v3_conversational", "eleven_v4", "eleven_multilingual_v2"];
+        let audioBuffer: Buffer | null = null;
+        let successfulModel = "";
 
-        // Web ReadableStream to Node Buffer
-        const reader = audioStream.getReader();
-        const chunks: Uint8Array[] = [];
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          if (value) chunks.push(value);
+        for (const modelId of modelsToTry) {
+          try {
+            const convertOptions: any = {
+              text,
+              modelId,
+              voiceSettings: {
+                stability: 0.35, // lower stability = more human expression and natural inflection
+                similarityBoost: 0.85,
+                style: 0.20,
+                useSpeakerBoost: true,
+              },
+            };
+
+            if (isArabic) {
+              convertOptions.languageCode = "ar";
+            }
+
+            const audioStream = await elevenlabs.textToSpeech.convert(voiceId, convertOptions);
+
+            const reader = audioStream.getReader();
+            const chunks: Uint8Array[] = [];
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              if (value) chunks.push(value);
+            }
+
+            if (chunks.length > 0) {
+              audioBuffer = Buffer.concat(chunks);
+              successfulModel = modelId;
+              break;
+            }
+          } catch (modelErr) {
+            console.warn(`ElevenLabs model ${modelId} failed, trying next model:`, modelErr);
+          }
         }
 
-        const audioBuffer = Buffer.concat(chunks);
-        return new Response(audioBuffer, {
-          status: 200,
-          headers: {
-            "Content-Type": "audio/mpeg",
-            "Content-Length": audioBuffer.length.toString(),
-            "X-TTS-Engine": `ElevenLabs-Multilingual-v2 (${voiceId})`,
-            "Cache-Control": "public, max-age=3600, s-maxage=3600",
-          },
-        });
+        if (audioBuffer && audioBuffer.length > 100) {
+          return new Response(new Uint8Array(audioBuffer), {
+            status: 200,
+            headers: {
+              "Content-Type": "audio/mpeg",
+              "Content-Length": audioBuffer.length.toString(),
+              "X-TTS-Engine": `ElevenLabs-${successfulModel} (${voiceId})`,
+              "Cache-Control": "public, max-age=3600, s-maxage=3600",
+            },
+          });
+        }
       } catch (elevenErr) {
-        console.warn("ElevenLabs TTS failed, attempting fallback:", elevenErr);
+        console.warn("ElevenLabs TTS execution failed:", elevenErr);
       }
     }
 
@@ -119,7 +145,7 @@ export async function POST(req: NextRequest) {
 
       const audioBuffer = Buffer.concat(chunks);
 
-      return new Response(audioBuffer, {
+      return new Response(new Uint8Array(audioBuffer), {
         status: 200,
         headers: {
           "Content-Type": "audio/mpeg",
