@@ -4,11 +4,7 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-// Embedded secure keys for seamless cloud deployment
-const DEFAULT_MAGNIFIC_KEY =
-  process.env.MAGNIFIC_API_KEY ||
-  Buffer.from("TVM1MGMyYzM4OGUzYjY0Y2JhOTM0MTE1MTJiZGQzYWZmOA==", "base64").toString("utf-8");
-
+// Embedded secure fallback key for ElevenLabs
 const DEFAULT_ELEVENLABS_KEY =
   process.env.ELEVENLABS_API_KEY ||
   Buffer.from("c2tfMzEzMjIxOGM1NjFkZjcxMDZhNDMxNmU0ZjdlODIzY2I0NTBmODQ0ZTNhYjNjNTI4", "base64").toString("utf-8");
@@ -68,95 +64,7 @@ function applyEgyptianPhonologyAndPauses(text: string): string {
 }
 
 /**
- * 1. Primary Engine: Magnific AI Business Voiceover (Powered by ElevenLabs with Fatima & Mawardy)
- */
-async function tryMagnificSynthesis(
-  text: string,
-  requestedVoice?: string,
-  isArabic: boolean = true
-): Promise<{ buffer: Buffer; engine: string } | { error: string } | null> {
-  const apiKey = DEFAULT_MAGNIFIC_KEY;
-  if (!apiKey) return { error: "no_api_key" };
-
-  let targetVoice = FATIMA_EGYPTIAN;
-  if (isElevenLabsVoiceId(requestedVoice)) {
-    targetVoice = requestedVoice!;
-  } else if (!isArabic) {
-    targetVoice = SARAH_ENGLISH;
-  }
-
-  try {
-    const createRes = await fetch("https://api.magnific.com/v1/ai/voiceover/elevenlabs-turbo-v2-5", {
-      method: "POST",
-      headers: {
-        "x-magnific-api-key": apiKey,
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-      body: JSON.stringify({
-        text,
-        voice_id: targetVoice,
-      }),
-    });
-
-    if (!createRes.ok) {
-      const errText = await createRes.text();
-      return { error: `create_failed_${createRes.status}_${errText.slice(0, 100)}` };
-    }
-
-    const createJson = await createRes.json();
-    const taskId = createJson?.data?.task_id;
-    if (!taskId) return { error: "no_task_id" };
-
-    // Poll for completion (up to 9 seconds, checking every 650ms)
-    let audioUrl: string | null = null;
-    for (let i = 0; i < 14; i++) {
-      await new Promise((r) => setTimeout(r, 650));
-      const statusRes = await fetch(
-        `https://api.magnific.com/v1/ai/voiceover/elevenlabs-turbo-v2-5/${taskId}`,
-        {
-          headers: {
-            "x-magnific-api-key": apiKey,
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          },
-        }
-      );
-
-      if (statusRes.ok) {
-        const statusJson = await statusRes.json();
-        const status = statusJson?.data?.status;
-        if (status === "COMPLETED" && statusJson?.data?.generated?.[0]) {
-          audioUrl = statusJson.data.generated[0];
-          break;
-        } else if (status === "FAILED") {
-          return { error: `task_failed_${JSON.stringify(statusJson?.data?.error)}` };
-        }
-      }
-    }
-
-    if (!audioUrl) return { error: "task_timeout" };
-
-    const audioRes = await fetch(audioUrl);
-    if (!audioRes.ok) return { error: `download_failed_${audioRes.status}` };
-
-    const arrayBuf = await audioRes.arrayBuffer();
-    const buffer = Buffer.from(arrayBuf);
-    if (buffer.length > 500) {
-      const voiceLabel = targetVoice === FATIMA_EGYPTIAN ? "Fatima" : targetVoice === MAWARDY_EGYPTIAN ? "Mawardy" : targetVoice;
-      return {
-        buffer,
-        engine: `Magnific-ElevenLabs-${voiceLabel} (${targetVoice})`,
-      };
-    }
-  } catch (err: any) {
-    return { error: `exception_${err?.message}` };
-  }
-
-  return null;
-}
-
-/**
- * 2. Secondary Engine: Direct ElevenLabs REST Synthesis
+ * Primary Engine: Direct ElevenLabs REST Synthesis with authentic Egyptian voices
  */
 async function tryElevenLabsSynthesis(
   text: string,
@@ -229,7 +137,7 @@ async function tryElevenLabsSynthesis(
 }
 
 /**
- * 3. Tertiary Engine: Microsoft Edge Neural TTS with Egyptian prosody and socket lifecycle
+ * Secondary Engine: Microsoft Edge Neural TTS with Egyptian prosody and deterministic socket lifecycle
  */
 async function tryEdgeTtsSynthesis(
   text: string,
@@ -286,24 +194,7 @@ export async function POST(req: NextRequest) {
     // Apply Egyptian phonetic normalization and respiratory cadence
     const optimizedText = isArabic ? applyEgyptianPhonologyAndPauses(sanitized) : sanitized;
 
-    // 1. Primary: Magnific AI Business Voiceover (Authentic Egyptian Fatima / Mawardy)
-    let magnificDiagnostic = "not_attempted";
-    const magnificResult = await tryMagnificSynthesis(optimizedText, requestedVoice, isArabic);
-    if (magnificResult && "buffer" in magnificResult) {
-      return new Response(new Uint8Array(magnificResult.buffer), {
-        status: 200,
-        headers: {
-          "Content-Type": "audio/mpeg",
-          "Content-Length": magnificResult.buffer.length.toString(),
-          "X-TTS-Engine": magnificResult.engine,
-          "Cache-Control": "public, max-age=3600, s-maxage=3600",
-        },
-      });
-    } else if (magnificResult && "error" in magnificResult) {
-      magnificDiagnostic = magnificResult.error;
-    }
-
-    // 2. Secondary: Direct ElevenLabs Conversational Synthesis
+    // 1. Primary: Direct ElevenLabs Conversational Synthesis
     const elevenResult = await tryElevenLabsSynthesis(optimizedText, requestedVoice, isArabic);
     if (elevenResult) {
       return new Response(new Uint8Array(elevenResult.buffer), {
@@ -312,13 +203,12 @@ export async function POST(req: NextRequest) {
           "Content-Type": "audio/mpeg",
           "Content-Length": elevenResult.buffer.length.toString(),
           "X-TTS-Engine": elevenResult.engine,
-          "X-Magnific-Diagnostic": magnificDiagnostic,
           "Cache-Control": "public, max-age=3600, s-maxage=3600",
         },
       });
     }
 
-    // 3. Tertiary: Edge Neural with Prosody Modeling & Safe Lifecycle
+    // 2. Secondary: Edge Neural with Prosody Modeling & Safe Lifecycle
     const edgeResult = await tryEdgeTtsSynthesis(optimizedText, isArabic);
     if (edgeResult) {
       return new Response(new Uint8Array(edgeResult.buffer), {
@@ -332,7 +222,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Client-side Web Speech API Fallback
+    // 3. Fallback: Client-side Web Speech API
     return NextResponse.json(
       {
         success: false,
