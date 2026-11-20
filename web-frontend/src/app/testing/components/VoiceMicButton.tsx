@@ -15,7 +15,8 @@ export default function VoiceMicButton({
   onTranscript,
   accentColor = "#16B9FE",
   size = 18,
-  title = "Click to Speak (Cloudflare Whisper GPU)",
+  title = "تحدث بالعامية المصرية أو الإنجليزية (Cloudflare Whisper GPU)",
+  lang = "ar",
 }: VoiceMicButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -100,6 +101,9 @@ export default function VoiceMicButton({
     try {
       const formData = new FormData();
       formData.append("file", blob, "voice_input.webm");
+      if (lang) {
+        formData.append("language", lang);
+      }
 
       const res = await fetch("/api/transcribe", {
         method: "POST",

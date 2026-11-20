@@ -36,9 +36,11 @@ export async function POST(req: NextRequest) {
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || DEFAULT_ACCOUNT_ID;
     const apiToken = process.env.CLOUDFLARE_API_TOKEN || DEFAULT_API_TOKEN;
 
-    const cfUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/openai/whisper`;
+    // Use Whisper Large v3 Turbo for high-speed, accurate Arabic dialect recognition
+    const primaryModel = process.env.CLOUDFLARE_WHISPER_MODEL || "@cf/openai/whisper-large-v3-turbo";
+    let cfUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${primaryModel}`;
 
-    const cfRes = await fetch(cfUrl, {
+    let cfRes = await fetch(cfUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiToken}`,
@@ -48,21 +50,49 @@ export async function POST(req: NextRequest) {
       signal: AbortSignal.timeout(35000),
     });
 
+    // Fallback to standard @cf/openai/whisper if primary model fails or is unavailable
+    if (!cfRes.ok && primaryModel !== "@cf/openai/whisper") {
+      console.warn(`Primary Whisper (${primaryModel}) returned ${cfRes.status}, falling back to @cf/openai/whisper...`);
+      cfUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/openai/whisper`;
+      cfRes = await fetch(cfUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/octet-stream",
+        },
+        body: buffer,
+        signal: AbortSignal.timeout(35000),
+      });
+    }
+
     if (cfRes.ok) {
       const data = await cfRes.json();
       const transcribedText = (data?.result?.text || "").trim();
 
-      // Filter out Whisper silence artifacts
-      const filteredText =
-        transcribedText.toLowerCase() === "thank you." ||
-        transcribedText.toLowerCase() === "bye." ||
-        transcribedText.toLowerCase() === "subtitles by"
-          ? ""
-          : transcribedText;
+      // Filter out Whisper silence/repetition hallucinations in Arabic & English
+      const lower = transcribedText.toLowerCase();
+      const isHallucination =
+        lower === "thank you." ||
+        lower === "thank you" ||
+        lower === "bye." ||
+        lower === "bye" ||
+        lower === "you" ||
+        lower.includes("subtitles by") ||
+        lower.includes("amara.org") ||
+        transcribedText === "شكراً لكم." ||
+        transcribedText === "شكراً لكم" ||
+        transcribedText === "شكرا لكم" ||
+        transcribedText === "شكراً." ||
+        transcribedText === "شكرا" ||
+        transcribedText.includes("ترجمة وتعديل") ||
+        transcribedText.includes("تمت الترجمة بواسطة");
+
+      const filteredText = isHallucination ? "" : transcribedText;
 
       return NextResponse.json({
         success: true,
         text: filteredText,
+        model: cfRes.url.includes("large-v3-turbo") ? "whisper-large-v3-turbo" : "whisper",
       });
     } else {
       const errText = await cfRes.text();

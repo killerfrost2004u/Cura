@@ -93,6 +93,7 @@ export default function AlzheimerSanctuaryPage() {
           message: text,
           mode: "alzheimer",
           patient_id: "arthur-vance-4092",
+          spoken_mode: isFromMic,
         }),
       });
       const json = await res.json();

@@ -107,6 +107,7 @@ export default function AdhdFocusSanctuaryPage() {
           message: text,
           mode: "adhd",
           patient_id: "adhd-focus-user",
+          spoken_mode: isFromMic,
         }),
       });
       const json = await res.json();

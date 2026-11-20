@@ -16,6 +16,8 @@ interface ChatRequestBody {
   text?: string;
   mode?: "normal" | "alzheimer" | "adhd";
   patient_id?: string;
+  spoken_mode?: boolean;
+  prefer_dialect?: "egyptian_arabic" | "standard_arabic" | "english";
 }
 
 export async function POST(req: NextRequest) {
@@ -24,6 +26,7 @@ export async function POST(req: NextRequest) {
     const query = (body.message || body.text || "").trim();
     const mode = body.mode || "normal";
     const patientId = body.patient_id || "patient-001";
+    const spokenMode = Boolean(body.spoken_mode);
 
     if (!query) {
       return NextResponse.json(
@@ -33,6 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     const isArabic = /[\u0600-\u06FF]/.test(query);
+    const forceEgyptian = spokenMode || body.prefer_dialect === "egyptian_arabic" || isArabic;
     const trimmedQuery = query.trim();
 
     // Fast-path & Conversational Grounding: If message is a pure greeting or casual check-in
@@ -49,14 +53,14 @@ export async function POST(req: NextRequest) {
           trimmedQuery.toLowerCase() === "hello"));
 
     if (isSimpleGreeting) {
-      const responseText = isArabic
+      const responseText = forceEgyptian
         ? "أهلاً وسهلاً بك! منور جداً 🌸 أنا كيورا (Cura AI) رفيقك الصحي ومساعدك الذكي. عامل إيه النهاردة؟ قولي حابب نركز في إيه أو أساعدك إزاي؟"
         : "Hello! It is wonderful to connect with you. I am Cura AI, your adaptive health and wellness companion. How are you feeling today, and how can I help you?";
 
-      const reasoningContent = isArabic
-        ? `1. استيعاب الرسالة: ترحيب واستقبال ودي بالعامية المصرية من المستخدم ("${trimmedQuery}").
-2. النبرة المعتمدة: الترحيب الدافئ من Cura AI بدون أي استرسال رياضي أو معادلات غير مطلوبة.
-3. الجاهزية: تقديم الدعم الصحي والرعاية اليومية والاستفسارات العلمية.`
+      const reasoningContent = forceEgyptian
+        ? `1. استيعاب الرسالة: ترحيب واستقبال بالعامية المصرية الصوتية ("${trimmedQuery}").
+2. النبرة المعتمدة: الترحيب الدافئ والمطمئن من Cura AI المناسب للتوليد الصوتي بدون تعقيدات.
+3. الجاهزية: تقديم الدعم الصحي والرعاية اليومية.`
         : `1. Intent: Conversational greeting and welcome.
 2. Tone: Warm, engaging, and supportive without unsolicited academic lectures.`;
 
@@ -70,7 +74,8 @@ export async function POST(req: NextRequest) {
           patient_id: patientId,
           provider: "Cura Adaptive Neural Engine",
           source: "cura_neural_core",
-          is_arabic: isArabic,
+          is_arabic: forceEgyptian,
+          spoken_mode: spokenMode,
           timestamp: new Date().toISOString(),
         },
       });
@@ -85,7 +90,7 @@ export async function POST(req: NextRequest) {
     // Attempt live Cloudflare Workers AI call
     if (accountId && apiToken) {
       try {
-        const systemPrompt = getSystemPrompt(mode, isArabic);
+        const systemPrompt = getSystemPrompt(mode, forceEgyptian, spokenMode);
         const cfUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
 
         const cfRes = await fetch(cfUrl, {
@@ -99,7 +104,7 @@ export async function POST(req: NextRequest) {
               { role: "system", content: systemPrompt },
               { role: "user", content: query },
             ],
-            // Unrestricted token budget for full DeepSeek-R1 chain-of-thought
+            // Token budget for reasoning and voice synthesis
             max_tokens: 2500,
           }),
           // Cloudflare serverless GPU reasoning timeout (55s safeguard)
@@ -126,7 +131,8 @@ export async function POST(req: NextRequest) {
                 patient_id: patientId,
                 provider: "Cura Adaptive Neural Engine",
                 source: "live_gpu",
-                is_arabic: isArabic,
+                is_arabic: forceEgyptian,
+                spoken_mode: spokenMode,
                 timestamp: new Date().toISOString(),
               },
             });
@@ -140,7 +146,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Dynamic Cognitive Medical Engine fallback
-    const dynamicData = generateDynamicMedicalResponse(query, mode, isArabic);
+    const dynamicData = generateDynamicMedicalResponse(query, mode, forceEgyptian);
     return NextResponse.json({
       success: true,
       data: {
@@ -151,7 +157,8 @@ export async function POST(req: NextRequest) {
         patient_id: patientId,
         provider: "Cura Adaptive Neural Engine",
         source: "dynamic_medical_engine",
-        is_arabic: isArabic,
+        is_arabic: forceEgyptian,
+        spoken_mode: spokenMode,
         timestamp: new Date().toISOString(),
       },
     });
@@ -164,13 +171,25 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function getSystemPrompt(mode: "normal" | "alzheimer" | "adhd", isArabic: boolean): string {
+function getSystemPrompt(
+  mode: "normal" | "alzheimer" | "adhd",
+  isArabic: boolean,
+  spokenMode: boolean = false
+): string {
+  const voiceDirective = spokenMode
+    ? `\nCRITICAL VOICE SYNTHESIS DIRECTIVE:
+The user is interacting via MICROPHONE / VOICE.
+1. You MUST formulate your response in natural, warm, and authentic Egyptian Arabic (باللهجة المصرية العامية الودودة والواضحة) so it sounds like a real caring companion when spoken out loud.
+2. Structure sentences simply and fluidly for natural speech cadence.
+3. NEVER output markdown tables, code fences, asterisks, bullet symbols, or emojis in your final spoken response text (they disrupt text-to-speech engines).\n`
+    : "";
+
   if (mode === "alzheimer") {
-    return `You are Cura AI, an empathetic assistive healthcare AI companion specialized for Alzheimer's and senior memory care.
+    return `You are Cura AI, an empathetic assistive healthcare AI companion specialized for Alzheimer's and senior memory care.${voiceDirective}
 CRITICAL LANGUAGE & CONVERSATIONAL RULES:
-- If the user writes or speaks in Arabic (or Egyptian dialect), you MUST reply in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة).
+- If the user writes or speaks in Arabic (or if spoken mode is active), you MUST reply in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة).
 - Address the user respectfully and warmly (e.g., "يا فندم", "صباح الخير والبركة").
-- If the user writes in English, reply in warm, soothing English.
+- If the user writes in English (and not in spoken mode), reply in warm, soothing English.
 - If the user sends a simple greeting (e.g. "اهلا", "صباح الخير"), greet them with gentle warmth and ask how they are feeling today.
 - NEVER output unprompted math lessons, geometry, or random formulas.
 Guidelines:
@@ -179,10 +198,10 @@ Guidelines:
 3. Keep sentences short, comforting, and clear. Avoid complex medical jargon.
 4. Provide thorough, empathetic internal chain-of-thought reasoning inside <think> tags.`;
   } else if (mode === "adhd") {
-    return `You are Cura AI, an adaptive neurodivergent executive dysfunction and ADHD focus assistant.
+    return `You are Cura AI, an adaptive neurodivergent executive dysfunction and ADHD focus assistant.${voiceDirective}
 CRITICAL LANGUAGE & CONVERSATIONAL RULES:
-- If the user writes in Arabic, reply in encouraging, friendly Arabic (or Egyptian Arabic if they used Egyptian dialect).
-- If the user writes in English, reply in clear, motivating English.
+- If the user writes in Arabic (or if spoken mode is active), reply in encouraging, friendly Egyptian Arabic (بالعامية المصرية المشجعة).
+- If the user writes in English (and not in spoken mode), reply in clear, motivating English.
 - If the user sends a simple greeting, greet them warmly and ask what they would like to tackle together today.
 - NEVER output unprompted math lessons or geometry formulas on simple greetings.
 Guidelines:
@@ -193,16 +212,16 @@ Guidelines:
   }
 
   // Normal / Everyday Research Mode
-  return `You are Cura AI, an adaptive healthcare and research intelligence companion.
+  return `You are Cura AI, an adaptive healthcare and research intelligence companion.${voiceDirective}
 
 CRITICAL INTENT & CONVERSATIONAL GROUNDING RULES:
 1. GREETINGS & CASUAL MESSAGES (e.g., "اهلا", "أهلا", "مرحبا", "ازيك", "صباح الخير", "hello", "hi"):
-   - When the user sends a simple greeting or casual check-in, reply ONLY with a warm, natural, friendly greeting as Cura AI in their language and dialect (Egyptian Arabic if greeted in Arabic).
+   - When the user sends a simple greeting or casual check-in, reply ONLY with a warm, natural, friendly greeting as Cura AI in their language and dialect (Egyptian Arabic if greeted in Arabic or spoken mode).
    - Ask how their health, research, or day is going and how you can assist them.
    - ABSOLUTE PROHIBITION: DO NOT spontaneously output math lessons, geometric formulas (like area of rectangle, circle, etc.), or academic essays on a simple greeting! Never teach math unless the user specifically asked a math question.
 
 2. EGYPTIAN ARABIC DIALECT MIRRORING:
-   - If the user addresses you in Egyptian Arabic (e.g. "اهلا", "إزيك", "عامل إيه", "أنا اسمي...", "دواء", "يا فندم", "أعمل إيه", "النهاردة", "مرحب", "يرمحب", "عاوز", "كويس"), you MUST reply in authentic, friendly, and natural Egyptian Arabic (العامية المصرية الودودة والطبيعية).
+   - If the user addresses you in Egyptian Arabic or if spoken mode is active, you MUST reply in authentic, friendly, and natural Egyptian Arabic (العامية المصرية الودودة والطبيعية).
    - If the user introduces themselves (e.g. "أنا اسمي إبراهيم" / "my name is Ibrahim"), welcome them warmly by name (e.g., "أهلاً يا إبراهيم! منور جداً، أنا كيورا...").
    - NEVER mention technical engine names (like DeepSeek, Cloudflare, GPUs). You are simply Cura AI.
 

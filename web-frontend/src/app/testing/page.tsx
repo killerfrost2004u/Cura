@@ -98,6 +98,7 @@ export default function AITestingCockpitPage() {
           message: text,
           mode: activeMode,
           patient_id: "elena-vance-4092",
+          spoken_mode: isFromMic,
         }),
       });
 

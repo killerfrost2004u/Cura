@@ -90,6 +90,7 @@ export default function NormalAssistantPage() {
           message: text,
           mode: "normal",
           patient_id: "general-user",
+          spoken_mode: isFromMic,
         }),
       });
 
