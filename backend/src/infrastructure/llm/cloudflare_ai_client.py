@@ -67,6 +67,8 @@ class CloudflareWorkersAIClient(ILLMEngine):
             "max_tokens": 512 if mode == CognitiveMode.NORMAL else 256,
             "temperature": 0.3 if mode == CognitiveMode.ALZHEIMER else 0.6,
         }
+        if available_tools:
+            payload["tools"] = available_tools
 
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:

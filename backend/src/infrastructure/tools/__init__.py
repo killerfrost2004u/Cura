@@ -33,11 +33,11 @@ def create_default_tool_router(repo=None) -> ToolRouterImpl:
     # 2. Web Search Tool
     router.register_tool(
         name="search_web",
-        description="البحث على الإنترنت للحصول على معلومات عامة أو إجابات عن أسئلة المستخدم.",
+        description="البحث المباشر على الإنترنت عن أحدث الأخبار، الأبحاث الطبية والعلمية، المعلومات العامة، أو أي استفسار يتطلب بيانات محدثة من الويب.",
         parameters={
             "type": "object",
             "properties": {
-                "query": {"type": "string", "description": "جملة البحث."}
+                "query": {"type": "string", "description": "كلمات البحث باللغة العربية أو الإنجليزية."}
             },
             "required": ["query"]
         },

@@ -20,6 +20,35 @@ interface ChatRequestBody {
   prefer_dialect?: "egyptian_arabic" | "standard_arabic" | "english";
 }
 
+async function fetchDuckDuckGoSnippets(searchQuery: string): Promise<string> {
+  try {
+    const params = new URLSearchParams();
+    params.set("q", searchQuery);
+    const res = await fetch("https://html.duckduckgo.com/html/", {
+      method: "POST",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return "";
+    const html = await res.text();
+    const regex = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+    const snippets: string[] = [];
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(html)) !== null && snippets.length < 3) {
+      const clean = match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      if (clean) snippets.push(`• ${clean}`);
+    }
+    return snippets.join("\n");
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body: ChatRequestBody = await req.json();
@@ -85,13 +114,33 @@ export async function POST(req: NextRequest) {
     const apiToken = process.env.CLOUDFLARE_API_TOKEN || DEFAULT_API_TOKEN;
     const model =
       process.env.CLOUDFLARE_LLM_MODEL ||
-      "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b";
+      "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+
+    // Detect if user query benefits from live web search
+    const needsSearch =
+      /(\b(search|find|google|look up|news|latest|recent|weather|research|studies)\b|ابحث|دور|سيرش|أحدث|أخبار|جديد|أبحاث|دراسات|ما هي|ما هو|علاج|مستجدات)/i.test(
+        trimmedQuery
+      );
+
+    let searchContext = "";
+    if (needsSearch) {
+      try {
+        const snippets = await fetchDuckDuckGoSnippets(trimmedQuery);
+        if (snippets) {
+          searchContext = `\n\n[معلومات ونتائج البحث المباشر على الإنترنت]:\n${snippets}\nيرجى الاستفادة من هذه النتائج المحدثة في إجابة المستخدم بدقة ولطف.`;
+        }
+      } catch (err) {
+        console.warn("Web search pre-fetch warning:", err);
+      }
+    }
 
     // Attempt live Cloudflare Workers AI call
     if (accountId && apiToken) {
       try {
         const systemPrompt = getSystemPrompt(mode, forceEgyptian, spokenMode);
         const cfUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
+
+        const finalUserPrompt = searchContext ? `${query}${searchContext}` : query;
 
         const cfRes = await fetch(cfUrl, {
           method: "POST",
@@ -102,7 +151,7 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             messages: [
               { role: "system", content: systemPrompt },
-              { role: "user", content: query },
+              { role: "user", content: finalUserPrompt },
             ],
             // Token budget for reasoning and voice synthesis
             max_tokens: 2500,
@@ -115,6 +164,7 @@ export async function POST(req: NextRequest) {
           const cfData = await cfRes.json();
           const rawResponse =
             cfData?.result?.response ||
+            cfData?.result?.choices?.[0]?.message?.content ||
             cfData?.result?.content ||
             cfData?.result ||
             "";
