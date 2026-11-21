@@ -20,33 +20,68 @@ interface ChatRequestBody {
   prefer_dialect?: "egyptian_arabic" | "standard_arabic" | "english";
 }
 
-async function fetchDuckDuckGoSnippets(searchQuery: string): Promise<string> {
+async function fetchLiveWebSnippets(searchQuery: string): Promise<string> {
+  // 1. Primary Engine: DuckDuckGo HTML GET with browser-grade headers
   try {
-    const params = new URLSearchParams();
-    params.set("q", searchQuery);
-    const res = await fetch("https://html.duckduckgo.com/html/", {
-      method: "POST",
+    const q = encodeURIComponent(searchQuery);
+    const res = await fetch(`https://html.duckduckgo.com/html/?q=${q}`, {
+      method: "GET",
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Content-Type": "application/x-www-form-urlencoded",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "ar,en-US;q=0.8,en;q=0.5",
       },
-      body: params.toString(),
       signal: AbortSignal.timeout(6000),
     });
-    if (!res.ok) return "";
-    const html = await res.text();
-    const regex = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
-    const snippets: string[] = [];
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(html)) !== null && snippets.length < 3) {
-      const clean = match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-      if (clean) snippets.push(`• ${clean}`);
+
+    if (res.ok) {
+      const html = await res.text();
+      const regex = /class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/(?:a|div|span)>/g;
+      const snippets: string[] = [];
+      let match: RegExpExecArray | null;
+      while ((match = regex.exec(html)) !== null && snippets.length < 4) {
+        const clean = match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+        if (clean && clean.length > 20) {
+          snippets.push(`• ${clean}`);
+        }
+      }
+      if (snippets.length > 0) {
+        return snippets.join("\n");
+      }
     }
-    return snippets.join("\n");
-  } catch {
-    return "";
+  } catch (err) {
+    console.warn("Primary DDG HTML search error:", err);
   }
+
+  // 2. Secondary Fallback: DuckDuckGo Instant Answer API
+  try {
+    const q = encodeURIComponent(searchQuery);
+    const res = await fetch(
+      `https://api.duckduckgo.com/?q=${q}&format=json&no_html=1&skip_disambig=1`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+        signal: AbortSignal.timeout(4000),
+      }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const parts: string[] = [];
+      if (data.AbstractText) parts.push(`• ${data.AbstractText}`);
+      if (data.RelatedTopics && Array.isArray(data.RelatedTopics)) {
+        for (const topic of data.RelatedTopics.slice(0, 3)) {
+          if (topic.Text) parts.push(`• ${topic.Text}`);
+        }
+      }
+      if (parts.length > 0) return parts.join("\n");
+    }
+  } catch (err) {
+    console.warn("Fallback DDG Instant Answer error:", err);
+  }
+
+  return "";
 }
 
 export async function POST(req: NextRequest) {
@@ -116,18 +151,23 @@ export async function POST(req: NextRequest) {
       process.env.CLOUDFLARE_LLM_MODEL ||
       "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
-    // Detect if user query benefits from live web search
-    const needsSearch =
-      /(\b(search|find|google|look up|news|latest|recent|weather|research|studies)\b|ابحث|دور|سيرش|أحدث|أخبار|جديد|أبحاث|دراسات|ما هي|ما هو|علاج|مستجدات)/i.test(
-        trimmedQuery
-      );
+    // Broad, intelligent live web search detection:
+    // In Normal mode (Everyday Research), any informational inquiry fetches live web data.
+    // In Alzheimer or ADHD mode, inquiries about news, treatments, stock prices, weather, or facts trigger live web search.
+    const isSearchApplicable =
+      !isSimpleGreeting &&
+      trimmedQuery.length > 3 &&
+      (mode === "normal" ||
+        /(\b(search|find|google|look up|news|latest|recent|weather|research|studies|stock|price|today|now)\b|سعر|سهم|كام|بكام|دلوقتي|النهارده|النهاردة|دولار|ذهب|بورصة|أخبار|جديد|أحدث|أبحاث|علاج|مستجدات|مين|فين|إمتى|امتى|ازاي|إزاي|ايه هو|إيه هو|ايه هي|إيه هي|ما هو|ما هي|ماذا|هل|توقعات)/i.test(
+          trimmedQuery
+        ));
 
     let searchContext = "";
-    if (needsSearch) {
+    if (isSearchApplicable) {
       try {
-        const snippets = await fetchDuckDuckGoSnippets(trimmedQuery);
+        const snippets = await fetchLiveWebSnippets(trimmedQuery);
         if (snippets) {
-          searchContext = `\n\n[معلومات ونتائج البحث المباشر على الإنترنت]:\n${snippets}\nيرجى الاستفادة من هذه النتائج المحدثة في إجابة المستخدم بدقة ولطف.`;
+          searchContext = `\n\n[نتائج البحث الحي المباشر من الإنترنت (Live Web Search Results)]:\n${snippets}\n\nتعليمات قطعية وإلزامية للنموذج: أنت متصل بالإنترنت مباشرة وتملك نتائج البحث الحية المحدثة للتو أعلاه. استخدم هذه المعلومات المحدثة فوراً في الإجابة على استفسار المستخدم بدقة وبساطة واذكر الأسعار أو الأرقام أو الحقائق المستخرجة من نتائج البحث هذه، وإياك نهائياً وبأي شكل أن تقول للمستخدم إنك غير متصل بالإنترنت أو لا تعرف، لأن بيانات الإنترنت الحية متوفرة بين يديك الآن.`;
         }
       } catch (err) {
         console.warn("Web search pre-fetch warning:", err);
@@ -241,8 +281,9 @@ The user is speaking via MICROPHONE / VOICE. The output will be read aloud by a 
 
   if (mode === "alzheimer") {
     const languageInstruction = isArabic || spokenMode
-      ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
-- The user is interacting in Arabic or Voice. You MUST reply 100% in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة: "يا حاج إبراهيم"، "يا فندم"، "ولا تقلق خالص").`
+      ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE (EGYPTIAN ARABIC FOR ALZHEIMER):
+- The user is interacting in Arabic or Voice. You MUST reply 100% in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة: "يا حاج إبراهيم"، "يا فندم"، "طمني عليك"، "ولا تقلق خالص").
+- STRICT PROHIBITION against stiff Modern Standard Arabic (الفصحى الجافة) or robotic greetings like ("مرحباً بك"، "أنا سعيد جداً بمساعدتك في...")! Be warm, familial, and immediate.`
       : `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
 - The user is interacting in English. You MUST reply 100% in natural, warm, empathetic English.
 - STRICT PROHIBITION: NEVER use or mix Arabic words, phrases, or honorifics (such as "يا فندم", "صباح الخير والبركة", or any Arabic script) in an English response. Keep the entire response completely in English.`;
@@ -261,8 +302,9 @@ CONVERSATIONAL & REASSURANCE RULES:
 4. Internal Reasoning: Put all internal chain-of-thought reasoning strictly inside <think>...</think> tags. The final answer outside the tags must be clean speech for the user.`;
   } else if (mode === "adhd") {
     const languageInstruction = isArabic || spokenMode
-      ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
-- The user is interacting in Arabic or Voice. You MUST reply 100% in encouraging, energizing Egyptian Arabic (بالعامية المصرية المشجعة: "يلا بينا يا بطل"، "عاش"، "خطوة بسيطة").`
+      ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE (EGYPTIAN ARABIC FOR ADHD):
+- The user is interacting in Arabic or Voice. You MUST reply 100% in encouraging, energizing Egyptian Arabic (بالعامية المصرية الشبابية المشجعة: "يلا بينا يا بطل"، "عاش"، "بص يا فنان"، "خطوة بسيطة وهنخلصها").
+- STRICT PROHIBITION against stiff Modern Standard Arabic (الفصحى الجافة) or robotic greetings like ("مرحباً! أهلاً بك! أنا سعيد جداً بمساعدتك في تنظيم أفكارك")! Do NOT start with empty robotic filler. Jump immediately into the single 2-minute micro-action in natural Egyptian dialect.`
       : `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
 - The user is interacting in English. You MUST reply 100% in clear, motivating, concise English.
 - STRICT PROHIBITION: NEVER mix Arabic words or phrases into English responses. Keep the entire response completely in English.`;
