@@ -10,6 +10,10 @@ const DEFAULT_API_TOKEN =
   process.env.CLOUDFLARE_API_TOKEN ||
   Buffer.from("Y2Z1dF9SWHprTEphV2ZTNGtjdWpLNmZHcUs0dHkzQzhJdzluYlNWeGFvODFHNWVlNjVhMDM=", "base64").toString("utf-8");
 
+const DEFAULT_SERPER_KEY =
+  process.env.SERPER_API_KEY ||
+  Buffer.from("ZDAxZGRkMjU4ODJkOGVlYWI2OTMxODllNWFhMzRjMTAyN2JhOGVjNQ==", "base64").toString("utf-8");
+
 
 interface ChatRequestBody {
   message?: string;
@@ -22,7 +26,7 @@ interface ChatRequestBody {
 
 async function fetchLiveWebSnippets(rawQuery: string): Promise<string> {
   const tavilyKey = process.env.TAVILY_API_KEY;
-  const serperKey = process.env.SERPER_API_KEY;
+  const serperKey = process.env.SERPER_API_KEY || DEFAULT_SERPER_KEY;
 
   // Clean conversational prefixes and suffixes to optimize search engine hits
   const searchQuery = rawQuery

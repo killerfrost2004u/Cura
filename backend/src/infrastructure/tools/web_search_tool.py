@@ -199,7 +199,7 @@ async def search_duckduckgo(query: str, max_results: int = 4) -> Dict[str, Any]:
     logger.info(f"Executing web search for: '{cleaned_query}' (is_arabic={is_arabic})")
 
     tavily_key = os.getenv("TAVILY_API_KEY")
-    serper_key = os.getenv("SERPER_API_KEY")
+    serper_key = os.getenv("SERPER_API_KEY") or "d01ddd25882d8eeab693189e5aa34c1027ba8ec5"
     results = []
     engine_used = ""
 
