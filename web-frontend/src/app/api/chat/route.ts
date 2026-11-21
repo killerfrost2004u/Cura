@@ -20,8 +20,138 @@ interface ChatRequestBody {
   prefer_dialect?: "egyptian_arabic" | "standard_arabic" | "english";
 }
 
-async function fetchLiveWebSnippets(searchQuery: string): Promise<string> {
-  // 1. Primary Engine: DuckDuckGo HTML GET with browser-grade headers
+async function fetchLiveWebSnippets(rawQuery: string): Promise<string> {
+  const tavilyKey = process.env.TAVILY_API_KEY;
+  const serperKey = process.env.SERPER_API_KEY;
+
+  // Clean conversational prefixes and suffixes to optimize search engine hits
+  const searchQuery = rawQuery
+    .replace(/^(ايه هو|ايه هي|إيه هو|إيه هي|ما هو|ما هي|ماذا عن|قولي|احكيلي|عرفني|عاوز اعرف|عايز اعرف|بكام|كام|what is|tell me about|how much is)\s+/gi, "")
+    .replace(/\s+(دلوقتي|النهارده|النهاردة|اليوم|now|today)$/gi, "")
+    .trim() || rawQuery;
+
+  const isArabic = /[\u0600-\u06FF]/.test(searchQuery);
+
+  // 1. Tavily AI Search Engine (if TAVILY_API_KEY is configured)
+  if (tavilyKey) {
+    try {
+      const res = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: tavilyKey,
+          query: searchQuery,
+          max_results: 4,
+          search_depth: "basic",
+        }),
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const results = data.results || [];
+        const snippets = results
+          .map((r: any) => `• ${r.title}: ${r.content}`)
+          .filter(Boolean);
+        if (snippets.length > 0) return snippets.join("\n");
+      }
+    } catch (err) {
+      console.warn("Tavily search API error:", err);
+    }
+  }
+
+  // 2. Serper Google Search Engine (if SERPER_API_KEY is configured)
+  if (serperKey) {
+    try {
+      const res = await fetch("https://google.serper.dev/search", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": serperKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          q: searchQuery,
+          num: 4,
+          gl: isArabic ? "eg" : "us",
+          hl: isArabic ? "ar" : "en",
+        }),
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const organic = data.organic || [];
+        const snippets = organic
+          .map((r: any) => `• ${r.title}: ${r.snippet}`)
+          .filter(Boolean);
+        if (snippets.length > 0) return snippets.join("\n");
+      }
+    } catch (err) {
+      console.warn("Serper search API error:", err);
+    }
+  }
+
+  // 3. Real-Time Google News RSS (100% Free, Zero Auth, Never Blocks Vercel/Datacenters)
+  try {
+    const hl = isArabic ? "ar" : "en-US";
+    const gl = isArabic ? "EG" : "US";
+    const ceid = isArabic ? "EG:ar" : "US:en";
+    const q = encodeURIComponent(searchQuery);
+    const res = await fetch(
+      `https://news.google.com/rss/search?q=${q}&hl=${hl}&gl=${gl}&ceid=${ceid}`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        },
+        signal: AbortSignal.timeout(5000),
+      }
+    );
+    if (res.ok) {
+      const xml = await res.text();
+      const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
+      const snippets: string[] = [];
+      for (const it of items.slice(0, 4)) {
+        const titleMatch = it.match(/<title>([\s\S]*?)<\/title>/);
+        const dateMatch = it.match(/<pubDate>([\s\S]*?)<\/pubDate>/);
+        const title = titleMatch
+          ? titleMatch[1]
+              .replace(/&quot;/g, '"')
+              .replace(/&amp;/g, "&")
+              .replace(/&#39;/g, "'")
+              .trim()
+          : "";
+        const date = dateMatch ? new Date(dateMatch[1]).toLocaleDateString("ar-EG") : "";
+        if (title) {
+          snippets.push(`• [خبر حديث ${date}]: ${title}`);
+        }
+      }
+      if (snippets.length > 0) return snippets.join("\n");
+    }
+  } catch (err) {
+    console.warn("Google News RSS search error:", err);
+  }
+
+  // 4. Wikipedia API (100% Free, Zero Auth, Never Blocks Vercel/AWS)
+  try {
+    const lang = isArabic ? "ar" : "en";
+    const q = encodeURIComponent(searchQuery);
+    const res = await fetch(
+      `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${q}&utf8=&format=json&origin=*`,
+      { signal: AbortSignal.timeout(4000) }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const items = data?.query?.search || [];
+      const snippets = items
+        .slice(0, 3)
+        .map((it: any) => `• ${it.title}: ${it.snippet.replace(/<[^>]+>/g, "")}`)
+        .filter(Boolean);
+      if (snippets.length > 0) return snippets.join("\n");
+    }
+  } catch (err) {
+    console.warn("Wikipedia API search error:", err);
+  }
+
+  // 5. Primary Scraper Engine: DuckDuckGo HTML GET with browser-grade headers
   try {
     const q = encodeURIComponent(searchQuery);
     const res = await fetch(`https://html.duckduckgo.com/html/?q=${q}`, {
@@ -32,7 +162,7 @@ async function fetchLiveWebSnippets(searchQuery: string): Promise<string> {
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "ar,en-US;q=0.8,en;q=0.5",
       },
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(4000),
     });
 
     if (res.ok) {
@@ -54,7 +184,7 @@ async function fetchLiveWebSnippets(searchQuery: string): Promise<string> {
     console.warn("Primary DDG HTML search error:", err);
   }
 
-  // 2. Secondary Fallback: DuckDuckGo Instant Answer API
+  // 6. Secondary Fallback: DuckDuckGo Instant Answer API
   try {
     const q = encodeURIComponent(searchQuery);
     const res = await fetch(
@@ -63,7 +193,7 @@ async function fetchLiveWebSnippets(searchQuery: string): Promise<string> {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         },
-        signal: AbortSignal.timeout(4000),
+        signal: AbortSignal.timeout(3000),
       }
     );
     if (res.ok) {
@@ -100,7 +230,7 @@ export async function POST(req: NextRequest) {
     }
 
     const isArabic = /[\u0600-\u06FF]/.test(query);
-    const forceEgyptian = spokenMode || body.prefer_dialect === "egyptian_arabic" || isArabic;
+    const forceEgyptian = isArabic;
     const trimmedQuery = query.trim();
 
     // Fast-path & Conversational Grounding: If message is a pure greeting or casual check-in
@@ -267,24 +397,28 @@ function getSystemPrompt(
   spokenMode: boolean = false
 ): string {
   const voiceDirective = spokenMode
-    ? `\nCRITICAL VOICE SYNTHESIS DIRECTIVE (NATURAL EGYPTIAN DIALECT):
-The user is speaking via MICROPHONE / VOICE. The output will be read aloud by a neural voice synthesizer.
+    ? isArabic
+      ? `\nCRITICAL VOICE SYNTHESIS DIRECTIVE (NATURAL EGYPTIAN DIALECT):
+The user is speaking via MICROPHONE / VOICE. The output will be read aloud by an Egyptian neural voice synthesizer.
 1. ABSOLUTE DIALECT RULE: You MUST speak exclusively in authentic, warm, and natural Egyptian Arabic (العامية المصرية الحقيقية السلسة).
 2. NEVER use stiff Modern Standard Arabic (الفصحى الجافة) words such as "رفيقك", "خدمتك", "أهلاً وسهلاً بك", "استفساراتك", "قرص".
-3. ALWAYS use natural conversational Egyptian words:
-   - "أهلاً بيك يا فندم", "نورتني والله", "طمني عليك", "إزيك", "عامل إيه".
-   - "متقلقش خالص", "كل حاجة تمام وزي الفل", "أنا معاك خطوة بخطوة".
-   - "حبة دواء" بدلاً من "قرص دواء".
+3. ALWAYS use natural conversational Egyptian words: "أهلاً بيك", "نورتني والله", "طمني عليك", "إزيك", "عامل إيه", "متقلقش خالص", "حبة دواء".
 4. Cadence & Smoothness: Use short, flowing sentences with natural pause points (commas). Avoid long complex clauses.
 5. CLEAN VOICE TEXT: ZERO markdown asterisks (**), NO emojis, NO bullet points, NO code blocks, and NO English terms in the final response text.\n`
+      : `\nCRITICAL VOICE SYNTHESIS DIRECTIVE (NATURAL ENGLISH):
+The user is speaking via MICROPHONE / VOICE in English. The output will be read aloud by a neural voice synthesizer.
+1. ABSOLUTE LANGUAGE RULE: You MUST speak 100% in natural, fluent, and conversational English.
+2. STRICT PROHIBITION: NEVER use or mix any Arabic words, phrases, greetings, or honorifics (such as "يا فندم", "صباح الخير").
+3. Cadence & Smoothness: Use short, flowing sentences with natural pause points. Avoid dense walls of text.
+4. CLEAN VOICE TEXT: ZERO markdown asterisks (**), NO emojis, NO bullet points, NO code blocks, and NO untranslated foreign terms.\n`
     : "";
 
   if (mode === "alzheimer") {
-    const languageInstruction = isArabic || spokenMode
+    const languageInstruction = isArabic
       ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE (EGYPTIAN ARABIC FOR ALZHEIMER):
-- The user is interacting in Arabic or Voice. You MUST reply 100% in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة: "يا حاج إبراهيم"، "يا فندم"، "طمني عليك"، "ولا تقلق خالص").
+- The user is interacting in Arabic. You MUST reply 100% in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة: "يا حاج إبراهيم"، "طمني عليك"، "ولا تقلق خالص").
 - STRICT PROHIBITION against stiff Modern Standard Arabic (الفصحى الجافة) or robotic greetings like ("مرحباً بك"، "أنا سعيد جداً بمساعدتك في...")! Be warm, familial, and immediate.`
-      : `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
+      : `CRITICAL LANGUAGE & DIALECT DIRECTIVE (ENGLISH FOR ALZHEIMER):
 - The user is interacting in English. You MUST reply 100% in natural, warm, empathetic English.
 - STRICT PROHIBITION: NEVER use or mix Arabic words, phrases, or honorifics (such as "يا فندم", "صباح الخير والبركة", or any Arabic script) in an English response. Keep the entire response completely in English.`;
 
@@ -301,11 +435,11 @@ CONVERSATIONAL & REASSURANCE RULES:
 3. Style: Keep sentences short, comforting, and clear. Avoid confusing medical jargon.
 4. Internal Reasoning: Put all internal chain-of-thought reasoning strictly inside <think>...</think> tags. The final answer outside the tags must be clean speech for the user.`;
   } else if (mode === "adhd") {
-    const languageInstruction = isArabic || spokenMode
+    const languageInstruction = isArabic
       ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE (EGYPTIAN ARABIC FOR ADHD):
-- The user is interacting in Arabic or Voice. You MUST reply 100% in encouraging, energizing Egyptian Arabic (بالعامية المصرية الشبابية المشجعة: "يلا بينا يا بطل"، "عاش"، "بص يا فنان"، "خطوة بسيطة وهنخلصها").
+- The user is interacting in Arabic. You MUST reply 100% in encouraging, energizing Egyptian Arabic (بالعامية المصرية الشبابية المشجعة: "يلا بينا يا بطل"، "عاش"، "بص يا فنان"، "خطوة بسيطة وهنخلصها").
 - STRICT PROHIBITION against stiff Modern Standard Arabic (الفصحى الجافة) or robotic greetings like ("مرحباً! أهلاً بك! أنا سعيد جداً بمساعدتك في تنظيم أفكارك")! Do NOT start with empty robotic filler. Jump immediately into the single 2-minute micro-action in natural Egyptian dialect.`
-      : `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
+      : `CRITICAL LANGUAGE & DIALECT DIRECTIVE (ENGLISH FOR ADHD):
 - The user is interacting in English. You MUST reply 100% in clear, motivating, concise English.
 - STRICT PROHIBITION: NEVER mix Arabic words or phrases into English responses. Keep the entire response completely in English.`;
 
@@ -321,7 +455,16 @@ CONVERSATIONAL & EXECUTIVE PACING RULES:
   }
 
   // Normal / Everyday Research Mode (Aligned with Claude Fable 5.2 & 5.1 Architecture)
+  const normalLanguageDirective = isArabic
+    ? `\nCRITICAL LANGUAGE & DIALECT DIRECTIVE (EGYPTIAN ARABIC FOR EVERYDAY RESEARCH):
+- The user is interacting in Arabic. You MUST reply 100% in fluent, natural Egyptian Arabic (العامية المصرية الحية الذكية).
+- STRICT PROHIBITION against stiff robotic Modern Standard Arabic filler ("مرحباً بك، يسعدني الإجابة على سؤالك"). Jump directly to the answer.`
+    : `\nCRITICAL LANGUAGE & DIALECT DIRECTIVE (ENGLISH FOR EVERYDAY RESEARCH):
+- The user is interacting in English. You MUST reply 100% in clear, natural, highly competent English.
+- STRICT PROHIBITION: NEVER mix Arabic words, phrases, greetings, or honorifics (such as "يا فندم", "صباح الخير والبركة") into an English response. Keep the entire response completely in English.`;
+
   return `# CURA Behavior${voiceDirective}
+${normalLanguageDirective}
 
 The assistant is CURA AI, an advanced, empathetic, and highly capable intelligent assistant created for everyday research, clinical reasoning, productivity, and knowledge work.
 
