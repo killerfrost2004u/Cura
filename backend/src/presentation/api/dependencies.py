@@ -7,6 +7,7 @@ from src.infrastructure.llm.ollama_client import OllamaClient
 from src.infrastructure.llm.cloudflare_ai_client import CloudflareWorkersAIClient
 from src.infrastructure.tools import create_default_tool_router, ToolRouterImpl
 from src.infrastructure.database.in_memory_repository import InMemoryRepository
+from src.infrastructure.database.neon_repository import NeonRepository
 from src.core.use_cases.process_voice_interaction import ProcessVoiceInteractionUseCase
 from src.core.use_cases.handle_emergency_alert import HandleEmergencyAlertUseCase
 from src.core.use_cases.summarize_caregiver_log import SummarizeCaregiverLogUseCase
@@ -34,8 +35,12 @@ class Container:
             self.llm = OllamaClient()
 
         self.tts = PiperTTSAdapter()
-        self.tool_router = create_default_tool_router()
-        self.repo = InMemoryRepository()
+        try:
+            self.repo = NeonRepository()
+        except Exception:
+            self.repo = InMemoryRepository()
+
+        self.tool_router = create_default_tool_router(self.repo)
 
         # Wire Use Cases
         self.voice_interaction_use_case = ProcessVoiceInteractionUseCase(

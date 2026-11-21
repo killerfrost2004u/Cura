@@ -12,14 +12,14 @@ logger = logging.getLogger("cura.cloudflare_llm")
 class CloudflareWorkersAIClient(ILLMEngine):
     """
     Adapter for Cloudflare Workers AI Serverless Cloud GPUs.
-    Supports reasoning models (DeepSeek-R1 Distill 32B) and fast models (Qwen 2.5 7B).
+    Supports high-speed instruction and reasoning models (e.g. Llama 3.3 70B Instruct Fast, Qwen).
     Extracts and audits internal <think> traces while returning clean, concise speech responses.
     """
     def __init__(
         self,
         account_id: Optional[str] = None,
         api_token: Optional[str] = None,
-        model_name: str = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b",
+        model_name: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
         timeout_seconds: float = 35.0,
     ):
         self.account_id = account_id
@@ -75,8 +75,37 @@ class CloudflareWorkersAIClient(ILLMEngine):
                 if res.status_code == 200:
                     data = res.json()
                     result = data.get("result", {})
-                    raw_text = result.get("response", "").strip()
                     
+                    # 1. Check native tool calls from Cloudflare
+                    cf_tool_calls = result.get("tool_calls") or []
+                    choices = result.get("choices") or []
+                    if choices and isinstance(choices, list) and len(choices) > 0:
+                        first_choice_msg = choices[0].get("message", {})
+                        if "tool_calls" in first_choice_msg and first_choice_msg["tool_calls"]:
+                            cf_tool_calls = first_choice_msg["tool_calls"]
+
+                    if cf_tool_calls and isinstance(cf_tool_calls, list) and len(cf_tool_calls) > 0:
+                        tc = cf_tool_calls[0]
+                        tc_func = tc.get("function", {})
+                        tc_name = tc_func.get("name") or tc.get("name")
+                        tc_args_raw = tc_func.get("arguments") or tc.get("arguments", {})
+                        tc_args = json.loads(tc_args_raw) if isinstance(tc_args_raw, str) else tc_args_raw
+                        return {
+                            "type": "tool_call",
+                            "content": f"Calling tool {tc_name}",
+                            "reasoning_content": "Cloudflare native function call",
+                            "tool_name": tc_name,
+                            "tool_arguments": tc_args,
+                            "provider": "cloudflare_workers_ai",
+                            "model": self.model_name
+                        }
+
+                    # 2. Extract response text
+                    raw_text = result.get("response", "")
+                    if not raw_text and choices and isinstance(choices, list) and len(choices) > 0:
+                        raw_text = choices[0].get("message", {}).get("content", "")
+                    raw_text = raw_text.strip() if raw_text else ""
+
                     return self._process_reasoning_output(raw_text, available_tools)
                 else:
                     logger.error(f"Cloudflare Workers AI returned status {res.status_code}: {res.text}")
