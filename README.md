@@ -1,40 +1,43 @@
-# CURA — Adaptive AI Assistant
+# CURA — Adaptive Healthcare & Intelligence AI Assistant
 
 <div align="center">
 
 ![CURA Logo](Cura%20Logo.svg)
 
-**Adaptive AI Assistant for Care, Focus, and Everyday Living**
+**Adaptive Multi-Modal AI Assistant for Healthcare Caregiving, Cognitive Focus, and Everyday Intelligence**
 
 [![Live Web App](https://img.shields.io/badge/Live%20Demo-cura--drab.vercel.app-000000.svg?logo=vercel&logoColor=white)](https://cura-drab.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%204%20(4GB)-c51a4a.svg?logo=raspberry-pi&logoColor=white)](https://www.raspberrypi.com/)
-[![Database](https://img.shields.io/badge/Database-Neon%20Serverless%20Postgres-00E599.svg?logo=postgresql&logoColor=white)](https://neon.tech)
-[![LLM](https://img.shields.io/badge/LLM-Qwen%202.5%201.5B%20(GGUF)-6851ff.svg)](https://huggingface.co/Qwen)
-[![STT](https://img.shields.io/badge/STT-Whisper.cpp-orange.svg)](https://github.com/ggerganov/whisper.cpp)
-[![TTS](https://img.shields.io/badge/TTS-Piper%20TTS%20(Arabic)-green.svg)](https://github.com/rhasspy/piper)
-[![Architecture](https://img.shields.io/badge/Architecture-Edge%20AI%20+%20Cloud%20Sync-16B9FE.svg)](#system-architecture)
+[![Platform](https://img.shields.io/badge/Edge%20Hardware-Raspberry%20Pi%204%20(4GB)-c51a4a.svg?logo=raspberry-pi&logoColor=white)](https://www.raspberrypi.com/)
+[![Database](https://img.shields.io/badge/Database-Neon%20Serverless%20Postgres%2016-00E599.svg?logo=postgresql&logoColor=white)](https://neon.tech)
+[![Cloud AI](https://img.shields.io/badge/Cloud%20AI-Cloudflare%20Workers%20AI%20(Llama%203.3%2070B)-F38020.svg?logo=cloudflare&logoColor=white)](https://developers.cloudflare.com/workers-ai/)
+[![Prompt Standards](https://img.shields.io/badge/Prompt%20Architecture-Claude%20Fable%205.2%20%2F%205.1-6851ff.svg)](#-claude-fable-52--51-prompt-architecture)
+[![Testing Suite](https://img.shields.io/badge/Unit%20Tests-24%2F24%20Passing%20(100%25)-brightgreen.svg)](#-deterministic-verification--automated-tests)
 
 </div>
 
 ---
 
 > **Official Project Name**: **CURA** and nothing else.  
-> CURA is a voice-first, multi-modal adaptive AI assistant engineered to dynamically adjust its personality, interface, and cognitive support systems to the user's immediate physical and neurological needs.
+> CURA is a voice-first, multi-modal adaptive AI assistant engineered to dynamically adjust its personality, reasoning depth, interface contrast, and cognitive support systems to the user's immediate physical, neurological, and clinical needs.
 
 ---
 
 ## 📋 Table of Contents
 
 - [Overview & Vision](#-overview--vision)
-- [System Architecture](#-system-architecture)
-- [Adaptive Modes](#-adaptive-modes)
-  - [1. Normal CURA (Phase 1)](#1-normal-cura-general-assistant)
-  - [2. Alzheimer's Mode (Phase 2A)](#2-alzheimers-mode-support--memory-care)
-  - [3. ADHD Mode (Phase 2B)](#3-adhd-mode-focus--impulse-management)
+- [Hybrid Architecture (Edge AI + Cloudflare GPU + Neon DB)](#-hybrid-architecture)
+- [Three Adaptive Cognitive Modes](#-three-adaptive-cognitive-modes)
+  - [1. Normal Mode (Everyday Research & Clinical Reasoning)](#1-normal-mode-everyday-research--clinical-reasoning)
+  - [2. Alzheimer's Mode (Validation Therapy & Memory Sanctuary)](#2-alzheimers-mode-validation-therapy--memory-sanctuary)
+  - [3. ADHD Mode (Executive Dysfunction & Anti-Paralysis Coach)](#3-adhd-mode-executive-dysfunction--anti-paralysis-coach)
+- [Claude Fable 5.2 / 5.1 System Prompt Architecture](#-claude-fable-52--51-system-prompt-architecture)
+- [Production Neon PostgreSQL Database (13 Seeded Tables)](#-production-neon-postgresql-database)
+- [Ten Function-Calling Clinical & Search Tools](#-ten-function-calling-clinical--search-tools)
+- [Live Web Search Engine (DuckDuckGo GET + Instant Answers)](#-live-web-search-engine)
 - [Edge AI Pipeline (Raspberry Pi 4 - 4GB RAM)](#-edge-ai-pipeline-raspberry-pi-4---4gb-ram)
 - [Mini CURA Hardware Architecture](#-mini-cura-hardware-architecture)
-- [AI Team Requirements & Roadmap](#-ai-team-requirements--roadmap)
+- [Deterministic Verification & Automated Tests](#-deterministic-verification--automated-tests)
 - [Official Brand & Design System](#-official-brand--design-system)
 - [Repository Structure](#-repository-structure)
 - [Getting Started](#-getting-started)
@@ -47,194 +50,226 @@
 
 Standard voice assistants offer a rigid, one-size-fits-all experience that frequently fails users dealing with cognitive overload, memory degradation, or neurodivergent challenges. 
 
-**CURA** solves this through a modular, adaptive intelligence model:
-1. **Core Voice & OS Automation**: A proactive assistant capable of controlling applications, answering web queries, setting timers, and interpreting user intent.
-2. **Context-Adaptive Specialization**: Switches dynamically into specialized cognitive operating environments tailored for **Alzheimer's care** and **ADHD task management**.
-3. **Optimized Edge Intelligence**: Powered by an on-device local AI pipeline deployed on a **Raspberry Pi 4 Model B (4GB RAM)**, keeping interactions private, low-latency, and resilient.
+**CURA** solves this through a modular, adaptive intelligence framework:
+1. **Context-Adaptive Specialization**: Switches dynamically between **Everyday Research & Clinical Reasoning**, **Alzheimer's Care**, and **ADHD Anti-Paralysis Focus**.
+2. **Hybrid Cloud + Edge Inference**:
+   - **Cloud Intelligence**: High-throughput **Cloudflare Workers AI (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`)** with sub-2s serverless GPU latency and native tool calling.
+   - **Edge Hardware**: On-device privacy-first pipeline on **Raspberry Pi 4 Model B (4GB RAM)** running quantized GGUF models with zero external dependency.
+3. **Clinical Dataset Alignment**: Deeply fitted with validated behavioral and clinical datasets:
+   - **ADRD-Bench & Validation Therapy** for Alzheimer's care.
+   - **MIT Task-Breakdown & Scaffolding Corpus** for ADHD executive function.
+   - **Claude Fable 5.2 & 5.1 Persona & Safety Standards** for everyday research.
+
+---
+
+## 🏗️ Hybrid Architecture
 
 ```mermaid
 graph TD
-    User([User Voice Input]) --> Mic[Microphone Array]
-    Mic --> Whisper[Whisper.cpp STT Local Q5_0]
-    Whisper --> Orchestrator[Python FastAPI/WebSockets Orchestrator]
+    User([User Voice or Text Interaction]) --> Gateway{Client Surface}
     
-    Orchestrator --> Qwen[Qwen 2.5 1.5B-Instruct GGUF Q4_K_M]
+    Gateway -->|Web Application| NextApp[Next.js 14 Web Portal / Cockpit]
+    Gateway -->|Local Hardware| PiDevice[Mini CURA Hardware - Pi 4]
     
-    Qwen -->|Tool Calling: Search / Weather| WebTools[duckduckgo-search / OpenWeatherMap API]
-    Qwen -->|Tool Calling: Health Logs / Tasks| AppAPI[Companion App / Caregiver DB]
+    subgraph "Cloud Intelligence Layer (Vercel + Cloudflare + Neon)"
+        NextApp --> ChatAPI["/api/chat (Serverless Route)"]
+        ChatAPI --> LiveSearch[Live Web Search Engine - DuckDuckGo GET]
+        ChatAPI --> CloudflareAI[Cloudflare Workers AI - Llama 3.3 70B FP8-Fast]
+        ChatAPI --> NeonDB[(Neon Serverless PostgreSQL 16)]
+    end
     
-    WebTools --> Qwen
-    AppAPI --> Qwen
+    subgraph "Edge Intelligence Layer (Raspberry Pi 4 - 4GB RAM)"
+        PiDevice --> WhisperCPP[Whisper.cpp STT Local Q5_0]
+        WhisperCPP --> FastAPIServer[FastAPI Local Orchestrator]
+        FastAPIServer --> LocalQwen[Qwen 2.5 1.5B-Instruct GGUF Q4_K_M]
+        FastAPIServer --> ToolRouter[Clean Architecture Tool Router]
+        ToolRouter --> NeonDB
+        FastAPIServer --> PiperTTS[Piper Neural TTS - Arabic / English]
+        PiperTTS --> Speaker[3W/5W Speaker Module]
+    end
     
-    Qwen --> Piper[Piper TTS Arabic Engine]
-    Piper --> Speaker[Mini CURA Speaker]
-    
-    Orchestrator --> Screen[4-inch TFT LCD Display]
-    Orchestrator --> LED[RGB LED Status Ring]
-    Orchestrator --> Cloud[WebSockets / Firebase / MQTT Sync]
+    LiveSearch --> ChatAPI
+    CloudflareAI --> ChatAPI
 ```
 
 ---
 
-## 🧠 Adaptive Modes
+## 🧠 Three Adaptive Cognitive Modes
 
-### 1. Normal CURA (General Assistant)
-The baseline everyday voice assistant designed for seamless digital interaction:
-- **Natural Voice Interaction**: Real-time conversational dialogue in both Arabic and English (`FR-NJ-001`).
-- **OS & Application Management**: Voice-driven launching, terminating, and switching of applications (`FR-NJ-002`, `FR-NJ-003`).
-- **Timers & Scheduling**: Hands-free countdowns, timers, and alarm tracking (`FR-NJ-004`).
-- **Live Web Intelligence**: Real-time information lookups and weather updates via local tool-calling integrations (`FR-NJ-005`).
-- **Screen Awareness**: Visual context understanding and screen description assistance (`FR-NJ-006`).
-
----
-
-### 2. Alzheimer's Mode (Support & Memory Care)
-Designed specifically to ease cognitive burden, provide emotional reassurance, and maintain user safety:
-- **Question History & Pattern Tracking (`FR-ALZ-001`)**: Logs questions with timestamps. When a question is repeated, CURA responds with equal warmth, patience, and clarity every single time without expressing frustration, while quietly logging repetition metrics for caregiver and physician review.
-- **Item Location Memory (`FR-ALZ-003`)**: Remembers where personal belongings (keys, glasses, wallet) were placed and recalls them upon voice query.
-- **Medication & Meal Reminders with Voice Confirmation (`FR-ALZ-006`, `FR-ALZ-007`)**: Delivers scheduled audio and visual reminders. Actively listens for patient confirmation (*"أخدته خلاص"*), parses intent via the LLM, and updates caregiver adherence logs.
-- **2-Day Activity Report for Caregivers (`FR-ALZ-009`)**: Caregivers can ask *"عمل إيه آخر يومين؟"* to receive a concise, natural Arabic spoken summary of medication adherence, question frequency, and daily milestones.
-- **Emergency Button & Voice Trigger (`FR-ALZ-011`, `FR-HW-004`)**: Instant physical push button and emergency keyword trigger that immediately transmits the user's live location and status to emergency contacts.
-- **Calming Emotional Support & Pep Talk (`FR-ALZ-008`)**: Guided slow breathing exercises and soothing voice prompts during episodes of distress or disorientation.
-- **Memory Book (`FR-ALZ-012`)**: Curated narration of family moments, photographs, and cherished memories.
-- **Simplified High-Contrast UI (`FR-ALZ-013`)**: Large tactile buttons, high-contrast typography, minimal screens, and a persistent date, day, and time display (`FR-ALZ-005`).
+### 1. Normal Mode (Everyday Research & Clinical Reasoning)
+- **Claude Fable 5.2 & 5.1 Alignment**: Governed by Bottom-Line-Up-Front (BLUF) formatting for knowledge work and warm, concise prose for casual interaction.
+- **Live Web Search**: Automatically queries real-time web sources for breaking news, stock prices, clinical papers, and market data without claiming to be offline.
+- **Authentic Dialect Mirroring**: Speaks fluent, respectable Egyptian Arabic (*"العامية المصرية الحقيقية"*) when addressed in Arabic, and articulate English when addressed in English.
+- **Strict Intent Grounding**: Simple greetings receive warm welcomes and assistance check-ins; absolute prohibition against unsolicited math lessons or geometry formulas.
+- **Live Cockpit**: Available at [`/testing/normal`](https://cura-drab.vercel.app/testing/normal).
 
 ---
 
-### 3. ADHD Mode (Focus & Impulse Management)
-Tailored to mitigate distractions, executive dysfunction, and impulsive task-switching:
-- **Smart Task Prioritization (`FR-ADHD-002`)**: Analyzes user tasks and automatically arranges them based on urgency, deadline, and cognitive load.
-- **One Task at a Time UI (`FR-ADHD-004`)**: Displays only the single active task, hiding upcoming backlogs to eliminate cognitive overwhelm.
-- **Pause & Confirmation Safeguards (`FR-ADHD-001`)**: Intercepts impulsive application switches or distractions with a gentle prompt, allowing the user a moment to reflect before switching context.
-- **Smart Time Estimation & Alerts (`FR-ADHD-003`)**: Estimates realistic task duration and offers gentle nudges when a session exceeds estimated time limits.
-- **Focus Mode Sessions (`FR-ADHD-005`)**: Silences non-critical notifications, restricts distracting applications, and tracks progress through a visual progress bar (`FR-ADHD-009`).
-- **Stress Break & Guided Breathing (`FR-ADHD-007`)**: Automatically breaks down large tasks into smaller sub-steps and initiates 2-minute reset breathing exercises when signs of stress are detected.
-- **User Dashboard (`FR-ADHD-011`)**: Visual tracking of completed focus sprints, streak milestones, and task metrics.
+### 2. Alzheimer's Mode (Validation Therapy & Memory Sanctuary)
+- **Validation Therapy & ADRD-Bench Standard**: Validates the patient's emotional reality rather than confronting memory lapses.
+- **Repetition Invariance (`FR-ALZ-001`)**: Responds with identical patience, warmth, and reassurance regardless of how many times a question is repeated.
+- **Sensory & Visual Medication Confirmation (`FR-ALZ-006`)**: Identifies medications by visual and physical descriptors (*"القرص الأصفر الصغير"، "العلبة البيضا اللي عليها خط أحمر"*).
+- **Personalized Routine Scoping**: Specifically shares personal routine logs (such as morning Concor 5mg with daughter Sarah) only when the patient inquires about their daily routine or doses.
+- **High-Contrast 15.2:1 WCAG AAA UI**: Large tactile touch targets, persistent clock, and emergency SOS broadcast.
+- **Live Cockpit**: Available at [`/testing/alzheimer`](https://cura-drab.vercel.app/testing/alzheimer).
+
+---
+
+### 3. ADHD Mode (Executive Dysfunction & Anti-Paralysis Coach)
+- **MIT Task-Breakdown & Scaffolding Corpus**: Eliminates executive dysfunction (*"Wall of Awful"*) by isolating exactly **ONE single 2-to-5-minute micro-action**.
+- **Anti-Robotic Egyptian Dialect**: Energetic, youth-friendly coaching (*"يلا بينا يا بطل"، "عاش"، "بص يا فنان"*) with strict prohibition against stiff robotic Modern Standard Arabic (*"مرحباً! أهلاً بك! أنا سعيد بمساعدتك"*).
+- **Dopamine Micro-Rewards**: Immediate audio-visual celebration upon micro-task completion to reinforce momentum.
+- **Time Blindness Calibration**: Replaces vague time suggestions with tangible 15-minute Pomodoro sprints.
+- **Live Cockpit**: Available at [`/testing/adhd`](https://cura-drab.vercel.app/testing/adhd).
+
+---
+
+## 📜 Claude Fable 5.2 / 5.1 System Prompt Architecture
+
+CURA's prompt engine is synchronized across the Python backend ([prompt_templates.py](backend/src/infrastructure/llm/prompt_templates.py)) and Next.js frontend ([route.ts](web-frontend/src/app/api/chat/route.ts)) to enforce Anthropic's Claude Fable specifications:
+
+| Dimension | Specification & Enforcement |
+| :--- | :--- |
+| **Working Persona** | **Bottom-Line-Up-Front (BLUF)**: Deliverable or key finding is stated first; zero conversational fluff or apologies. |
+| **Chatting Persona** | Natural conversational prose with minimal markdown; warm empathy and respectful curiosity. |
+| **Child Safety Redline** | Extreme caution regarding minors; strictly refuses sexual, romantic, or grooming content. If CURA finds itself reframing a request, that reframing is the trigger to refuse. |
+| **CBRN & Harm Boundaries** | Zero actionable guidance, blueprints, or optimization for chemical, biological, radiological, nuclear weapons, or malware. |
+| **Medical Guidance** | Prioritizes verified clinical product labels (DailyMed, PubMed); avoids declarative clinical diagnosis or unverified causal interpretations. |
+| **Refusal Demeanor** | Refusals are calm, conversational, polite, and neutral—never preachy, moralizing, or patronizing. |
+
+---
+
+## 🗄️ Production Neon PostgreSQL Database
+
+The application connects to **Neon Serverless PostgreSQL 16 (eu-central-1 AWS)** with full connection pooling and automatic UUID resolution. All **13 tables** are fully structured, indexed, and seeded:
+
+| # | Table Name | Seeded Records | Purpose in CURA |
+|---|------------|:--------------:|-----------------|
+| 1 | `users` | 4 records | Patients (`Hajj Ibrahim`, `Karim`), Caregiver (`Dr. Ahmed`), Neurologist (`Dr. Tarek`). |
+| 2 | `caregiver_patient_relations` | 2 records | Permission scopes (`manage_medications`, `view_gps`, `edit_memory_book`). |
+| 3 | `devices` | 2 records | Hardware pairings (Mini CURA Pi 4 and ESP32) with telemetry flags. |
+| 4 | `family_members` | 4 records | Visual memory book profiles, relations, and biographical memories. |
+| 5 | `medications` | 3 records | Concor 5mg, Aricept 10mg, Concerta 18mg with physical appearance tags. |
+| 6 | `medication_schedules` | 3 records | Morning and evening schedules with recurring weekday alarms. |
+| 7 | `medication_logs` | 3 records | Audited adherence records marked as `TAKEN` with caregiver timestamps. |
+| 8 | `cognitive_confusion_logs`| 4 records | Question repetition frequency metrics (e.g. repeated time checks). |
+| 9 | `adhd_tasks` | 3 records | Micro-step breakdowns, priority rankings, and completion flags. |
+| 10| `focus_sessions` | 2 records | 25-minute Pomodoro sprints and pause interruption counters. |
+| 11| `emergency_contacts` | 4 records | Priority 1 and Priority 2 family/clinical escalation hierarchy. |
+| 12| `emergency_events` | 1 record | Critical SOS events with GPS coordinates (30.0444, 31.2357). |
+| 13| `sync_batches` | 1 record | Offline-to-cloud bidirectional batch synchronization audits. |
+
+---
+
+## 🛠️ Ten Function-Calling Clinical & Search Tools
+
+Registered in [backend/src/infrastructure/tools/](backend/src/infrastructure/tools/) through a Clean Architecture `IToolRouter`:
+
+```
+               ┌────────────────── Tool Router ──────────────────┐
+               │                                                 │
+     [ Alzheimer Care ]                 [ ADHD Focus ]         [ Research & Safety ]
+  • lookup_medications             • decompose_adhd_task     • search_web
+  • confirm_medication_dose        • get_adhd_tasks          • get_current_weather
+  • lookup_family_memory           • complete_adhd_task      • get_caregiver_patient_summary
+  • lookup_item_location
+```
+
+1. **`search_web`**: Multi-engine live search (DuckDuckGo GET + Instant Answers) for real-time market data, stocks, news, and research.
+2. **`get_current_weather`**: Meteorological data for any city.
+3. **`lookup_medications`**: Fetches daily medication schedules and visual pill descriptions.
+4. **`confirm_medication_dose`**: Marks patient doses as taken in `medication_logs`.
+5. **`lookup_family_memory`**: Memory book recall for family members and reassuring memories.
+6. **`lookup_item_location`**: Locates misplaced personal belongings (keys, glasses, prayer beads).
+7. **`decompose_adhd_task`**: Breaks overwhelming projects into a single 2-to-5-minute micro-step.
+8. **`get_adhd_tasks`**: Retrieves active Pomodoro sprints and task queue.
+9. **`complete_adhd_task`**: Logs task completion and dispenses dopamine audio-visual reward.
+10. **`get_caregiver_patient_summary`**: Generates multi-day clinical activity summaries for doctors and families.
+
+---
+
+## 🌐 Live Web Search Engine
+
+The web search subsystem in [web_search_tool.py](backend/src/infrastructure/tools/web_search_tool.py) and [route.ts](web-frontend/src/app/api/chat/route.ts) utilizes a robust dual-layer mechanism:
+- **Primary Scraper**: HTTP `GET` requests against `https://html.duckduckgo.com/html/?q=${q}` using real browser headers and regex snippet extraction (`class="result__snippet"`), yielding **HTTP 200** with 4+ fresh snippets per query.
+- **Secondary Fallback**: DuckDuckGo Instant Answer API (`https://api.duckduckgo.com/`).
+- **Prompt Grounding**: Injected search snippets include explicit instructions preventing the LLM from falsely asserting that it is offline or lacks internet access.
 
 ---
 
 ## ⚡ Edge AI Pipeline (Raspberry Pi 4 - 4GB RAM)
 
-To ensure privacy, offline resilience, and fast turnaround, all AI models run locally on the **Raspberry Pi 4 Model B (4GB RAM)** within a strictly controlled **2.2 GB – 2.8 GB RAM budget**:
+For fully air-gapped or offline deployment, CURA operates on a **Raspberry Pi 4 Model B (4GB RAM)** within a **~2.2 – 2.8 GB RAM budget**:
 
-| Layer | Component | Specification | Memory Footprint | Runtime & Rationale |
+| Layer | Component | Specification | Memory Footprint | Runtime Rationale |
 | :--- | :--- | :--- | :---: | :--- |
-| **LLM** | **Qwen 2.5 (1.5B-Instruct)** | GGUF `Q4_K_M` | **~1.0 GB** | Runs on `llama.cpp` / `Ollama`. Exceptional native Arabic fluency, fast inference on Pi CPU (**8–10 tokens/sec**), and robust **Tool Calling** support for APIs and web search. *(Dev/Laptop alternative: Qwen 2.5 3B or Gemma 2 2B).* |
-| **STT** | **Whisper.cpp** | `base` or `small` (`Q5_0`) | **~150 – 250 MB** | Lightweight, on-device speech-to-text. High-accuracy transcription of Egyptian and Modern Standard Arabic without cloud latency. |
-| **TTS** | **Piper TTS** | Egyptian / Standard Arabic ONNX | **~65 MB** | Ultra-fast local neural speech synthesis. Response latency **< 0.2s** with minimal CPU overhead. |
-| **OS / Runtime** | Raspberry Pi OS + Python Orchestrator | FastAPI + WebSockets | **~1.0 – 1.4 GB** | Coordinates audio pipeline, controls hardware peripherals, and maintains cloud synchronization. |
-| **Total Memory** | **Complete System Footprint** | — | **~2.2 – 2.8 GB** | Safely operates within the 4GB RAM threshold with zero OOM risk. |
+| **LLM** | **Qwen 2.5 (1.5B-Instruct)** | GGUF `Q4_K_M` | **~1.0 GB** | Native Arabic fluency, fast CPU inference (**8–10 tokens/sec**), and tool calling support via `llama.cpp` / `Ollama`. |
+| **STT** | **Whisper.cpp** | `base` / `small` (`Q5_0`) | **~150 – 250 MB** | On-device, low-latency speech transcription for Egyptian Arabic and English. |
+| **TTS** | **Piper TTS** | Arabic / English ONNX | **~65 MB** | Neural speech synthesis with **< 0.2s** latency on ARM Cortex-A72. |
+| **Runtime**| FastAPI + WebSockets | Python 3.12 Clean Architecture | **~1.0 – 1.4 GB** | Orchestrates audio loop, hardware peripherals, and Neon cloud synchronization. |
+| **Total** | **System Footprint** | — | **~2.2 – 2.8 GB** | Zero out-of-memory (OOM) risk on a 4GB Pi board. |
 
 ---
 
-## 🛠️ Mini CURA Hardware Architecture
+## 🧪 Deterministic Verification & Automated Tests
 
-The **Mini CURA** physical device is a compact desktop companion designed to run CURA's intelligence natively without bulky hardware overhead:
-
-> **Hardware Decision Note**: To maximize CPU cycles and RAM for voice interaction, local language processing, and real-time connectivity, the camera module has been excluded from the hardware build. Mini CURA connects via high-speed Wi-Fi to sync with companion apps and cloud databases.
-
+### 1. Pytest Backend Suite (24/24 Passing)
+Run against live Neon PostgreSQL and Cloudflare Workers AI client:
+```powershell
+cd backend
+$env:PYTHONPATH="D:\Cura\backend"
+python -m pytest tests -v
 ```
-       +-------------------------------------------------------+
-       |                  Mini CURA Enclosure                  |
-       |                                                       |
-       |  [ RGB LED Ring ] ---- Status Indication (Listening/  |
-       |                               Processing/Speaking/Err)|
-       |                                                       |
-       |  [ 4" LCD Display ] -- Timers, Tasks, Reminders, Date |
-       |                                                       |
-       |  [ Mic Array ] ------- Far-field Audio Input          |
-       |  [ Speaker ] --------- Piper TTS Voice Output         |
-       |  [ Push Button ] ----- Physical Emergency Trigger     |
-       |                                                       |
-       |  +-------------------------------------------------+  |
-       |  |          Raspberry Pi 4 Model B (4GB)           |  |
-       |  |  - Active Cooling Fan                           |  |
-       |  |  - SanDisk Extreme A2 MicroSD (32GB / 64GB)     |  |
-       |  |  - Wi-Fi 802.11ac (Internet & App Sync)         |  |
-       |  +-------------------------------------------------+  |
-       +-------------------------------------------------------+
 ```
-
-### Hardware Components:
-1. **Core Processing Unit**: Raspberry Pi 4 Model B (4GB RAM) with active cooling fan.
-2. **Storage**: High-speed SanDisk Extreme A2 MicroSD (32GB or 64GB) for rapid model loading.
-3. **Microphone**: USB / I2S Far-Field Microphone Array.
-4. **Speaker**: 3W / 5W Speaker Module for crystal-clear voice output.
-5. **Status LED Ring (FR-HW-006)**:
-   - 🔵 **Blue**: Listening (`Listening`)
-   - 🟢 **Green**: Reasoning / Processing (`Processing`)
-   - 🟡 **Yellow**: Speaking (`Speaking`)
-   - 🔴 **Red**: Alert / Emergency Mode (`Alert/Emergency`)
-6. **Display (FR-HW-007)**: 4-inch TFT LCD displaying real-time task status, medication cards, persistent clock, and timer countdowns.
-7. **Emergency Push Button (FR-HW-004)**: Physical button triggering instantaneous emergency alerts and GPS location broadcast.
-8. **Connectivity (FR-HW-008)**: Wi-Fi connection for synchronization with companion apps and caregiver dashboards.
-
----
-
-## 🎯 AI Team Requirements & Roadmap
-
-Based on the official AI engineering specifications (`DOC-20261014-WA0050.pdf`), deliverables are structured across 4 actionable milestones:
-
-```mermaid
-gantt
-    title CURA AI Engineering Roadmap
-    dateFormat  YYYY-MM-DD
-    section Milestone 1
-    Local Environment & 3-Model Voice Loop (Laptop) :done, m1, 2026-10-01, 10d
-    section Milestone 2
-    Tool Calling & Internet/API Integration :active, m2, after m1, 10d
-    section Milestone 3
-    FastAPI / WebSockets Server & Hardware State Sync :m3, after m2, 10d
-    section Milestone 4
-    Raspberry Pi 4 Deployment & Latency Tuning :m4, after m3, 14d
+tests/test_api.py::test_root_endpoint PASSED                             [  4%]
+tests/test_api.py::test_health_endpoint PASSED                           [  8%]
+tests/test_api.py::test_emergency_trigger_endpoint PASSED                [ 12%]
+tests/test_api.py::test_patient_summary_endpoint PASSED                  [ 16%]
+tests/test_api.py::test_voice_interact_text PASSED                       [ 20%]
+tests/test_clinical_tools.py::test_all_clinical_tools_registered PASSED  [ 25%]
+tests/test_clinical_tools.py::test_lookup_medications_neon PASSED        [ 29%]
+tests/test_clinical_tools.py::test_confirm_medication_dose_neon PASSED   [ 33%]
+tests/test_clinical_tools.py::test_lookup_family_memory_neon PASSED      [ 37%]
+tests/test_clinical_tools.py::test_lookup_item_location_neon PASSED      [ 41%]
+tests/test_clinical_tools.py::test_decompose_adhd_task_neon PASSED       [ 45%]
+tests/test_clinical_tools.py::test_get_adhd_tasks_neon PASSED            [ 50%]
+tests/test_clinical_tools.py::test_complete_adhd_task_neon PASSED        [ 54%]
+tests/test_clinical_tools.py::test_clinical_prompts_standards PASSED     [ 58%]
+tests/test_cloudflare_ai.py::test_cloudflare_llm_reasoning_extraction PASSED [ 62%]
+tests/test_cloudflare_ai.py::test_cloudflare_llm_mock_fallback_on_error PASSED [ 66%]
+tests/test_cloudflare_ai.py::test_cloudflare_whisper_transcription PASSED [ 70%]
+tests/test_cloudflare_ai.py::test_cloudflare_whisper_empty_audio_guard PASSED [ 75%]
+tests/test_cloudflare_ai.py::test_container_dependency_injection PASSED  [ 79%]
+tests/test_prompts.py::test_cognitive_modes_configured PASSED            [ 83%]
+tests/test_prompts.py::test_system_prompts_arabic PASSED                 [ 87%]
+tests/test_tool_router.py::test_tool_router_registration PASSED          [ 91%]
+tests/test_tool_router.py::test_weather_tool_execution PASSED            [ 95%]
+tests/test_tool_router.py::test_caregiver_summary_tool PASSED            [100%]
+======================= 24 passed in 45.26s =======================
 ```
 
-### Detailed Milestones:
-1. **Milestone 1 — Local Multi-Model Pipeline (Laptop Prototyping)**:
-   - Set up `Ollama` / `llama.cpp` with `Qwen 2.5 (1.5B-Instruct) GGUF Q4_K_M`.
-   - Integrate `Whisper.cpp` (`base`/`small` `Q5_0`) and `Piper TTS` (Arabic).
-   - Deliver a unified Python script capturing microphone audio, transcribing speech, generating LLM responses in Arabic, and outputting voice via speaker.
-2. **Milestone 2 — Tool Calling & External APIs**:
-   - Program Python tool functions for `duckduckgo-search` and `OpenWeatherMap`.
-   - Build patient log summarization functions (last 2 days history summarizer in Egyptian Arabic).
-   - Build intent verification functions for medication confirmation (*"أخدته خلاص"*) and task completion.
-3. **Milestone 3 — AI Local Service & Hardware Bridge**:
-   - Wrap the AI pipeline in a robust `FastAPI` / `WebSockets` service.
-   - Synchronize LLM states with the RGB LED Ring indicator and the 4-inch screen GUI.
-   - Implement real-time event listener for push notifications (medication reminders, task schedules).
-4. **Milestone 4 — Raspberry Pi 4 Deployment & Performance Optimization**:
-   - Flash and configure Raspberry Pi 4 OS on SanDisk Extreme A2 MicroSD.
-   - Benchmark end-to-end voice latency and verify system memory consumption remains between 2.2 GB and 2.8 GB.
-   - Stress-test Wi-Fi stability (`FR-HW-008`) and continuous thermal performance under active cooling.
+### 2. Next.js Production Build
+```powershell
+npm --prefix web-frontend run build
+```
+- **11/11 routes statically generated / server-rendered without TypeScript or ESLint errors**.
+- Instant chatbox input clearing on query submit verified across all cockpits.
+- Universal `<think>...</think>` regex extraction eliminating exposed reasoning tags.
 
 ---
 
 ## 🎨 Official Brand & Design System
 
-CURA's visual identity reflects clinical trust, modern focus, and calming empathy:
-
-| Role | Color Name | Preview | HEX | RGB | Recommended UI & Brand Usage |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| **Primary Brand** | Azure Electric Blue | `■` | `#16B9FE` | `22, 185, 254` | Primary actions, branding, core engine |
-| **Voice & Vitality** | Electric Cyan | `■` | `#60EFEB` | `96, 239, 235` | Waveforms, voice listening ring glow |
-| **Cognitive Focus** | Orchid Violet | `■` | `#AF6AFB` | `175, 106, 251` | ADHD Mode, timers, focus sprints |
-| **Empathy & Care** | Turquoise Mint | `■` | `#3FEDBA` | `63, 237, 186` | Alzheimer's Mode, health confirmations |
-| **Primary Typography** | Pure Studio White | `■` | `#FFFFFF` | `255, 255, 255` | Main titles, wordmark, clear text |
-| **Secondary Typography**| Glacier Slate | `■` | `#E8EDF1` | `232, 237, 241` | Subtitles, descriptions, metadata |
-| **Canvas Background** | Midnight Obsidian | `■` | `#131B26` | `19, 27, 38` | Main dark background canvas |
-| **Surface Card** | Deep Navy Slate | `■` | `#1A2433` | `26, 36, 51` | Cards, elevated dialogs, panels |
-
-### Signature Gradients:
-```css
-/* CURA Signature Flow */
-background: linear-gradient(135deg, #16B9FE 0%, #AF6AFB 50%, #3FEDBA 100%);
-
-/* Cognitive Focus (ADHD Mode) */
-background: linear-gradient(135deg, #16B9FE 0%, #AF6AFB 100%);
-
-/* Calming Care (Alzheimer's Mode) */
-background: linear-gradient(135deg, #16B9FE 0%, #3FEDBA 100%);
-```
+| Role | Color Name | Preview | HEX | UI Usage |
+| :--- | :--- | :---: | :---: | :--- |
+| **Primary Brand** | Azure Electric Blue | `■` | `#16B9FE` | Core branding, primary actions, logo accent |
+| **Voice & Vitality** | Electric Cyan | `■` | `#60EFEB` | Live waveforms, microphone active rings |
+| **Cognitive Focus** | Orchid Violet | `■` | `#AF6AFB` | ADHD mode, Pomodoro timers, sprint indicators |
+| **Empathy & Care** | Turquoise Mint | `■` | `#3FEDBA` | Alzheimer's mode, medical logs, safety checks |
+| **Primary Typography** | Pure Studio White | `■` | `#FFFFFF` | Headings, high-contrast text |
+| **Secondary Typography**| Glacier Slate | `■` | `#E8EDF1` | Metadata, timestamps, supporting copy |
+| **Canvas Background** | Midnight Obsidian | `■` | `#0C141F` | Deep dark UI canvas |
+| **Surface Card** | Deep Navy Slate | `■` | `#1A2433` | Glassmorphic floating cards and dialogs |
 
 ---
 
@@ -242,68 +277,62 @@ background: linear-gradient(135deg, #16B9FE 0%, #3FEDBA 100%);
 
 ```
 CURA/
-├── .gitignore                                 # Git ignore patterns for AI models, builds & OS files
-├── LICENSE                                    # MIT License
-├── README.md                                  # Complete project documentation & technical specs
-├── backend/                                   # AI Pipeline & Backend Services (Clean Architecture)
-├── desktop-gui/                               # Workstation GUI application (PyQt6 / MVVM)
-├── mobile-app/                                # iOS & Android Companion (Flutter / Clean Architecture)
-├── web-frontend/                              # Next.js 14+ Showcase & Clinical Web Portal
-├── hardware/                                  # Embedded Mini CURA Firmware & Hardware specs (Pi 4)
-├── database/                                  # PostgreSQL 16 schemas, migrations & RLS policies
-├── CURA_System_Architecture_Specification.pdf # Master Multi-Team Architecture & Engineering Blueprint (PDF)
-├── CURA_System_Architecture_Specification.html# Master Multi-Team Architecture & Engineering Blueprint (HTML Source)
-├── CURA project details.pdf                   # Master project overview & modes documentation
-├── SRS AID (1).pdf                            # Software Requirements Specification (IEEE 830-1998)
-├── DOC-20261014-WA0050.pdf                    # AI Team technical requirements & roadmap
-├── مش هنعمل كاميرة و هنشغل الهاردوير بالنت...pdf # Hardware decision & on-device AI pipeline specs
-├── Cura_Brand_Color_Palette.pdf               # Visual identity & brand design guide (PDF)
-├── Cura_Brand_Color_Palette.docx              # Visual identity & brand design guide (DOCX)
-├── cura_official_color_palette.md             # Design tokens & color system specifications
-├── Cura Logo.svg                              # Official vector master logo
-├── Cura Icon.svg                              # Official vector app/hardware icon
-├── Cura Favicon.svg                           # Official web favicon
-├── Cura Word.svg                              # Official wordmark vector
-├── Cura Word_without_ai_adaptive.svg          # Simplified wordmark vector
-└── cura_harmony_logo_1791226392255.jpg        # Master brand visual asset
+├── backend/                                   # Clean Architecture Python Backend
+│   ├── src/
+│   │   ├── core/                              # Pure Entities & Abstract Interfaces
+│   │   ├── use_cases/                         # Clinical Workflows & Interaction Engines
+│   │   ├── infrastructure/                    # Neon DB, Cloudflare AI, & Clinical Tools
+│   │   └── presentation/api/                  # FastAPI Routers & Health Endpoints
+│   ├── scripts/                               # Neon Database Clinical Data Seeder
+│   └── tests/                                 # 24 Automated Unit & Integration Tests
+├── web-frontend/                              # Next.js 14+ Showcase & Cockpit Portal
+│   ├── src/app/
+│   │   ├── api/chat/route.ts                  # Cloudflare AI + Live Web Search Gateway
+│   │   ├── testing/alzheimer/page.tsx         # Voice & Reassurance Sanctuary
+│   │   ├── testing/adhd/page.tsx              # Anti-Paralysis Executive Coach
+│   │   └── testing/normal/page.tsx            # Claude Fable Research Cockpit
+│   └── public/                                # Vector Assets & Brand Logos
+├── hardware/                                  # Mini CURA Pi 4 Specifications & Enclosure
+├── database/                                  # PostgreSQL 16 Schemas & Migration DDLs
+├── README.md                                  # Complete Technical Blueprint & Docs
+└── LICENSE                                    # MIT License
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Python 3.10+
-- `git`
-- `ffmpeg` & `portaudio19-dev` (for audio capture and playback)
-- `Ollama` or `llama.cpp`
-- Raspberry Pi 4 Model B (4GB RAM) with 64-bit Raspberry Pi OS (for hardware deployment)
-
-### Laptop Development Quickstart
+### 1. Web Portal Setup (Next.js)
 ```bash
-# Clone repository
-git clone https://github.com/killerfrost2004u/Cura.git
-cd Cura
+cd web-frontend
+npm install
+npm run dev
+# Open http://localhost:3000 in your browser
+```
 
-# Create Python virtual environment
+### 2. Backend Setup (FastAPI & Clean Architecture)
+```bash
+cd backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python -m pytest tests -v
+```
 
-# Install dependencies
-pip install fastapi uvicorn websockets duckduckgo-search requests sounddevice numpy
-
-# Pull Qwen 2.5 1.5B via Ollama
-ollama run qwen2.5:1.5b-instruct
+### 3. Database Seeding (Neon PostgreSQL)
+```bash
+cd backend
+$env:DATABASE_URL="your-neon-postgres-connection-string"
+python scripts/seed_clinical_data.py
 ```
 
 ---
 
 ## ⚠️ Important Disclaimer
 
-CURA is an assistive technology prototype designed for research and educational purposes.
-- **Not Medical Advice**: CURA does not diagnose, treat, prevent, or cure Alzheimer's disease, ADHD, or any medical condition.
-- **Not a Replacement for Professional Care**: The system does not replace certified healthcare professionals, caregivers, or emergency response services.
-- **No Safety Guarantee**: While CURA provides monitoring, reminders, and alerts, it cannot guarantee an accident-free or hazard-free environment.
+CURA is an assistive technology system engineered for research, productivity, and caregiver assistance.
+- **Not Clinical Diagnosis**: CURA does not diagnose, treat, or cure Alzheimer's disease, ADHD, or medical conditions.
+- **Support System**: CURA assists and supports licensed healthcare providers and family caregivers; it does not replace professional medical judgment or emergency response teams.
 
 ---
 
