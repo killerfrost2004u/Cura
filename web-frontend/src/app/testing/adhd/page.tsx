@@ -98,6 +98,8 @@ export default function AdhdFocusSanctuaryPage() {
     const text = textToSend || query;
     if (!text.trim()) return;
 
+    // Immediately clear query so the chatbox doesn't remain filled
+    setQuery("");
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
@@ -112,10 +114,16 @@ export default function AdhdFocusSanctuaryPage() {
       });
       const json = await res.json();
       if (json.success && json.data) {
-        setAiResponse(json.data.response_text);
+        const cleanResponse = json.data.response_text
+          ? json.data.response_text
+              .replace(/<think>[\s\S]*?<\/think>/gi, "")
+              .replace(/<\/?think>/gi, "")
+              .trim()
+          : "";
+        setAiResponse(cleanResponse);
         setReasoningTrace(json.data.reasoning_content || null);
         if (isFromMic) {
-          speakText(json.data.response_text);
+          speakText(cleanResponse);
         }
       }
     } catch {

@@ -124,12 +124,15 @@ class CloudflareWorkersAIClient(ILLMEngine):
         reasoning_content = ""
         clean_content = raw_text
 
-        # Extract explicit <think> block if present
-        think_match = re.search(r"<think>(.*?)</think>", raw_text, re.DOTALL)
-        if think_match:
-            reasoning_content = think_match.group(1).strip()
+        # Extract all explicit <think>...</think> blocks if present
+        think_blocks = re.findall(r"<think>(.*?)</think>", raw_text, flags=re.DOTALL)
+        if think_blocks:
+            reasoning_content = "\n\n---\n\n".join(b.strip() for b in think_blocks if b.strip())
             clean_content = re.sub(r"<think>.*?</think>", "", raw_text, flags=re.DOTALL).strip()
+            clean_content = re.sub(r"</?think>", "", clean_content).strip()
         else:
+            # Strip any stray unclosed tags
+            clean_content = re.sub(r"</?think>", "", raw_text).strip()
             # Check for implicit self-correction thinking traces
             if "Wait, that's not correct" in raw_text or "Let me correct myself" in raw_text:
                 parts = raw_text.split("The correct way", 1)

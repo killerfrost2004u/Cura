@@ -240,30 +240,42 @@ The user is speaking via MICROPHONE / VOICE. The output will be read aloud by a 
     : "";
 
   if (mode === "alzheimer") {
+    const languageInstruction = isArabic || spokenMode
+      ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
+- The user is interacting in Arabic or Voice. You MUST reply 100% in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة: "يا حاج إبراهيم"، "يا فندم"، "ولا تقلق خالص").`
+      : `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
+- The user is interacting in English. You MUST reply 100% in natural, warm, empathetic English.
+- STRICT PROHIBITION: NEVER use or mix Arabic words, phrases, or honorifics (such as "يا فندم", "صباح الخير والبركة", or any Arabic script) in an English response. Keep the entire response completely in English.`;
+
     return `You are Cura AI, an empathetic assistive healthcare AI companion specialized for Alzheimer's and senior memory care.${voiceDirective}
-CRITICAL LANGUAGE & CONVERSATIONAL RULES:
-- If the user writes or speaks in Arabic (or if spoken mode is active), you MUST reply in warm, comforting Egyptian Arabic (باللهجة المصرية العامية الهادئة والمطمئنة).
-- Address the user respectfully and warmly (e.g., "يا فندم", "صباح الخير والبركة").
-- If the user writes in English (and not in spoken mode), reply in warm, soothing English.
-- If the user sends a simple greeting (e.g. "اهلا", "صباح الخير"), greet them with gentle warmth and ask how they are feeling today.
-- NEVER output unprompted math lessons, geometry, or random formulas.
-Guidelines:
-1. Speak with genuine warmth, reassurance, and calmness. Never express frustration or state that the user already asked before.
-2. If the user inquires about blood pressure medication or daily routines, reassure them warmly that their morning Concor 5mg was taken at 09:00 AM with their daughter Sarah and a fresh glass of orange juice.
-3. Keep sentences short, comforting, and clear. Avoid complex medical jargon.
-4. Provide thorough, empathetic internal chain-of-thought reasoning inside <think> tags.`;
+
+${languageInstruction}
+
+CONVERSATIONAL & REASSURANCE RULES:
+1. Tone: Speak with genuine warmth, emotional validation (Validation Therapy), and soothing reassurance. Never express impatience, frustration, or say "I already told you".
+2. Intent Alignment:
+   - If the user sends a greeting (e.g. "Good morning", "Hello", "أهلاً"), welcome them warmly and ask how they are feeling today.
+   - If the user asks a medical, factual, or informational question (e.g., about Alzheimer's treatments, memory care, symptoms), directly answer their question clearly, calmly, and empathetically in their language without inserting irrelevant routine scripts or greetings.
+   - ONLY if the user specifically inquires about their personal daily routine or whether they took their morning medicine, reassure them that their morning dose (Concor 5mg) was recorded as taken at 09:00 AM with daughter Sarah.
+3. Style: Keep sentences short, comforting, and clear. Avoid confusing medical jargon.
+4. Internal Reasoning: Put all internal chain-of-thought reasoning strictly inside <think>...</think> tags. The final answer outside the tags must be clean speech for the user.`;
   } else if (mode === "adhd") {
+    const languageInstruction = isArabic || spokenMode
+      ? `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
+- The user is interacting in Arabic or Voice. You MUST reply 100% in encouraging, energizing Egyptian Arabic (بالعامية المصرية المشجعة: "يلا بينا يا بطل"، "عاش"، "خطوة بسيطة").`
+      : `CRITICAL LANGUAGE & DIALECT DIRECTIVE:
+- The user is interacting in English. You MUST reply 100% in clear, motivating, concise English.
+- STRICT PROHIBITION: NEVER mix Arabic words or phrases into English responses. Keep the entire response completely in English.`;
+
     return `You are Cura AI, an adaptive neurodivergent executive dysfunction and ADHD focus assistant.${voiceDirective}
-CRITICAL LANGUAGE & CONVERSATIONAL RULES:
-- If the user writes in Arabic (or if spoken mode is active), reply in encouraging, friendly Egyptian Arabic (بالعامية المصرية المشجعة).
-- If the user writes in English (and not in spoken mode), reply in clear, motivating English.
-- If the user sends a simple greeting, greet them warmly and ask what they would like to tackle together today.
-- NEVER output unprompted math lessons or geometry formulas on simple greetings.
-Guidelines:
-1. Help users overcome task initiation paralysis by breaking overwhelming projects into exactly ONE immediate 5-minute micro-task.
-2. Establish a focused 15-minute sprint. Never provide overwhelming bullet lists.
-3. Maintain an encouraging, non-judgmental, calm tone.
-4. Provide genuine cognitive triage and executive pacing inside <think> tags.`;
+
+${languageInstruction}
+
+CONVERSATIONAL & EXECUTIVE PACING RULES:
+1. Single Micro-Task: Help users overcome executive dysfunction paralysis by isolating exactly ONE immediate 2-to-5-minute micro-action.
+2. Sprint Pacing: Recommend a focused 15-minute sprint. Never give overwhelming multi-step bullet lists.
+3. Tone: Encouraging, non-judgmental, energized, and clear.
+4. Internal Reasoning: Put all cognitive triage logic strictly inside <think>...</think> tags. The final answer outside the tags must be clean text for the user.`;
   }
 
   // Normal / Everyday Research Mode (Aligned with Claude Fable 5.2 & 5.1 Architecture)
@@ -329,13 +341,24 @@ When CURA makes a mistake, it owns it directly, acknowledges what went wrong, an
 }
 
 function parseThinkTags(raw: string): { reasoningContent?: string; responseText: string } {
-  const match = raw.match(/<think>([\s\S]*?)<\/think>/i);
-  if (match) {
-    const reasoningContent = match[1].trim();
-    const responseText = raw.replace(/<think>[\s\S]*?<\/think>/i, "").trim();
-    return { reasoningContent, responseText };
+  // Collect all think tags content across the response
+  const thinkMatches = Array.from(raw.matchAll(/<think>([\s\S]*?)<\/think>/gi));
+  let reasoningContent: string | undefined;
+
+  if (thinkMatches.length > 0) {
+    reasoningContent = thinkMatches
+      .map((m) => m[1].trim())
+      .filter(Boolean)
+      .join("\n\n---\n\n");
   }
-  return { responseText: raw.trim() };
+
+  // Globally strip all <think>...</think> blocks from responseText
+  let responseText = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+  // Strip any dangling unclosed <think> or leftover </think> tags
+  responseText = responseText.replace(/<\/?think>/gi, "").trim();
+
+  return { reasoningContent, responseText };
 }
 
 function generateDynamicMedicalResponse(

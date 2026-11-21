@@ -84,6 +84,8 @@ export default function AlzheimerSanctuaryPage() {
     const text = textToSend || query;
     if (!text.trim()) return;
 
+    // Immediately clear query so the chatbox doesn't remain filled
+    setQuery("");
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
@@ -98,15 +100,22 @@ export default function AlzheimerSanctuaryPage() {
       });
       const json = await res.json();
       if (json.success && json.data) {
-        setAiResponse(json.data.response_text);
+        const cleanResponse = json.data.response_text
+          ? json.data.response_text
+              .replace(/<think>[\s\S]*?<\/think>/gi, "")
+              .replace(/<\/?think>/gi, "")
+              .trim()
+          : "";
+        setAiResponse(cleanResponse);
         setReasoningTrace(json.data.reasoning_content || null);
         if (isFromMic) {
-          speakText(json.data.response_text);
+          speakText(cleanResponse);
         }
       }
     } catch {
-      const fallback =
-        "صباح الخير! كل حاجة بخير ومتسجلة عندنا بالدقيقة. متقلقش خالص يا فندم، صحتك مستقرة وأنت بأمان في بيتك.";
+      const fallback = isArabicText(text)
+        ? "صباح الخير! كل حاجة بخير ومتسجلة عندنا بالدقيقة. متقلقش خالص يا فندم، صحتك مستقرة وأنت بأمان في بيتك."
+        : "Good morning! Everything is calm and well. Please don't worry, you are safe and your health is stable.";
       setAiResponse(fallback);
       if (isFromMic) {
         speakText(fallback);

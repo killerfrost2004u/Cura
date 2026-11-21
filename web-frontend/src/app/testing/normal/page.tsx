@@ -97,10 +97,16 @@ export default function NormalAssistantPage() {
       const json = await res.json();
       if (json.success && json.data) {
         const curaMsgId = String(Date.now() + 1);
+        const cleanText = json.data.response_text
+          ? json.data.response_text
+              .replace(/<think>[\s\S]*?<\/think>/gi, "")
+              .replace(/<\/?think>/gi, "")
+              .trim()
+          : "";
         const curaMsg: ChatMessage = {
           id: curaMsgId,
           sender: "cura",
-          text: json.data.response_text,
+          text: cleanText,
           reasoning: json.data.reasoning_content,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
@@ -108,7 +114,7 @@ export default function NormalAssistantPage() {
 
         // Only auto-speak if user explicitly requested voice (via mic) or enabled autoSpeak toggle
         if (isFromMic || autoSpeak) {
-          handleSpeakMessage(curaMsgId, json.data.response_text);
+          handleSpeakMessage(curaMsgId, cleanText);
         }
       }
     } catch {
