@@ -11,7 +11,8 @@
 [![Platform](https://img.shields.io/badge/Edge%20Hardware-Raspberry%20Pi%204%20(4GB)-c51a4a.svg?logo=raspberry-pi&logoColor=white)](https://www.raspberrypi.com/)
 [![Database](https://img.shields.io/badge/Database-Neon%20Serverless%20Postgres%2016-00E599.svg?logo=postgresql&logoColor=white)](https://neon.tech)
 [![Cloud AI](https://img.shields.io/badge/Cloud%20AI-Cloudflare%20Workers%20AI%20(Llama%203.3%2070B)-F38020.svg?logo=cloudflare&logoColor=white)](https://developers.cloudflare.com/workers-ai/)
-[![Prompt Standards](https://img.shields.io/badge/Prompt%20Architecture-Claude%20Fable%205.2%20%2F%205.1-6851ff.svg)](#-claude-fable-52--51-prompt-architecture)
+[![Prompt Standards](https://img.shields.io/badge/Prompt%20Architecture-Claude%20Fable%205.2%20%2F%205.1-6851ff.svg)](#-claude-fable-52--51-system-prompt-architecture)
+[![Architecture Docs](https://img.shields.io/badge/Architecture-Mermaid%20%2B%204K%20Blueprints-0d9488.svg)](docs/CURA_Architecture_Diagrams.md)
 [![Testing Suite](https://img.shields.io/badge/Unit%20Tests-24%2F24%20Passing%20(100%25)-brightgreen.svg)](#-deterministic-verification--automated-tests)
 
 </div>
@@ -26,7 +27,9 @@
 ## 📋 Table of Contents
 
 - [Overview & Vision](#-overview--vision)
+- [Complete Project Flowchart (Client & Stakeholder View)](#-complete-project-flowchart-client--stakeholder-view)
 - [Hybrid Architecture (Edge AI + Cloudflare GPU + Neon DB)](#-hybrid-architecture)
+- [CURA AI Model Pipeline](#-cura-ai-model-pipeline)
 - [Three Adaptive Cognitive Modes](#-three-adaptive-cognitive-modes)
   - [1. Normal Mode (Everyday Research & Clinical Reasoning)](#1-normal-mode-everyday-research--clinical-reasoning)
   - [2. Alzheimer's Mode (Validation Therapy & Memory Sanctuary)](#2-alzheimers-mode-validation-therapy--memory-sanctuary)
@@ -34,9 +37,9 @@
 - [Claude Fable 5.2 / 5.1 System Prompt Architecture](#-claude-fable-52--51-system-prompt-architecture)
 - [Production Neon PostgreSQL Database (13 Seeded Tables)](#-production-neon-postgresql-database)
 - [Ten Function-Calling Clinical & Search Tools](#-ten-function-calling-clinical--search-tools)
-- [Live Web Search Engine (DuckDuckGo GET + Instant Answers)](#-live-web-search-engine)
+- [Live Web Search Engine (5-Tier Multi-Engine Pipeline)](#-live-web-search-engine)
+- [Mini CURA Hardware & Clean Software Architecture](#-mini-cura-hardware--clean-software-architecture)
 - [Edge AI Pipeline (Raspberry Pi 4 - 4GB RAM)](#-edge-ai-pipeline-raspberry-pi-4---4gb-ram)
-- [Mini CURA Hardware Architecture](#-mini-cura-hardware-architecture)
 - [Deterministic Verification & Automated Tests](#-deterministic-verification--automated-tests)
 - [Official Brand & Design System](#-official-brand--design-system)
 - [Repository Structure](#-repository-structure)
@@ -48,58 +51,121 @@
 
 ## 🌟 Overview & Vision
 
-Standard voice assistants offer a rigid, one-size-fits-all experience that frequently fails users dealing with cognitive overload, memory degradation, or neurodivergent challenges. 
+Standard voice assistants offer a rigid, one-size-fits-all experience that frequently fails users dealing with cognitive overload, memory degradation, or neurodivergent challenges.
 
 **CURA** solves this through a modular, adaptive intelligence framework:
 1. **Context-Adaptive Specialization**: Switches dynamically between **Everyday Research & Clinical Reasoning**, **Alzheimer's Care**, and **ADHD Anti-Paralysis Focus**.
 2. **Hybrid Cloud + Edge Inference**:
-   - **Cloud Intelligence**: High-throughput **Cloudflare Workers AI (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`)** with sub-2s serverless GPU latency and native tool calling.
+   - **Cloud Intelligence**: High-throughput **Cloudflare Workers AI (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`)** with sub-2s serverless GPU latency, live web search, and native tool calling.
    - **Edge Hardware**: On-device privacy-first pipeline on **Raspberry Pi 4 Model B (4GB RAM)** running quantized GGUF models with zero external dependency.
 3. **Clinical Dataset Alignment**: Deeply fitted with validated behavioral and clinical datasets:
    - **ADRD-Bench & Validation Therapy** for Alzheimer's care.
    - **MIT Task-Breakdown & Scaffolding Corpus** for ADHD executive function.
    - **Claude Fable 5.2 & 5.1 Persona & Safety Standards** for everyday research.
 
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/assets/cura_ecosystem_icon.png" alt="CURA Connected Care Ecosystem" width="320" /><br />
+      <sub><strong>CURA Connected Care Ecosystem</strong><br />Web Portal, Flutter Mobile, Desktop MVVM &amp; Mini CURA Hub</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/assets/cura_ai_hub_icon.png" alt="Mini CURA Embedded AI Assistant" width="320" /><br />
+      <sub><strong>Mini CURA Embedded AI Hub</strong><br />Dedicated Bedside Companion on Raspberry Pi 4 (4GB)</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
+## 📊 Complete Project Flowchart (Client & Stakeholder View)
+
+Designed for clients, caregivers, clinicians, and product reviewers, this end-to-end flowchart illustrates how users connect across web, mobile, desktop, or physical Mini CURA hardware into adaptive AI care modes, cloud/edge synchronization, and real-time Emergency SOS escalation:
+
+<div align="center">
+  <a href="docs/CURA_Whole_Project_Client_Flowchart.png">
+    <img src="docs/CURA_Whole_Project_Client_Flowchart.png" alt="CURA Complete Project Flowchart" width="860" />
+  </a>
+</div>
+
+- **Multi-Surface Entry:** Unified experience across `Web Portal`, `Mobile App (Flutter)`, `Desktop Assistant`, and the `Mini CURA Hub` physical speaker & LCD unit.
+- **Care-Aware Adaptation:** Automatically routes interactions into `Alzheimer's Care Mode` (visual pill confirmation, memory book), `ADHD Focus Coach` (2-minute micro-steps & sprint timer), or `Everyday Smart Assistant`.
+- **Proactive Safety Branching:** Continuously evaluates emergency distress (`GPIO-17` hardware button, 1-tap mobile/UI trigger, or voice distress) to dispatch GPS telemetry and notify Priority 1 & 2 family/physician contacts.
+
 ---
 
 ## 🏗️ Hybrid Architecture
 
+CURA spans four coordinated architectural layers — connecting **Client Surfaces & Physical Hardware**, **API & WebSocket Transport**, **Dual Cloud / Edge AI Runtimes**, and **Neon PostgreSQL 16 + S3 + Edge SQLite**:
+
+<div align="center">
+  <a href="docs/CURA_System_Architecture_Diagram.png">
+    <img src="docs/CURA_System_Architecture_Diagram.png" alt="CURA Hybrid Cloud and Edge System Architecture" width="980" />
+  </a>
+</div>
+
+> Editable Mermaid blueprints for all subsystems (System Topology, Clean Architecture Dependency Inversion, End-to-End STS Sequence, Hardware FSM, and SOS/Offline Sync) are maintained in [`docs/CURA_Architecture_Diagrams.md`](docs/CURA_Architecture_Diagrams.md).
+
+<details>
+<summary>View Editable Mermaid System Diagram</summary>
+
 ```mermaid
 graph TD
     User([User Voice or Text Interaction]) --> Gateway{Client Surface}
-    
+
     Gateway -->|Web Application| NextApp[Next.js 14 Web Portal / Cockpit]
+    Gateway -->|Mobile / Desktop| ClientApps[Flutter Mobile &amp; Desktop MVVM]
     Gateway -->|Local Hardware| PiDevice[Mini CURA Hardware - Pi 4]
-    
+
     subgraph "Cloud Intelligence Layer (Vercel + Cloudflare + Neon)"
-        NextApp --> ChatAPI["/api/chat (Serverless Route)"]
-        ChatAPI --> LiveSearch[Live Web Search Engine - DuckDuckGo GET]
+        NextApp --> ChatAPI["/api/chat, /api/transcribe, /api/tts"]
+        ClientApps --> FastAPICloud["FastAPI /api/v1 &amp; WebSocket Hub"]
+        ChatAPI --> LiveSearch[5-Tier Search: Serper / Tavily / News / Wiki / DDG]
         ChatAPI --> CloudflareAI[Cloudflare Workers AI - Llama 3.3 70B FP8-Fast]
-        ChatAPI --> NeonDB[(Neon Serverless PostgreSQL 16)]
+        ChatAPI --> NeonDB[(Neon Serverless PostgreSQL 16 + S3)]
     end
-    
+
     subgraph "Edge Intelligence Layer (Raspberry Pi 4 - 4GB RAM)"
         PiDevice --> WhisperCPP[Whisper.cpp STT Local Q5_0]
         WhisperCPP --> FastAPIServer[FastAPI Local Orchestrator]
         FastAPIServer --> LocalQwen[Qwen 2.5 1.5B-Instruct GGUF Q4_K_M]
         FastAPIServer --> ToolRouter[Clean Architecture Tool Router]
-        ToolRouter --> NeonDB
+        ToolRouter --> EdgeSQLite[(Edge SQLite Cache)]
+        EdgeSQLite <-->|sync_batches| NeonDB
         FastAPIServer --> PiperTTS[Piper Neural TTS - Arabic / English]
-        PiperTTS --> Speaker[3W/5W Speaker Module]
+        PiperTTS --> Speaker[3W 4-Ohm Speaker Module]
     end
-    
+
     LiveSearch --> ChatAPI
     CloudflareAI --> ChatAPI
 ```
 
+</details>
+
 ---
 
-## 🧠 Three Adaptive Cognitive Modes
+## 🧠 CURA AI Model Pipeline
+
+The end-to-end cognitive processing pipeline from voice capture (`STT`) and mode routing through hybrid reasoning, internal `<think>` sanitization, 5-tier live knowledge injection, 10 clinical tools, and natural Egyptian Arabic / English neural voice synthesis (`TTS / STS`):
+
+<div align="center">
+  <a href="docs/CURA_AI_Model_Flowchart.png">
+    <img src="docs/CURA_AI_Model_Flowchart.png" alt="CURA AI Model Flowchart" width="860" />
+  </a>
+</div>
+
+---
+
+## 🎯 Three Adaptive Cognitive Modes
 
 ### 1. Normal Mode (Everyday Research & Clinical Reasoning)
 - **Claude Fable 5.2 & 5.1 Alignment**: Governed by Bottom-Line-Up-Front (BLUF) formatting for knowledge work and warm, concise prose for casual interaction.
-- **Live Web Search**: Automatically queries real-time web sources for breaking news, stock prices, clinical papers, and market data without claiming to be offline.
-- **Authentic Dialect Mirroring**: Speaks fluent, respectable Egyptian Arabic (*"العامية المصرية الحقيقية"*) when addressed in Arabic, and articulate English when addressed in English.
+- **Live Web Search**: Automatically queries real-time Serper Google Search, Tavily, Google News RSS, and Wikipedia for breaking news, stock prices, clinical papers, and market data without claiming to be offline.
+- **Authentic Dialect Mirroring**: Speaks fluent, respectable Egyptian Arabic (*"العامية المصرية الحقيقية"*) when addressed in Arabic, and 100% pure articulate English when addressed in English (strictly preventing Arabic honorific leakage into English replies).
 - **Strict Intent Grounding**: Simple greetings receive warm welcomes and assistance check-ins; absolute prohibition against unsolicited math lessons or geometry formulas.
 - **Live Cockpit**: Available at [`/testing/normal`](https://cura-drab.vercel.app/testing/normal).
 
@@ -175,7 +241,7 @@ Registered in [backend/src/infrastructure/tools/](backend/src/infrastructure/too
   • lookup_item_location
 ```
 
-1. **`search_web`**: Multi-engine live search (DuckDuckGo GET + Instant Answers) for real-time market data, stocks, news, and research.
+1. **`search_web`**: 5-tier live search pipeline (`Tavily` → `Serper Google Search` → `Google News RSS` → `Wikipedia API` → `DuckDuckGo`) for real-time market data, stocks, news, and research.
 2. **`get_current_weather`**: Meteorological data for any city.
 3. **`lookup_medications`**: Fetches daily medication schedules and visual pill descriptions.
 4. **`confirm_medication_dose`**: Marks patient doses as taken in `medication_logs`.
@@ -190,10 +256,27 @@ Registered in [backend/src/infrastructure/tools/](backend/src/infrastructure/too
 
 ## 🌐 Live Web Search Engine
 
-The web search subsystem in [web_search_tool.py](backend/src/infrastructure/tools/web_search_tool.py) and [route.ts](web-frontend/src/app/api/chat/route.ts) utilizes a robust dual-layer mechanism:
-- **Primary Scraper**: HTTP `GET` requests against `https://html.duckduckgo.com/html/?q=${q}` using real browser headers and regex snippet extraction (`class="result__snippet"`), yielding **HTTP 200** with 4+ fresh snippets per query.
-- **Secondary Fallback**: DuckDuckGo Instant Answer API (`https://api.duckduckgo.com/`).
-- **Prompt Grounding**: Injected search snippets include explicit instructions preventing the LLM from falsely asserting that it is offline or lacks internet access.
+The web search subsystem in [web_search_tool.py](backend/src/infrastructure/tools/web_search_tool.py) and [route.ts](web-frontend/src/app/api/chat/route.ts) uses a **5-Tier Resilient Search Pipeline** engineered to prevent datacenter IP blocks on Vercel / AWS:
+- **Tier 1 — Tavily AI Search**: High-signal AI search synthesis via `https://api.tavily.com/search` (`TAVILY_API_KEY`).
+- **Tier 2 — Serper Google Search**: Real-time localized Google Search results (`gl=eg`/`us`, `hl=ar`/`en`) via `https://google.serper.dev/search` (`SERPER_API_KEY`).
+- **Tier 3 — Google News RSS Feed**: Zero-auth, unblockable real-time headlines, financial updates, and regional news from `https://news.google.com/rss/search`.
+- **Tier 4 — Wikipedia API**: Instant structured knowledge from `ar.wikipedia.org` and `en.wikipedia.org`.
+- **Tier 5 — DuckDuckGo Engine**: `ddgs` / HTML snippet extraction & Instant Answer API fallback, paired with strict prompt grounding that prevents false offline refusals.
+
+---
+
+## 🤖 Mini CURA Hardware & Clean Software Architecture
+
+CURA enforces **Dependency Inversion (DIP)** in the backend (`core/entities` → `use_cases` → `core/interfaces` → `infrastructure` / `presentation`) paired with dedicated embedded engineering for the **Mini CURA (Raspberry Pi 4 — 4GB)** bedside device:
+
+<div align="center">
+  <a href="docs/CURA_Clean_Hardware_Architecture.png">
+    <img src="docs/CURA_Clean_Hardware_Architecture.png" alt="CURA Clean Software Architecture and Mini CURA Hardware Blueprint" width="980" />
+  </a>
+</div>
+
+- **Hardware Peripherals (`hardware/README.md`)**: Far-field USB/I2S Mic Array, `MAX98357A` I2S 3W 4Ω Speaker Amp, `16x WS2812B` RGB LED Ring (Blue/Green/Yellow/Red), `4.0"` TFT LCD Screen, and industrial **GPIO-17 Physical SOS Push Button** (`250ms` interrupt debounce). Camera hardware is excluded so 100% of CPU and RAM serve speech and local LLM tasks.
+- **Deterministic Finite State Machine**: `Boot` → `Idle` → `Listen` → `Process` → `Speak` → `SOS` orchestrated by `hardware/firmware/daemon.py`.
 
 ---
 
@@ -287,13 +370,28 @@ CURA/
 │   └── tests/                                 # 24 Automated Unit & Integration Tests
 ├── web-frontend/                              # Next.js 14+ Showcase & Cockpit Portal
 │   ├── src/app/
-│   │   ├── api/chat/route.ts                  # Cloudflare AI + Live Web Search Gateway
+│   │   ├── api/chat/route.ts                  # Cloudflare AI + 5-Tier Search Gateway
+│   │   ├── api/transcribe/route.ts            # Whisper Large v3 Turbo STT Endpoint
+│   │   ├── api/tts/route.ts                   # ElevenLabs & Edge Neural TTS Endpoint
 │   │   ├── testing/alzheimer/page.tsx         # Voice & Reassurance Sanctuary
 │   │   ├── testing/adhd/page.tsx              # Anti-Paralysis Executive Coach
 │   │   └── testing/normal/page.tsx            # Claude Fable Research Cockpit
 │   └── public/                                # Vector Assets & Brand Logos
-├── hardware/                                  # Mini CURA Pi 4 Specifications & Enclosure
-├── database/                                  # PostgreSQL 16 Schemas & Migration DDLs
+├── mobile-app/                                # Flutter Clean Architecture App Scaffold
+├── desktop-gui/                               # MVVM Desktop Companion Specification
+├── hardware/                                  # Mini CURA Pi 4 Specifications & Firmware
+├── database/                                  # PostgreSQL 16 Schemas & ERD Diagrams
+├── docs/                                      # High-Resolution Flowcharts & Architecture Docs
+│   ├── assets/
+│   │   ├── cura_ai_hub_icon.png               # Mini CURA AI Hub Flat-Vector Illustration
+│   │   └── cura_ecosystem_icon.png            # Connected Care Ecosystem Vector Illustration
+│   ├── CURA_Whole_Project_Client_Flowchart.png
+│   ├── CURA_AI_Model_Flowchart.png
+│   ├── CURA_System_Architecture_Diagram.png
+│   ├── CURA_Clean_Hardware_Architecture.png
+│   ├── CURA_Architecture_Diagrams.md          # Complete Mermaid Blueprints & Index
+│   ├── generate_cura_ai_flowchart.py          # AI Flowchart Supersampled Renderer
+│   └── generate_cura_project_diagrams.py      # Project & Architecture Diagram Generator
 ├── README.md                                  # Complete Technical Blueprint & Docs
 └── LICENSE                                    # MIT License
 ```
@@ -324,6 +422,13 @@ python -m pytest tests -v
 cd backend
 $env:DATABASE_URL="your-neon-postgres-connection-string"
 python scripts/seed_clinical_data.py
+```
+
+### 4. Regenerating Visual Diagrams
+```bash
+pip install pillow numpy
+python docs/generate_cura_ai_flowchart.py
+python docs/generate_cura_project_diagrams.py
 ```
 
 ---
